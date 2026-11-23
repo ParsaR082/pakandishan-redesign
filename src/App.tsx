@@ -89,7 +89,11 @@ export default function App() {
   useEffect(() => {
     if (reducedMotion) return;
 
-    const enforcePostHeroLock = () => {
+    let lockTicking = false;
+    let rafId = 0;
+
+    const checkLock = () => {
+      lockTicking = false;
       const heroTrigger = ScrollTrigger.getById('hero-video-scrub');
       if (!heroTrigger) return;
       if (window.scrollY >= heroTrigger.end - 2) {
@@ -98,8 +102,18 @@ export default function App() {
       }
     };
 
+    const enforcePostHeroLock = () => {
+      if (!lockTicking) {
+        lockTicking = true;
+        rafId = requestAnimationFrame(checkLock);
+      }
+    };
+
     window.addEventListener('scroll', enforcePostHeroLock, { passive: true });
-    return () => window.removeEventListener('scroll', enforcePostHeroLock);
+    return () => {
+      if (rafId) cancelAnimationFrame(rafId);
+      window.removeEventListener('scroll', enforcePostHeroLock);
+    };
   }, [reducedMotion]);
 
   // Global scroll-reveal choreography with cinematic entrance and exit

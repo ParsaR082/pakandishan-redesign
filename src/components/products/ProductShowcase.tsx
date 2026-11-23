@@ -38,7 +38,7 @@ export function ProductShowcase({ onSelectProduct }: ProductShowcaseProps) {
           {FEATURED_PRODUCTS.map((product, index) => (
             <article
               key={product.id}
-              className="reveal-card group relative rounded-lg glass-surface overflow-hidden flex flex-col justify-between transition-all duration-300 hover:border-[#c5a46d]/65 hover:-translate-y-1.5"
+              className="reveal-card group relative rounded-lg glass-surface overflow-hidden flex flex-col justify-between transition-[transform,border-color,box-shadow] duration-300 hover:border-[#c5a46d]/65 hover:-translate-y-1.5"
             >
               {/* Product Image Stage */}
               <div className="relative aspect-[4/3] w-full overflow-hidden bg-black/50">

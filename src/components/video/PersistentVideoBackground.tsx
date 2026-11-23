@@ -49,6 +49,50 @@ export const PersistentVideoBackground = forwardRef<
     reducedMotion ? TOTAL_VIDEO_FRAMES - 1 : 0
   );
   const rafIdRef = useRef<number>(0);
+  const dimensionsRef = useRef<{
+    targetW: number;
+    targetH: number;
+    cW: number;
+    cH: number;
+    windowWidth: number;
+  }>({
+    targetW: 0,
+    targetH: 0,
+    cW: 0,
+    cH: 0,
+    windowWidth: 0,
+  });
+  const lastDrawnFrameRef = useRef<number>(-1);
+
+  const updateDimensions = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const dpr = Math.min(
+      typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1,
+      2
+    );
+    const rect = canvas.getBoundingClientRect();
+    const targetW = Math.round(
+      (rect.width || (typeof window !== 'undefined' ? window.innerWidth : 1280)) * dpr
+    );
+    const targetH = Math.round(
+      (rect.height || (typeof window !== 'undefined' ? window.innerHeight : 720)) * dpr
+    );
+
+    if (canvas.width !== targetW || canvas.height !== targetH) {
+      canvas.width = targetW;
+      canvas.height = targetH;
+    }
+
+    dimensionsRef.current = {
+      targetW,
+      targetH,
+      cW: targetW,
+      cH: targetH,
+      windowWidth: typeof window !== 'undefined' ? window.innerWidth : 1280,
+    };
+  }, []);
 
   const drawFrame = useCallback((frameFloat: number) => {
     const canvas = canvasRef.current;
@@ -91,22 +135,15 @@ export const PersistentVideoBackground = forwardRef<
       return;
     }
 
-    // High-DPI canvas scaling
-    const dpr = Math.min(
-      typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1,
-      2
-    );
-    const rect = canvas.getBoundingClientRect();
-    const targetW = Math.round(rect.width * dpr);
-    const targetH = Math.round(rect.height * dpr);
-
-    if (canvas.width !== targetW || canvas.height !== targetH) {
-      canvas.width = targetW;
-      canvas.height = targetH;
+    // High-DPI canvas scaling from cached dimensions (zero forced layout thrashing)
+    let dims = dimensionsRef.current;
+    if (dims.cW === 0 || dims.cH === 0) {
+      updateDimensions();
+      dims = dimensionsRef.current;
     }
 
-    const cW = canvas.width;
-    const cH = canvas.height;
+    const cW = dims.cW || canvas.width || 1280;
+    const cH = dims.cH || canvas.height || 720;
     const imgW = bestImg.naturalWidth || 1280;
     const imgH = bestImg.naturalHeight || 720;
 
@@ -118,16 +155,14 @@ export const PersistentVideoBackground = forwardRef<
     // Responsive focal positioning
     let focalX = 0.5;
     let focalY = 0.5;
-    if (typeof window !== 'undefined') {
-      const focalStr = computeVideoFocalPosition(
-        progressRef.current,
-        window.innerWidth
-      );
-      const parts = focalStr.split(' ');
-      if (parts.length === 2) {
-        focalX = parseFloat(parts[0]) / 100;
-        focalY = parseFloat(parts[1]) / 100;
-      }
+    const focalStr = computeVideoFocalPosition(
+      progressRef.current,
+      dims.windowWidth
+    );
+    const parts = focalStr.split(' ');
+    if (parts.length === 2) {
+      focalX = parseFloat(parts[0]) / 100;
+      focalY = parseFloat(parts[1]) / 100;
     }
 
     const offsetX = (cW - renderW) * focalX;
@@ -135,14 +170,18 @@ export const PersistentVideoBackground = forwardRef<
 
     ctx.drawImage(bestImg, offsetX, offsetY, renderW, renderH);
 
-    if (wrapperRef.current) {
-      const approxSeconds = (targetIdx / TOTAL_VIDEO_FRAMES) * 10.03;
-      wrapperRef.current.dataset.currentTime = approxSeconds.toFixed(3);
-      wrapperRef.current.dataset.frame = String(targetIdx);
-      wrapperRef.current.dataset.settled =
-        progressRef.current >= 0.98 ? 'true' : 'false';
+    // Only mutate DOM dataset attributes if frame has advanced to avoid DOM churn
+    if (lastDrawnFrameRef.current !== targetIdx) {
+      lastDrawnFrameRef.current = targetIdx;
+      if (wrapperRef.current) {
+        const approxSeconds = (targetIdx / TOTAL_VIDEO_FRAMES) * 10.03;
+        wrapperRef.current.dataset.currentTime = approxSeconds.toFixed(3);
+        wrapperRef.current.dataset.frame = String(targetIdx);
+        wrapperRef.current.dataset.settled =
+          progressRef.current >= 0.98 ? 'true' : 'false';
+      }
     }
-  }, []);
+  }, [updateDimensions]);
 
   const stopScrubLoop = () => {
     if (rafIdRef.current) {
@@ -237,6 +276,7 @@ export const PersistentVideoBackground = forwardRef<
         if (isCancelled) return;
         isReadyRef.current = true;
         setIsReady(true);
+        updateDimensions();
         drawFrame(initialFrame);
 
         if (wrapperRef.current) {
@@ -299,6 +339,7 @@ export const PersistentVideoBackground = forwardRef<
       });
 
     const handleResize = () => {
+      updateDimensions();
       drawFrame(displayedFrameRef.current);
     };
 
@@ -309,7 +350,7 @@ export const PersistentVideoBackground = forwardRef<
       stopScrubLoop();
       window.removeEventListener('resize', handleResize);
     };
-  }, [reducedMotion, drawFrame]);
+  }, [reducedMotion, drawFrame, updateDimensions]);
 
   return (
     <div

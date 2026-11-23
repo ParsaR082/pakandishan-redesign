@@ -149,22 +149,19 @@
   );
 }
 
-/* Furnace Ember Glow (هاله تنفسی حرارت کوره صنعتی) */
+/* Furnace Ember Glow (هاله تنفسی حرارت کوره صنعتی - کامپوزیت خالص بدون سربار فیلتر متحرک) */
 @keyframes furnace-ember-breath {
   0% {
     opacity: 0.35;
     transform: scale(0.95);
-    filter: blur(14px);
   }
   50% {
     opacity: 0.82;
     transform: scale(1.05);
-    filter: blur(20px);
   }
   100% {
     opacity: 0.35;
     transform: scale(0.95);
-    filter: blur(14px);
   }
 }
 
@@ -182,9 +179,10 @@
   border-radius: 9999px;
   pointer-events: none;
   z-index: 0;
+  filter: blur(16px);
   animation: furnace-ember-breath 4.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  will-change: transform, opacity, filter;
-  transition: opacity 300ms ease, transform 300ms ease, filter 300ms ease;
+  will-change: transform, opacity;
+  transition: opacity 300ms ease, transform 300ms ease;
 }
 
 .furnace-brand-text {

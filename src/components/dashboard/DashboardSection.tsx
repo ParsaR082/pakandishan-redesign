@@ -177,7 +177,7 @@ export function DashboardSection() {
                     </div>
                     <div className="h-2 w-full rounded-full bg-white/8 overflow-hidden">
                       <div
-                        className="h-full rounded-full bg-gradient-to-l from-[#e4c995] to-[#80643c] transition-all duration-500"
+                        className="h-full rounded-full bg-gradient-to-l from-[#e4c995] to-[#80643c] transition-[width] duration-500"
                         style={{ width: `${Math.min(100, profile.energySavedPercent * 3.5)}%` }}
                       />
                     </div>

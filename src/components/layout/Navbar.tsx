@@ -19,10 +19,13 @@ export function Navbar({
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
+    let lastVisible = false;
     const onScroll = () => {
-      // Navbar remains gracefully hidden at the top for the opening cinematic presentation,
-      // and slides down gently once intentional scrolling begins (> 90px).
-      setIsVisible(window.scrollY > 90);
+      const shouldBeVisible = window.scrollY > 90;
+      if (shouldBeVisible !== lastVisible) {
+        lastVisible = shouldBeVisible;
+        setIsVisible(shouldBeVisible);
+      }
     };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
@@ -101,7 +104,7 @@ export function Navbar({
                 {item.label}
                 <span
                   aria-hidden="true"
-                  className={`absolute bottom-0 right-0 h-[1.5px] bg-[#c5a46d] transition-all duration-200 ${
+                  className={`absolute bottom-0 right-0 h-[1.5px] bg-[#c5a46d] transition-[width,opacity] duration-200 ${
                     isActive ? 'w-full opacity-100' : 'w-0 opacity-0'
                   }`}
                 />

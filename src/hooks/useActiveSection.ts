@@ -6,7 +6,11 @@ export function useActiveSection(sectionIds: string[]): string {
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    const handleScroll = () => {
+    let ticking = false;
+    let rafId = 0;
+
+    const evaluateActiveSection = () => {
+      ticking = false;
       const scrollMarker = window.scrollY + window.innerHeight * 0.32;
       let current = sectionIds[0] ?? 'hero';
 
@@ -18,12 +22,26 @@ export function useActiveSection(sectionIds: string[]): string {
           current = id;
         }
       }
-      setActiveId(current);
+
+      setActiveId((prev) => (prev === current ? prev : current));
     };
 
-    handleScroll();
+    const handleScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        rafId = requestAnimationFrame(evaluateActiveSection);
+      }
+    };
+
+    evaluateActiveSection();
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleScroll, { passive: true });
+
+    return () => {
+      if (rafId) cancelAnimationFrame(rafId);
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
   }, [sectionIds]);
 
   return activeId;

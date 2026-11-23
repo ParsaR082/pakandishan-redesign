@@ -66,7 +66,7 @@ export function TechnologySection() {
               return (
                 <article
                   key={pillar.number}
-                  className="reveal-card group surface-panel rounded-lg p-6 sm:p-7 flex flex-col justify-between gap-6 transition-all duration-300 hover:border-[#c5a46d]/55 hover:-translate-y-1"
+                  className="reveal-card group surface-panel rounded-lg p-6 sm:p-7 flex flex-col justify-between gap-6 transition-[transform,border-color,box-shadow] duration-300 hover:border-[#c5a46d]/55 hover:-translate-y-1"
                 >
                   <div className="flex items-center justify-between gap-4">
                     <span className="font-mono-tech text-2xl font-semibold text-[#c5a46d]/85 group-hover:text-[#e4c995] transition-colors">
@@ -80,7 +80,7 @@ export function TechnologySection() {
                   <div>
                     <div
                       aria-hidden="true"
-                      className="w-10 h-px bg-[#c5a46d]/40 mb-4 group-hover:w-16 transition-all duration-300"
+                      className="w-10 h-px bg-[#c5a46d]/40 mb-4 group-hover:w-16 transition-[width] duration-300"
                     />
                     <h3 className="text-lg font-semibold text-[#f4f0e8] mb-2.5">
                       {pillar.title}
