@@ -336,10 +336,10 @@ export const PersistentVideoBackground = forwardRef<
         />
       )}
 
-      {/* Subtle ambient depth veil that gently eases in once scrolling past the hero so glass sections stay crisp */}
+      {/* Frosted glass blur veil that seamlessly eases in past the hero, creating an ultra-luxurious dark frosted glass background */}
       <div
         ref={veilRef}
-        className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(6,6,6,0.12)_0%,rgba(6,6,6,0.48)_72%,rgba(6,6,6,0.62)_100%)] transition-opacity duration-500"
+        className="absolute inset-0 backdrop-blur-[18px] bg-[#060606]/60 bg-[radial-gradient(ellipse_at_top_right,rgba(197,164,109,0.1)_0%,transparent_55%),radial-gradient(circle_at_30%_50%,rgba(6,6,6,0.3)_0%,rgba(6,6,6,0.75)_70%,rgba(6,6,6,0.92)_100%)] transition-opacity duration-700 pointer-events-none"
         style={{ opacity: reducedMotion ? 1 : 0 }}
       />
 

@@ -27,7 +27,7 @@ export function DashboardSection() {
     >
       <div className="mx-auto max-w-[1440px] px-4 sm:px-8">
         {/* Section Header + Illustrative Profile Switcher */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-12">
+        <div className="reveal-section flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-12">
           <div className="max-w-2xl">
             <p className="text-xs font-medium text-[#c5a46d] mb-3">
               پایش مهندسی فرآیند · داده‌های نمایشی نمونه
@@ -74,9 +74,9 @@ export function DashboardSection() {
         </div>
 
         {/* Main 12-Column Grid: Machine Render on Right (RTL start), Technical Panels on Left */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+        <div className="reveal-stagger-grid grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
           {/* Right Column (RTL first): Studio Industrial Rotary Oven Showcase + Status Panel */}
-          <div className="lg:col-span-5 flex flex-col gap-6">
+          <div className="reveal-card lg:col-span-5 flex flex-col gap-6">
             <div className="surface-panel rounded-lg overflow-hidden flex-1 flex flex-col">
               <div className="px-5 py-4 border-b border-[#c5a46d]/14 flex items-center justify-between gap-2">
                 <span className="text-sm font-semibold text-[#f4f0e8]">
@@ -128,7 +128,7 @@ export function DashboardSection() {
           </div>
 
           {/* Left Column (RTL second): Gauges, Energy Monitor, and Production Chart */}
-          <div className="lg:col-span-7 flex flex-col gap-6">
+          <div className="reveal-card lg:col-span-7 flex flex-col gap-6">
             {/* Top Row: Temperature Gauge + Efficiency Gauge + Energy Card */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
               <Gauge

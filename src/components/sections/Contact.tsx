@@ -143,7 +143,7 @@ export function ContactSection({ preselectedMachine = '' }: ContactSectionProps)
           </div>
 
           {/* Left Column (RTL second): Integration-Ready Validated Consultation Form */}
-          <div className="lg:col-span-7">
+          <div className="reveal-section lg:col-span-7">
             <div className="glass-surface-strong rounded-lg p-6 sm:p-8">
               <h3
                 id="consultation-form-title"

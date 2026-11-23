@@ -16,11 +16,13 @@ export function Navbar({
   onOpenMobileMenu,
   mobileMenuOpen,
 }: NavbarProps) {
-  const [scrolled, setScrolled] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     const onScroll = () => {
-      setScrolled(window.scrollY > 36);
+      // Navbar is hidden at the top for an unobstructed cinematic opening,
+      // and slides down into view with a smooth ease-out as the user starts scrolling.
+      setIsVisible(window.scrollY > 40);
     };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
@@ -29,13 +31,15 @@ export function Navbar({
 
   return (
     <header
-      className="fixed top-0 inset-x-0 z-50 px-3 sm:px-6 pt-3 pointer-events-none"
+      className={`fixed top-0 inset-x-0 z-50 px-3 sm:px-6 pt-3 pointer-events-none transition-[transform,opacity] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        isVisible
+          ? 'translate-y-0 opacity-100'
+          : '-translate-y-[120%] opacity-0'
+      }`}
       role="banner"
     >
       <div
-        className={`pointer-events-auto mx-auto max-w-[1440px] h-[68px] md:h-[76px] px-4 sm:px-8 flex items-center justify-between gap-6 lg:gap-8 rounded-lg transition-all duration-300 ${
-          scrolled ? 'glass-nav-scrolled' : 'glass-nav'
-        }`}
+        className="pointer-events-auto mx-auto max-w-[1440px] h-[68px] md:h-[76px] px-4 sm:px-8 flex items-center justify-between gap-6 lg:gap-8 rounded-lg glass-nav-scrolled shadow-[0_12px_36px_rgba(0,0,0,0.65)]"
       >
         {/* Right Zone (RTL start): Brand mark + single-line company wordmark */}
         <a

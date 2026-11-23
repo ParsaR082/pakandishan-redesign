@@ -102,42 +102,60 @@ export default function App() {
     return () => window.removeEventListener('scroll', enforcePostHeroLock);
   }, [reducedMotion]);
 
-  // Global scroll-reveal choreography (compositor transform only; zero-latency content availability)
+  // Global scroll-reveal choreography with cinematic entrance and exit
   useEffect(() => {
     if (reducedMotion || !appRef.current) return;
 
     const ctx = gsap.context(() => {
       gsap.utils.toArray<HTMLElement>('.reveal-section').forEach((el) => {
-        gsap.from(el, {
-          y: 18,
-          duration: 0.65,
-          ease: 'power2.out',
-          immediateRender: false,
-          clearProps: 'transform',
-          scrollTrigger: {
-            trigger: el,
-            start: 'top 92%',
-            once: true,
+        gsap.fromTo(
+          el,
+          {
+            opacity: 0,
+            y: 28,
+            scale: 0.985,
           },
-        });
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 0.7,
+            ease: 'power3.out',
+            scrollTrigger: {
+              trigger: el,
+              start: 'top 88%',
+              end: 'bottom 12%',
+              toggleActions: 'play reverse play reverse',
+            },
+          }
+        );
       });
 
       gsap.utils.toArray<HTMLElement>('.reveal-stagger-grid').forEach((grid) => {
         const cards = grid.querySelectorAll<HTMLElement>('.reveal-card');
         if (!cards.length) return;
-        gsap.from(cards, {
-          y: 16,
-          duration: 0.55,
-          stagger: 0.08,
-          ease: 'power2.out',
-          immediateRender: false,
-          clearProps: 'transform',
-          scrollTrigger: {
-            trigger: grid,
-            start: 'top 90%',
-            once: true,
+        gsap.fromTo(
+          cards,
+          {
+            opacity: 0,
+            y: 26,
+            scale: 0.97,
           },
-        });
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 0.6,
+            stagger: 0.07,
+            ease: 'power3.out',
+            scrollTrigger: {
+              trigger: grid,
+              start: 'top 86%',
+              end: 'bottom 12%',
+              toggleActions: 'play reverse play reverse',
+            },
+          }
+        );
       });
     }, appRef);
 
