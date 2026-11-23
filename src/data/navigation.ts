@@ -6,8 +6,8 @@ export interface NavItem {
 
 export const NAV_ITEMS: NavItem[] = [
   { id: 'hero', label: 'صفحه اصلی', href: '#hero' },
-  { id: 'products', label: 'محصولات', href: '#products' },
   { id: 'technology', label: 'فناوری و نوآوری', href: '#technology' },
+  { id: 'products', label: 'محصولات', href: '#products' },
   { id: 'advantages', label: 'درباره ما', href: '#advantages' },
   { id: 'contact', label: 'تماس با ما', href: '#contact' },
 ];

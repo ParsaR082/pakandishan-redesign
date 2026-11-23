@@ -20,9 +20,9 @@ export function Navbar({
 
   useEffect(() => {
     const onScroll = () => {
-      // Navbar is hidden at the top for an unobstructed cinematic opening,
-      // and slides down into view with a smooth ease-out as the user starts scrolling.
-      setIsVisible(window.scrollY > 40);
+      // Navbar remains gracefully hidden at the top for the opening cinematic presentation,
+      // and slides down gently once intentional scrolling begins (> 90px).
+      setIsVisible(window.scrollY > 90);
     };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
@@ -31,7 +31,7 @@ export function Navbar({
 
   return (
     <header
-      className={`fixed top-0 inset-x-0 z-50 px-3 sm:px-6 pt-3 pointer-events-none transition-[transform,opacity] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+      className={`fixed top-0 inset-x-0 z-50 px-3 sm:px-6 pt-3 pointer-events-none transition-[transform,opacity] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
         isVisible
           ? 'translate-y-0 opacity-100'
           : '-translate-y-[120%] opacity-0'
