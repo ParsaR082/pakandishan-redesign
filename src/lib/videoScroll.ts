@@ -13,8 +13,32 @@ export const VIDEO_SCROLL_CONFIG = {
   mobileDistancePx: 1650,
   endFramePaddingSec: 0.04,
   seekEpsilonSec: 0.014,
-  scrubLerpFactor: 0.18,
+  scrubLerpFactor: 0.22,
+  totalFrames: 240,
+  framesBasePath: '/assets/frames',
 } as const;
+
+export const TOTAL_VIDEO_FRAMES = 240;
+export const FRAMES_BASE_PATH = '/assets/frames';
+
+/**
+ * Returns the URL path for a zero-indexed frame (0..239) -> frame_0001.webp..frame_0240.webp.
+ */
+export function getFrameFileName(frameIndex: number): string {
+  const index = Math.max(1, Math.min(TOTAL_VIDEO_FRAMES, Math.round(frameIndex) + 1));
+  return `${FRAMES_BASE_PATH}/frame_${String(index).padStart(4, '0')}.webp`;
+}
+
+/**
+ * Maps normalized progress [0..1] directly to integer frame index [0..239].
+ */
+export function computeTargetFrameIndex(
+  progress: number,
+  totalFrames = TOTAL_VIDEO_FRAMES
+): number {
+  const p = clamp01(progress);
+  return Math.min(totalFrames - 1, Math.floor(p * totalFrames));
+}
 
 export function clamp01(value: number): number {
   if (!Number.isFinite(value)) return 0;

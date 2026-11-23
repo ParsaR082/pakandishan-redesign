@@ -1,5 +1,6 @@
 import {
   forwardRef,
+  useCallback,
   useEffect,
   useImperativeHandle,
   useRef,
@@ -7,11 +8,12 @@ import {
 } from 'react';
 import { ASSET_MANIFEST } from '../../data/assets';
 import {
+  TOTAL_VIDEO_FRAMES,
   VIDEO_SCROLL_CONFIG,
   clamp01,
-  computeTargetVideoTime,
+  computeTargetFrameIndex,
   computeVideoFocalPosition,
-  shouldSeekVideo,
+  getFrameFileName,
 } from '../../lib/videoScroll';
 
 export const HERO_VIDEO_SRC =
@@ -31,64 +33,116 @@ export const PersistentVideoBackground = forwardRef<
   PersistentVideoBackgroundProps
 >(function PersistentVideoBackground({ reducedMotion }, ref) {
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const veilRef = useRef<HTMLDivElement>(null);
 
   const [isReady, setIsReady] = useState(false);
   const [hasError, setHasError] = useState(false);
 
-  const durationRef = useRef<number>(0);
-  const readyRef = useRef<boolean>(false);
+  const imagesRef = useRef<(HTMLImageElement | null)[]>(
+    new Array(TOTAL_VIDEO_FRAMES).fill(null)
+  );
+  const isReadyRef = useRef<boolean>(false);
   const progressRef = useRef<number>(reducedMotion ? 1 : 0);
-  const targetTimeRef = useRef<number>(0);
-  const displayedTimeRef = useRef<number>(0);
+  const targetFrameRef = useRef<number>(reducedMotion ? TOTAL_VIDEO_FRAMES - 1 : 0);
+  const displayedFrameRef = useRef<number>(
+    reducedMotion ? TOTAL_VIDEO_FRAMES - 1 : 0
+  );
   const rafIdRef = useRef<number>(0);
-  const pendingSeekRef = useRef<number | null>(null);
 
-  const applyVideoTime = (timeSec: number) => {
-    const video = videoRef.current;
-    if (!video || !readyRef.current) return;
+  const drawFrame = useCallback((frameFloat: number) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-    if (!video.paused) {
-      video.pause();
-    }
+    const ctx = canvas.getContext('2d', { alpha: false });
+    if (!ctx) return;
 
-    const clamped = Math.max(
+    const targetIdx = Math.max(
       0,
-      Math.min(
-        timeSec,
-        Math.max(0, durationRef.current - VIDEO_SCROLL_CONFIG.endFramePaddingSec)
-      )
+      Math.min(TOTAL_VIDEO_FRAMES - 1, Math.round(frameFloat))
     );
 
-    if (video.seeking) {
-      pendingSeekRef.current = clamped;
-      return;
-    }
-
-    if (shouldSeekVideo(video.currentTime, clamped)) {
-      try {
-        video.currentTime = clamped;
-      } catch {
-        pendingSeekRef.current = clamped;
+    // Find the best available frame: exact match or nearest loaded neighbour
+    let bestImg: HTMLImageElement | null = imagesRef.current[targetIdx];
+    if (!bestImg || !bestImg.complete || bestImg.naturalWidth === 0) {
+      for (let radius = 1; radius < TOTAL_VIDEO_FRAMES; radius++) {
+        const prev = targetIdx - radius;
+        if (
+          prev >= 0 &&
+          imagesRef.current[prev]?.complete &&
+          imagesRef.current[prev]?.naturalWidth
+        ) {
+          bestImg = imagesRef.current[prev];
+          break;
+        }
+        const next = targetIdx + radius;
+        if (
+          next < TOTAL_VIDEO_FRAMES &&
+          imagesRef.current[next]?.complete &&
+          imagesRef.current[next]?.naturalWidth
+        ) {
+          bestImg = imagesRef.current[next];
+          break;
+        }
       }
     }
 
+    if (!bestImg || !bestImg.complete || bestImg.naturalWidth === 0) {
+      return;
+    }
+
+    // High-DPI canvas scaling
+    const dpr = Math.min(
+      typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1,
+      2
+    );
+    const rect = canvas.getBoundingClientRect();
+    const targetW = Math.round(rect.width * dpr);
+    const targetH = Math.round(rect.height * dpr);
+
+    if (canvas.width !== targetW || canvas.height !== targetH) {
+      canvas.width = targetW;
+      canvas.height = targetH;
+    }
+
+    const cW = canvas.width;
+    const cH = canvas.height;
+    const imgW = bestImg.naturalWidth || 1280;
+    const imgH = bestImg.naturalHeight || 720;
+
+    // Cover-fit geometry
+    const scale = Math.max(cW / imgW, cH / imgH);
+    const renderW = imgW * scale;
+    const renderH = imgH * scale;
+
+    // Responsive focal positioning
+    let focalX = 0.5;
+    let focalY = 0.5;
+    if (typeof window !== 'undefined') {
+      const focalStr = computeVideoFocalPosition(
+        progressRef.current,
+        window.innerWidth
+      );
+      const parts = focalStr.split(' ');
+      if (parts.length === 2) {
+        focalX = parseFloat(parts[0]) / 100;
+        focalY = parseFloat(parts[1]) / 100;
+      }
+    }
+
+    const offsetX = (cW - renderW) * focalX;
+    const offsetY = (cH - renderH) * focalY;
+
+    ctx.drawImage(bestImg, offsetX, offsetY, renderW, renderH);
+
     if (wrapperRef.current) {
-      wrapperRef.current.dataset.currentTime = clamped.toFixed(3);
+      const approxSeconds = (targetIdx / TOTAL_VIDEO_FRAMES) * 10.03;
+      wrapperRef.current.dataset.currentTime = approxSeconds.toFixed(3);
+      wrapperRef.current.dataset.frame = String(targetIdx);
       wrapperRef.current.dataset.settled =
         progressRef.current >= 0.98 ? 'true' : 'false';
     }
-  };
-
-  const applyFocalPosition = (progress: number) => {
-    const video = videoRef.current;
-    if (!video || typeof window === 'undefined') return;
-    video.style.objectPosition = computeVideoFocalPosition(
-      progress,
-      window.innerWidth
-    );
-  };
+  }, []);
 
   const stopScrubLoop = () => {
     if (rafIdRef.current) {
@@ -97,29 +151,30 @@ export const PersistentVideoBackground = forwardRef<
     }
   };
 
-  const startScrubLoop = () => {
+  const startScrubLoop = useCallback(() => {
     if (rafIdRef.current) return;
 
     const step = () => {
       rafIdRef.current = 0;
-      const target = targetTimeRef.current;
-      const current = displayedTimeRef.current;
+      const target = targetFrameRef.current;
+      const current = displayedFrameRef.current;
       const diff = target - current;
 
-      if (Math.abs(diff) <= VIDEO_SCROLL_CONFIG.seekEpsilonSec) {
-        displayedTimeRef.current = target;
-        applyVideoTime(target);
+      if (Math.abs(diff) < 0.04) {
+        displayedFrameRef.current = target;
+        drawFrame(target);
         return;
       }
 
+      // Smooth interpolation for butter-fluid 60/120fps motion
       const next = current + diff * VIDEO_SCROLL_CONFIG.scrubLerpFactor;
-      displayedTimeRef.current = next;
-      applyVideoTime(next);
+      displayedFrameRef.current = next;
+      drawFrame(next);
       rafIdRef.current = requestAnimationFrame(step);
     };
 
     rafIdRef.current = requestAnimationFrame(step);
-  };
+  }, [drawFrame]);
 
   useImperativeHandle(
     ref,
@@ -132,19 +187,13 @@ export const PersistentVideoBackground = forwardRef<
           wrapperRef.current.dataset.progress = p.toFixed(4);
         }
 
-        applyFocalPosition(p);
+        const nextTarget = computeTargetFrameIndex(p, TOTAL_VIDEO_FRAMES);
+        targetFrameRef.current = nextTarget;
 
-        if (!readyRef.current || durationRef.current <= 0) {
-          return;
-        }
-
-        const nextTarget = computeTargetVideoTime(p, durationRef.current);
-        targetTimeRef.current = nextTarget;
-
-        if (immediate || reducedMotion) {
+        if (immediate || reducedMotion || !isReadyRef.current) {
           stopScrubLoop();
-          displayedTimeRef.current = nextTarget;
-          applyVideoTime(nextTarget);
+          displayedFrameRef.current = nextTarget;
+          drawFrame(nextTarget);
         } else {
           startScrubLoop();
         }
@@ -154,96 +203,113 @@ export const PersistentVideoBackground = forwardRef<
         veilRef.current.style.opacity = isPostHero ? '1' : '0';
       },
     }),
-    [reducedMotion]
+    [reducedMotion, drawFrame, startScrubLoop]
   );
 
+  // Preload video frames progressively
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
+    let isCancelled = false;
 
-    const markReady = () => {
-      if (!Number.isFinite(video.duration) || video.duration <= 0) return;
-      durationRef.current = video.duration;
-      readyRef.current = true;
-      setIsReady(true);
-      video.pause();
-
-      const initialProgress = reducedMotion ? 1 : progressRef.current;
-      const initialTarget = computeTargetVideoTime(
-        initialProgress,
-        video.duration
-      );
-      targetTimeRef.current = initialTarget;
-      displayedTimeRef.current = initialTarget;
-      applyFocalPosition(initialProgress);
-      applyVideoTime(initialTarget);
-
-      if (wrapperRef.current) {
-        wrapperRef.current.dataset.ready = 'true';
-        wrapperRef.current.dataset.duration = video.duration.toFixed(3);
-      }
+    const loadSingleImage = (idx: number): Promise<HTMLImageElement> => {
+      return new Promise((resolve, reject) => {
+        if (imagesRef.current[idx]) {
+          resolve(imagesRef.current[idx]!);
+          return;
+        }
+        const img = new Image();
+        img.src = getFrameFileName(idx);
+        img.onload = () => {
+          if (!isCancelled) {
+            imagesRef.current[idx] = img;
+          }
+          resolve(img);
+        };
+        img.onerror = () => {
+          reject(new Error(`Failed to load frame ${idx}`));
+        };
+      });
     };
 
-    const handleSeeked = () => {
-      if (!video.paused) {
-        video.pause();
-      }
-      if (wrapperRef.current) {
-        wrapperRef.current.dataset.currentTime = video.currentTime.toFixed(3);
-      }
-      if (pendingSeekRef.current !== null) {
-        const queued = pendingSeekRef.current;
-        pendingSeekRef.current = null;
-        if (shouldSeekVideo(video.currentTime, queued)) {
-          try {
-            video.currentTime = queued;
-          } catch {
-            // Ignore transient decode state
+    // 1. Immediately load frame 0 so the hero renders without delay
+    const initialFrame = reducedMotion ? TOTAL_VIDEO_FRAMES - 1 : 0;
+    loadSingleImage(initialFrame)
+      .then((img) => {
+        if (isCancelled) return;
+        isReadyRef.current = true;
+        setIsReady(true);
+        drawFrame(initialFrame);
+
+        if (wrapperRef.current) {
+          wrapperRef.current.dataset.ready = 'true';
+          wrapperRef.current.dataset.duration = '10.030';
+        }
+
+        // Also ensure final frame is loaded if in reduced motion
+        if (reducedMotion && initialFrame !== 0) {
+          loadSingleImage(0).catch(() => {});
+        }
+
+        // 2. Load milestone keyframes every 8th frame for instant scrub response
+        const milestoneIndices: number[] = [];
+        for (let i = 0; i < TOTAL_VIDEO_FRAMES; i += 8) {
+          if (i !== initialFrame) milestoneIndices.push(i);
+        }
+        milestoneIndices.push(TOTAL_VIDEO_FRAMES - 1);
+
+        milestoneIndices.forEach((idx) => {
+          loadSingleImage(idx).catch(() => {});
+        });
+
+        // 3. Concurrently load all other frames in chunks
+        const allRemaining: number[] = [];
+        for (let i = 0; i < TOTAL_VIDEO_FRAMES; i++) {
+          if (!imagesRef.current[i]) {
+            allRemaining.push(i);
           }
         }
-      }
-    };
 
-    const preventAutoplay = () => {
-      if (!video.paused) {
-        video.pause();
-      }
-    };
+        let currentIndex = 0;
+        const chunkSize = 12;
 
-    const handleError = () => {
-      setHasError(true);
-    };
+        const loadNextChunk = () => {
+          if (isCancelled || currentIndex >= allRemaining.length) return;
+          const chunk = allRemaining.slice(
+            currentIndex,
+            currentIndex + chunkSize
+          );
+          currentIndex += chunkSize;
+
+          Promise.allSettled(chunk.map((i) => loadSingleImage(i))).then(() => {
+            if (!isCancelled && currentIndex < allRemaining.length) {
+              if (typeof requestIdleCallback !== 'undefined') {
+                requestIdleCallback(loadNextChunk, { timeout: 150 });
+              } else {
+                setTimeout(loadNextChunk, 20);
+              }
+            }
+          });
+        };
+
+        loadNextChunk();
+      })
+      .catch(() => {
+        if (!isCancelled) {
+          setHasError(true);
+        }
+      });
 
     const handleResize = () => {
-      applyFocalPosition(progressRef.current);
+      drawFrame(displayedFrameRef.current);
     };
 
-    video.addEventListener('loadedmetadata', markReady);
-    video.addEventListener('loadeddata', markReady);
-    video.addEventListener('canplay', markReady);
-    video.addEventListener('seeked', handleSeeked);
-    video.addEventListener('play', preventAutoplay);
-    video.addEventListener('error', handleError);
     window.addEventListener('resize', handleResize, { passive: true });
 
-    // If browser already cached metadata before effect mounted
-    if (video.readyState >= 1 && Number.isFinite(video.duration) && video.duration > 0) {
-      markReady();
-    } else {
-      video.load();
-    }
-
     return () => {
+      isCancelled = true;
       stopScrubLoop();
-      video.removeEventListener('loadedmetadata', markReady);
-      video.removeEventListener('loadeddata', markReady);
-      video.removeEventListener('canplay', markReady);
-      video.removeEventListener('seeked', handleSeeked);
-      video.removeEventListener('play', preventAutoplay);
-      video.removeEventListener('error', handleError);
       window.removeEventListener('resize', handleResize);
     };
-  }, [reducedMotion]);
+  }, [reducedMotion, drawFrame]);
 
   return (
     <div
@@ -263,17 +329,10 @@ export const PersistentVideoBackground = forwardRef<
           className="w-full h-full object-cover object-center opacity-90"
         />
       ) : (
-        <video
-          ref={videoRef}
-          id="pakandishan-bg-video"
-          src={HERO_VIDEO_SRC}
-          muted
-          playsInline
-          preload="auto"
-          disablePictureInPicture
-          controls={false}
-          className="w-full h-full object-cover will-change-transform"
-          style={{ objectPosition: '50% 50%' }}
+        <canvas
+          ref={canvasRef}
+          id="pakandishan-bg-canvas"
+          className="w-full h-full block will-change-transform"
         />
       )}
 
@@ -284,7 +343,7 @@ export const PersistentVideoBackground = forwardRef<
         style={{ opacity: reducedMotion ? 1 : 0 }}
       />
 
-      {/* Minimal loading veil only until first video frame metadata is ready */}
+      {/* Minimal loading veil only until initial frame is ready */}
       {!isReady && !hasError && (
         <div className="absolute inset-0 flex items-end justify-center pb-14 bg-[#060606]/70 transition-opacity duration-300">
           <span className="text-xs text-[#c5a46d] tracking-wide">
