@@ -41,22 +41,30 @@ export function Navbar({
       <div
         className="pointer-events-auto mx-auto max-w-[1440px] h-[68px] md:h-[76px] px-4 sm:px-8 flex items-center justify-between gap-6 lg:gap-8 rounded-lg glass-nav-scrolled shadow-[0_12px_36px_rgba(0,0,0,0.65)]"
       >
-        {/* Right Zone (RTL start): Brand mark + wordmark with choreographed slide-down */}
+        {/* Right Zone (RTL start): Brand mark + wordmark with choreographed slide-down and Furnace Ember Glow */}
         <a
           href="#hero"
           onClick={(e) => {
             e.preventDefault();
             onNavigate('#hero');
           }}
-          className={`flex items-center gap-3 whitespace-nowrap shrink-0 group transition-[transform,opacity] duration-600 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+          className={`relative flex items-center gap-3 whitespace-nowrap shrink-0 group transition-[transform,opacity] duration-600 ease-[cubic-bezier(0.16,1,0.3,1)] py-1.5 px-2 rounded-lg ${
             isVisible
               ? 'translate-y-0 opacity-100 delay-[100ms]'
               : '-translate-y-3 opacity-0'
           }`}
           aria-label={BRAND_INFO.name}
         >
-          <BrandMark className="w-8 h-8 md:w-9 md:h-9 shrink-0 transition-transform duration-200 group-hover:scale-105" />
-          <span className="text-[15px] md:text-[17px] font-semibold text-[#f4f0e8] tracking-tight whitespace-nowrap shrink-0">
+          {/* Breathing Industrial Furnace Ember Glow Aura */}
+          <div aria-hidden="true" className="furnace-ember-halo" />
+
+          {/* Precision Brand Emblem */}
+          <div className="relative z-10 shrink-0">
+            <BrandMark className="w-8 h-8 md:w-9 md:h-9 transition-transform duration-300 group-hover:scale-105" />
+          </div>
+
+          {/* Luminous Warm Typography */}
+          <span className="furnace-brand-text text-[15px] md:text-[17px] font-bold tracking-tight whitespace-nowrap shrink-0">
             {BRAND_INFO.name}
           </span>
         </a>

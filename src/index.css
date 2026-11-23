@@ -149,6 +149,67 @@
   );
 }
 
+/* Furnace Ember Glow (هاله تنفسی حرارت کوره صنعتی) */
+@keyframes furnace-ember-breath {
+  0% {
+    opacity: 0.35;
+    transform: scale(0.95);
+    filter: blur(14px);
+  }
+  50% {
+    opacity: 0.82;
+    transform: scale(1.05);
+    filter: blur(20px);
+  }
+  100% {
+    opacity: 0.35;
+    transform: scale(0.95);
+    filter: blur(14px);
+  }
+}
+
+.furnace-ember-halo {
+  position: absolute;
+  inset: -6px -12px;
+  background: radial-gradient(
+    ellipse at 35% 50%,
+    rgba(255, 214, 153, 0.48) 0%,
+    rgba(228, 201, 149, 0.34) 32%,
+    rgba(197, 164, 109, 0.22) 58%,
+    rgba(150, 83, 28, 0.12) 80%,
+    transparent 100%
+  );
+  border-radius: 9999px;
+  pointer-events: none;
+  z-index: 0;
+  animation: furnace-ember-breath 4.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  will-change: transform, opacity, filter;
+  transition: opacity 300ms ease, transform 300ms ease, filter 300ms ease;
+}
+
+.furnace-brand-text {
+  position: relative;
+  z-index: 1;
+  color: #fdfaf5;
+  text-shadow:
+    0 0 14px rgba(228, 201, 149, 0.5),
+    0 0 28px rgba(197, 164, 109, 0.25);
+  transition: text-shadow 300ms ease, color 300ms ease;
+}
+
+.group:hover .furnace-ember-halo {
+  opacity: 0.95;
+  transform: scale(1.08);
+  filter: blur(22px);
+}
+
+.group:hover .furnace-brand-text {
+  color: #ffffff;
+  text-shadow:
+    0 0 16px rgba(255, 224, 178, 0.85),
+    0 0 36px rgba(228, 201, 149, 0.45);
+}
+
 /* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 8px;
