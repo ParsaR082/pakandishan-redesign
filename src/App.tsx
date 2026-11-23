@@ -65,7 +65,7 @@ export default function App() {
     }
 
     const lenis = new Lenis({
-      duration: 1.05,
+      duration: 1.25,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
     });
@@ -171,7 +171,10 @@ export default function App() {
 
       if (targetId === 'hero') {
         if (lenisRef.current && !reducedMotion) {
-          lenisRef.current.scrollTo(0);
+          lenisRef.current.scrollTo(0, {
+            duration: 1.85,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+          });
         } else {
           window.scrollTo({ top: 0, behavior: reducedMotion ? 'auto' : 'smooth' });
         }
@@ -187,7 +190,10 @@ export default function App() {
       );
 
       if (lenisRef.current && !reducedMotion) {
-        lenisRef.current.scrollTo(targetTop);
+        lenisRef.current.scrollTo(targetTop, {
+          duration: 1.85,
+          easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        });
       } else {
         window.scrollTo({
           top: targetTop,

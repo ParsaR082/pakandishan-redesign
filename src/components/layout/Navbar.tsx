@@ -31,7 +31,7 @@ export function Navbar({
 
   return (
     <header
-      className={`fixed top-0 inset-x-0 z-50 px-3 sm:px-6 pt-3 pointer-events-none transition-[transform,opacity] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+      className={`fixed top-0 inset-x-0 z-50 px-3 sm:px-6 pt-3 pointer-events-none transition-[transform,opacity] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
         isVisible
           ? 'translate-y-0 opacity-100'
           : '-translate-y-[120%] opacity-0'
@@ -41,14 +41,18 @@ export function Navbar({
       <div
         className="pointer-events-auto mx-auto max-w-[1440px] h-[68px] md:h-[76px] px-4 sm:px-8 flex items-center justify-between gap-6 lg:gap-8 rounded-lg glass-nav-scrolled shadow-[0_12px_36px_rgba(0,0,0,0.65)]"
       >
-        {/* Right Zone (RTL start): Brand mark + single-line company wordmark */}
+        {/* Right Zone (RTL start): Brand mark + wordmark with choreographed slide-down */}
         <a
           href="#hero"
           onClick={(e) => {
             e.preventDefault();
             onNavigate('#hero');
           }}
-          className="flex items-center gap-3 whitespace-nowrap shrink-0 group"
+          className={`flex items-center gap-3 whitespace-nowrap shrink-0 group transition-[transform,opacity] duration-600 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+            isVisible
+              ? 'translate-y-0 opacity-100 delay-[100ms]'
+              : '-translate-y-3 opacity-0'
+          }`}
           aria-label={BRAND_INFO.name}
         >
           <BrandMark className="w-8 h-8 md:w-9 md:h-9 shrink-0 transition-transform duration-200 group-hover:scale-105" />
@@ -57,12 +61,12 @@ export function Navbar({
           </span>
         </a>
 
-        {/* Center Zone: Single-line RTL navigation links */}
+        {/* Center Zone: Nav items cascading gracefully from top */}
         <nav
           aria-label="منوی اصلی"
           className="hidden lg:flex items-center gap-7 xl:gap-9"
         >
-          {NAV_ITEMS.map((item) => {
+          {NAV_ITEMS.map((item, idx) => {
             const isActive = activeSection === item.id;
             return (
               <a
@@ -73,11 +77,18 @@ export function Navbar({
                   onNavigate(item.href);
                 }}
                 aria-current={isActive ? 'page' : undefined}
-                className={`relative py-2 text-[14px] font-medium whitespace-nowrap shrink-0 transition-colors duration-200 ${
+                className={`relative py-2 text-[14px] font-medium whitespace-nowrap shrink-0 transition-[transform,opacity,color] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                  isVisible
+                    ? 'translate-y-0 opacity-100'
+                    : '-translate-y-3 opacity-0'
+                } ${
                   isActive
                     ? 'text-[#e4c995]'
                     : 'text-[#aaa39a] hover:text-[#f4f0e8]'
                 }`}
+                style={{
+                  transitionDelay: isVisible ? `${140 + idx * 45}ms` : '0ms',
+                }}
               >
                 {item.label}
                 <span
@@ -92,7 +103,13 @@ export function Navbar({
         </nav>
 
         {/* Left Zone (RTL end): Primary CTA + Mobile drawer trigger */}
-        <div className="flex items-center gap-3 shrink-0">
+        <div
+          className={`flex items-center gap-3 shrink-0 transition-[transform,opacity] duration-600 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+            isVisible
+              ? 'translate-y-0 opacity-100 delay-[360ms]'
+              : '-translate-y-3 opacity-0'
+          }`}
+        >
           <button
             type="button"
             onClick={() => onNavigate('#contact')}

@@ -1,4 +1,4 @@
-import { RefObject, useLayoutEffect, useRef } from 'react';
+import { RefObject, useLayoutEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowLeft, ChevronDown } from 'lucide-react';
@@ -29,13 +29,21 @@ export function VideoHeroSection({
   const settledCueRef = useRef<HTMLDivElement>(null);
   const progressFillRef = useRef<HTMLDivElement>(null);
 
+  const [hasDismissedCue, setHasDismissedCue] = useState(false);
+  const hasDismissedCueRef = useRef(false);
+
   const applyPhaseVisuals = (progress: number) => {
     const phase = computeHeroTimelinePhases(progress);
 
     if (introCueRef.current) {
-      introCueRef.current.style.opacity = String(phase.introCueOpacity);
-      introCueRef.current.style.pointerEvents =
-        phase.introCueOpacity > 0.25 ? 'auto' : 'none';
+      if (hasDismissedCueRef.current) {
+        introCueRef.current.style.opacity = '0';
+        introCueRef.current.style.pointerEvents = 'none';
+      } else {
+        introCueRef.current.style.opacity = String(phase.introCueOpacity);
+        introCueRef.current.style.pointerEvents =
+          phase.introCueOpacity > 0.25 ? 'auto' : 'none';
+      }
     }
 
     if (headlineRef.current) {
@@ -91,6 +99,10 @@ export function VideoHeroSection({
         invalidateOnRefresh: true,
         onUpdate: (self) => {
           const p = self.progress;
+          if (p > 0.015 && !hasDismissedCueRef.current) {
+            hasDismissedCueRef.current = true;
+            setHasDismissedCue(true);
+          }
           videoRef.current?.setProgress(p, false);
           applyPhaseVisuals(p);
           videoRef.current?.setPostHeroMode(p >= 0.985);
@@ -202,19 +214,33 @@ export function VideoHeroSection({
 
       {/* Bottom Interactive Prompts & Whisper-Thin Timeline Indicator */}
       <div className="relative z-20 mx-auto w-full max-w-[1440px] px-4 sm:px-8 flex items-center justify-between gap-4">
-        {/* Initial Frame Minimal Scroll Invitation (fades out cleanly once scrubbing starts) */}
+        {/* Prominent Floating Notification Pill for Initial Scroll Hint */}
         <div
           ref={introCueRef}
-          className="transition-opacity duration-200"
-          style={{ opacity: reducedMotion ? 0 : 1 }}
+          className={`transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+            hasDismissedCue
+              ? 'opacity-0 translate-y-3 pointer-events-none scale-95'
+              : 'opacity-100 translate-y-0 scale-100'
+          }`}
+          style={{ opacity: reducedMotion || hasDismissedCue ? 0 : 1 }}
         >
           <button
             type="button"
-            onClick={() => onNavigate('#dashboard')}
-            className="inline-flex items-center gap-2.5 px-4 py-2 rounded-md glass-nav text-xs sm:text-[13px] text-[#f4f0e8]/90 hover:text-[#e4c995] hover:border-[#c5a46d]/40 transition-colors cursor-pointer"
+            onClick={() => {
+              hasDismissedCueRef.current = true;
+              setHasDismissedCue(true);
+              onNavigate('#technology');
+            }}
+            className="group inline-flex items-center gap-2.5 sm:gap-3 px-4 sm:px-5 py-2.5 rounded-full bg-[#110f0d]/90 backdrop-blur-xl border border-[#c5a46d]/45 shadow-[0_16px_36px_rgba(0,0,0,0.8),0_0_24px_rgba(197,164,109,0.22)] hover:border-[#e4c995] hover:shadow-[0_16px_40px_rgba(0,0,0,0.9),0_0_32px_rgba(197,164,109,0.35)] transition-all duration-300 cursor-pointer"
           >
-            <span>برای کنترل حرکت دستگاه به پایین اسکرول کنید</span>
-            <ChevronDown className="w-4 h-4 text-[#c5a46d]" aria-hidden="true" />
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#e4c995] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#c5a46d]"></span>
+            </span>
+            <span className="text-xs sm:text-sm font-semibold text-[#f4f0e8] tracking-wide group-hover:text-[#e4c995] transition-colors">
+              اسکرول کنید
+            </span>
+            <ChevronDown className="w-4 h-4 text-[#e4c995] animate-bounce" aria-hidden="true" />
           </button>
         </div>
 
