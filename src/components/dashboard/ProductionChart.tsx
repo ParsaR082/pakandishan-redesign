@@ -73,7 +73,7 @@ export function ProductionChart({ data }: ProductionChartProps) {
                 borderColor: 'rgba(197, 164, 109, 0.35)',
                 borderRadius: '8px',
                 color: '#f4f0e8',
-                fontFamily: 'Vazirmatn, sans-serif',
+                fontFamily: 'IRANYekanX, sans-serif',
                 direction: 'rtl',
                 textAlign: 'right',
               }}

@@ -1,5 +1,96 @@
 @import "tailwindcss";
 
+/* ==========================================================================
+   IRANYekanX Enterprise Industrial Typeface (11 Complete Weights)
+   ========================================================================== */
+@font-face {
+  font-family: 'IRANYekanX';
+  src: url('/assets/fonts/iranyekanx/IRANYekanX-Thin.woff2') format('woff2');
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IRANYekanX';
+  src: url('/assets/fonts/iranyekanx/IRANYekanX-UltraLight.woff2') format('woff2');
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IRANYekanX';
+  src: url('/assets/fonts/iranyekanx/IRANYekanX-Light.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IRANYekanX';
+  src: url('/assets/fonts/iranyekanx/IRANYekanX-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IRANYekanX';
+  src: url('/assets/fonts/iranyekanx/IRANYekanX-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IRANYekanX';
+  src: url('/assets/fonts/iranyekanx/IRANYekanX-DemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IRANYekanX';
+  src: url('/assets/fonts/iranyekanx/IRANYekanX-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IRANYekanX';
+  src: url('/assets/fonts/iranyekanx/IRANYekanX-ExtraBold.woff2') format('woff2');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IRANYekanX';
+  src: url('/assets/fonts/iranyekanx/IRANYekanX-Black.woff2') format('woff2');
+  font-weight: 850;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IRANYekanX';
+  src: url('/assets/fonts/iranyekanx/IRANYekanX-ExtraBlack.woff2') format('woff2');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IRANYekanX';
+  src: url('/assets/fonts/iranyekanx/IRANYekanX-Heavy.woff2') format('woff2');
+  font-weight: 950;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --background: #060606;
   --background-secondary: #0d0c0a;
@@ -26,7 +117,7 @@
   html {
     background-color: var(--background);
     color: var(--text-primary);
-    font-family: "Vazirmatn", system-ui, -apple-system, sans-serif;
+    font-family: "IRANYekanX", system-ui, -apple-system, sans-serif;
     scroll-behavior: auto;
     overflow-x: clip;
   }
@@ -34,10 +125,13 @@
   body {
     background-color: var(--background);
     color: var(--text-primary);
+    font-family: "IRANYekanX", system-ui, -apple-system, sans-serif;
     min-height: 100svh;
     overflow-x: clip;
     line-height: 1.7;
     text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   h1,
@@ -45,7 +139,7 @@
   h3,
   h4 {
     text-wrap: balance;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.015em;
   }
 
   button,
@@ -74,7 +168,7 @@
 }
 
 .font-mono-tech {
-  font-family: "JetBrains Mono", "Vazirmatn", monospace;
+  font-family: "JetBrains Mono", "IRANYekanX", monospace;
   font-variant-numeric: tabular-nums;
 }
 
