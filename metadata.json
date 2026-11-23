@@ -1,0 +1,6 @@
+{
+  "name": "گروه صنعتی پاک‌اندیشان",
+  "description": "طراحی و تولید ماشین‌آلات صنعتی پخت نان، شیرینی و خطوط فرآوری مواد غذایی با مهندسی دقیق و فناوری روز.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
