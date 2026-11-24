@@ -140,7 +140,7 @@ export function VideoHeroSection({
 
       {/* Main Content Stage — Completely transparent with zero backdrop card on mobile and desktop so the video shines through unobstructed */}
       <div className="relative z-20 mx-auto w-full max-w-[1440px] px-4 sm:px-8 flex-1 flex items-start lg:items-center pt-2 sm:pt-5 lg:pt-0 pb-4 lg:pb-0 pointer-events-none rtl:justify-start ltr:justify-end">
-        <div className="w-full lg:w-[46%] xl:w-[44%] bg-transparent border-0 p-0 text-right lg:ltr:text-left">
+        <div className="w-full lg:w-[46%] xl:w-[44%] bg-transparent border-0 p-0 rtl:text-right ltr:text-left">
           {/* Phase 1 (25% -> 62%): Brand Kicker + Main Headline + Supporting Headline */}
           <div
             ref={headlineRef}
@@ -169,7 +169,7 @@ export function VideoHeroSection({
               pointerEvents: reducedMotion ? 'auto' : 'none',
             }}
           >
-            <p className="text-xs sm:text-base text-[#d2ccc2] leading-[1.75] sm:leading-[1.85] max-w-[50ch] mb-4 sm:mb-8 drop-shadow-[0_1px_6px_rgba(0,0,0,0.9)] ml-auto lg:ltr:ml-0">
+            <p className="text-xs sm:text-base text-[#d2ccc2] leading-[1.75] sm:leading-[1.85] max-w-[50ch] mb-4 sm:mb-8 drop-shadow-[0_1px_6px_rgba(0,0,0,0.9)] rtl:ml-auto ltr:mr-auto lg:ltr:mr-0">
               {t.hero.subtitle}
             </p>
 
@@ -195,24 +195,26 @@ export function VideoHeroSection({
               </button>
             </div>
 
-            <div className="mt-3 sm:mt-6 pt-2.5 sm:pt-5 border-t border-[#c5a46d]/22 flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-x-4 text-[11px] sm:text-xs text-[#b5aea4] drop-shadow-[0_1px_4px_rgba(0,0,0,0.85)] rtl:items-start ltr:items-end lg:ltr:items-start sm:rtl:justify-start sm:ltr:justify-end lg:ltr:justify-start">
-              <div className="inline-flex items-center gap-2 rtl:flex-row ltr:flex-row-reverse sm:ltr:flex-row">
-                <span aria-hidden="true" className="w-1.5 h-1.5 rounded-full bg-[#c5a46d] shrink-0 sm:hidden" />
-                <span>{t.hero.featureTag1}</span>
-              </div>
-              <span aria-hidden="true" className="hidden sm:inline text-[#c5a46d]/50">
-                ·
-              </span>
-              <div className="inline-flex items-center gap-2 rtl:flex-row ltr:flex-row-reverse sm:ltr:flex-row">
-                <span aria-hidden="true" className="w-1.5 h-1.5 rounded-full bg-[#c5a46d] shrink-0 sm:hidden" />
-                <span>{t.hero.featureTag2}</span>
-              </div>
-              <span aria-hidden="true" className="hidden sm:inline text-[#c5a46d]/50">
-                ·
-              </span>
-              <div className="inline-flex items-center gap-2 rtl:flex-row ltr:flex-row-reverse sm:ltr:flex-row">
-                <span aria-hidden="true" className="w-1.5 h-1.5 rounded-full bg-[#c5a46d] shrink-0 sm:hidden" />
-                <span>{t.hero.featureTag3}</span>
+            <div className="mt-3 sm:mt-6 pt-2.5 sm:pt-5 border-t border-[#c5a46d]/22 w-full flex rtl:justify-start ltr:justify-end lg:ltr:justify-start">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-x-4 text-[11px] sm:text-xs text-[#b5aea4] drop-shadow-[0_1px_4px_rgba(0,0,0,0.85)]">
+                <div className="inline-flex items-center gap-2">
+                  <span aria-hidden="true" className="w-1.5 h-1.5 rounded-full bg-[#c5a46d] shrink-0 sm:hidden" />
+                  <span>{t.hero.featureTag1}</span>
+                </div>
+                <span aria-hidden="true" className="hidden sm:inline text-[#c5a46d]/50">
+                  ·
+                </span>
+                <div className="inline-flex items-center gap-2">
+                  <span aria-hidden="true" className="w-1.5 h-1.5 rounded-full bg-[#c5a46d] shrink-0 sm:hidden" />
+                  <span>{t.hero.featureTag2}</span>
+                </div>
+                <span aria-hidden="true" className="hidden sm:inline text-[#c5a46d]/50">
+                  ·
+                </span>
+                <div className="inline-flex items-center gap-2">
+                  <span aria-hidden="true" className="w-1.5 h-1.5 rounded-full bg-[#c5a46d] shrink-0 sm:hidden" />
+                  <span>{t.hero.featureTag3}</span>
+                </div>
               </div>
             </div>
           </div>
