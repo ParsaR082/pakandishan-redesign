@@ -41,12 +41,12 @@ export function CategoryGrid({ onSelectProduct }: CategoryGridProps) {
           </h2>
         </div>
 
-        {/* 2x2 Asymmetric Editorial Category Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 reveal-stagger-grid">
+        {/* 2x2 Category Grid (2 columns on mobile and desktop) */}
+        <div className="grid grid-cols-2 gap-3 sm:gap-6 reveal-stagger-grid">
           {categories.map((category) => (
             <article
               key={category.id}
-              className="reveal-card group relative min-h-[300px] sm:min-h-[340px] rounded-lg overflow-hidden glass-surface flex flex-col justify-end p-6 sm:p-8 transition-colors duration-300 hover:border-[#c5a46d]/60"
+              className="reveal-card group relative min-h-[210px] sm:min-h-[340px] rounded-lg overflow-hidden glass-surface flex flex-col justify-end p-3.5 sm:p-8 transition-colors duration-300 hover:border-[#c5a46d]/60"
             >
               <div className="absolute inset-0">
                 <SafeImage
@@ -63,24 +63,26 @@ export function CategoryGrid({ onSelectProduct }: CategoryGridProps) {
               </div>
 
               <div className="relative z-10 max-w-lg">
-                <p className="text-xs text-[#e4c995] mb-2">{category.subtitle}</p>
-                <h3 className="text-2xl sm:text-[26px] font-bold text-[#f4f0e8] mb-2.5 leading-snug">
+                <p className="text-[10px] sm:text-xs text-[#e4c995] mb-1 sm:mb-2 line-clamp-1">
+                  {category.subtitle}
+                </p>
+                <h3 className="text-sm sm:text-[26px] font-bold text-[#f4f0e8] mb-1 sm:mb-2.5 leading-snug">
                   {category.title}
                 </h3>
-                <p className="text-sm text-[#aaa39a] leading-relaxed mb-5">
+                <p className="text-[11px] sm:text-sm text-[#aaa39a] leading-relaxed mb-2.5 sm:mb-5 line-clamp-2 sm:line-clamp-none">
                   {category.description}
                 </p>
 
                 <button
                   type="button"
                   onClick={() => handleExplore(category.targetProductId)}
-                  className="inline-flex items-center gap-2 text-sm font-semibold text-[#e4c995] hover:text-[#f4f0e8] transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1 sm:gap-2 text-[11px] sm:text-sm font-semibold text-[#e4c995] hover:text-[#f4f0e8] transition-colors cursor-pointer"
                 >
                   <span>
                     {t.categories.explorePrefix} {category.title}
                   </span>
                   <ArrowLeft
-                    className="w-4 h-4 transition-transform duration-200 rtl:rotate-0 rtl:group-hover:-translate-x-1.5 ltr:rotate-180 ltr:group-hover:translate-x-1.5"
+                    className="w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform duration-200 rtl:rotate-0 rtl:group-hover:-translate-x-1.5 ltr:rotate-180 ltr:group-hover:translate-x-1.5"
                     aria-hidden="true"
                   />
                 </button>

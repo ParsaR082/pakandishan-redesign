@@ -61,7 +61,7 @@ export function Navbar({
 
   return (
     <header
-      className={`fixed top-0 inset-x-0 z-50 px-3 sm:px-6 pt-3 pointer-events-none transition-[transform,opacity] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+      className={`fixed top-0 inset-x-0 z-50 px-2 sm:px-6 pt-2 sm:pt-3 pointer-events-none transition-[transform,opacity] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
         isVisible
           ? 'translate-y-0 opacity-100'
           : '-translate-y-[120%] opacity-0'
@@ -69,7 +69,7 @@ export function Navbar({
       role="banner"
     >
       <div
-        className="pointer-events-auto mx-auto max-w-[1440px] h-[68px] md:h-[76px] px-4 sm:px-8 flex items-center justify-between gap-4 sm:gap-6 lg:gap-8 rounded-lg glass-nav-scrolled shadow-[0_12px_36px_rgba(0,0,0,0.65)]"
+        className="pointer-events-auto mx-auto max-w-[1440px] h-[60px] sm:h-[68px] md:h-[76px] px-3 sm:px-8 flex items-center justify-between gap-2 sm:gap-6 lg:gap-8 rounded-lg glass-nav-scrolled shadow-[0_12px_36px_rgba(0,0,0,0.65)]"
       >
         {/* Brand mark + wordmark with choreographed slide-down and Furnace Ember Glow */}
         <a
@@ -78,7 +78,7 @@ export function Navbar({
             e.preventDefault();
             onNavigate('#hero');
           }}
-          className={`relative flex items-center gap-3 whitespace-nowrap shrink-0 group transition-[transform,opacity] duration-600 ease-[cubic-bezier(0.16,1,0.3,1)] py-1.5 px-2 rounded-lg ${
+          className={`relative flex items-center gap-2 sm:gap-3 whitespace-nowrap shrink-0 group transition-[transform,opacity] duration-600 ease-[cubic-bezier(0.16,1,0.3,1)] py-1.5 px-1 sm:px-2 rounded-lg ${
             isVisible
               ? 'translate-y-0 opacity-100 delay-[100ms]'
               : '-translate-y-3 opacity-0'
@@ -90,13 +90,13 @@ export function Navbar({
             className="absolute inset-0 -inset-x-2 rounded-lg bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.18)_0%,rgba(228,201,149,0.14)_35%,rgba(197,164,109,0.06)_60%,transparent_80%)] blur-[10px] pointer-events-none animate-ember-pulse"
           />
 
-          <BrandMark className="w-8 h-8 sm:w-9 sm:h-9 relative z-10 transition-transform duration-300 group-hover:scale-105" />
+          <BrandMark className="w-7 h-7 sm:w-9 sm:h-9 relative z-10 transition-transform duration-300 group-hover:scale-105" />
 
           <div className="relative z-10 flex flex-col leading-tight">
-            <span className="font-extrabold text-[15px] sm:text-base tracking-tight text-[#f4f0e8] drop-shadow-[0_2px_12px_rgba(255,255,255,0.45)] group-hover:text-white transition-colors">
+            <span className="font-extrabold text-[13.5px] sm:text-base tracking-tight text-[#f4f0e8] drop-shadow-[0_2px_12px_rgba(255,255,255,0.45)] group-hover:text-white transition-colors">
               {t.common.brandName}
             </span>
-            <span className="text-[11px] sm:text-xs text-[#c5a46d] font-normal tracking-wide opacity-90">
+            <span className="hidden sm:block text-[11px] sm:text-xs text-[#c5a46d] font-normal tracking-wide opacity-90">
               {t.common.brandTagline}
             </span>
           </div>
@@ -144,28 +144,28 @@ export function Navbar({
 
         {/* Action Zone: Multi-Language Selector + Primary CTA + Mobile drawer trigger */}
         <div
-          className={`flex items-center gap-2.5 sm:gap-3 shrink-0 transition-[transform,opacity] duration-600 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+          className={`flex items-center gap-1.5 sm:gap-3 shrink-0 transition-[transform,opacity] duration-600 ease-[cubic-bezier(0.16,1,0.3,1)] ${
             isVisible
               ? 'translate-y-0 opacity-100 delay-[360ms]'
               : '-translate-y-3 opacity-0'
           }`}
         >
           {/* Multi-Language Dropdown Menu */}
-          <div className="relative" ref={langDropdownRef}>
+          <div className="relative shrink-0" ref={langDropdownRef}>
             <button
               type="button"
               onClick={() => setLangDropdownOpen((prev) => !prev)}
               aria-expanded={langDropdownOpen}
               aria-haspopup="listbox"
               aria-label="Select Language"
-              className="inline-flex items-center gap-1.5 h-10 px-3 rounded-md border border-[#c5a46d]/28 bg-[#12110f]/80 hover:bg-[#1d1a16] hover:border-[#c5a46d]/60 text-xs font-semibold text-[#e4c995] transition-colors cursor-pointer select-none"
+              className="inline-flex items-center gap-1 sm:gap-1.5 h-8 sm:h-10 px-2 sm:px-3 rounded-md border border-[#c5a46d]/28 bg-[#12110f]/80 hover:bg-[#1d1a16] hover:border-[#c5a46d]/60 text-[11px] sm:text-xs font-semibold text-[#e4c995] transition-colors cursor-pointer select-none"
             >
-              <Globe className="w-3.5 h-3.5 text-[#c5a46d]" aria-hidden="true" />
+              <Globe className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#c5a46d]" aria-hidden="true" />
               <span className="font-mono-tech tracking-wider uppercase">
                 {language}
               </span>
               <ChevronDown
-                className={`w-3 h-3 text-[#aaa39a] transition-transform duration-200 ${
+                className={`w-2.5 h-2.5 sm:w-3 sm:h-3 text-[#aaa39a] transition-transform duration-200 ${
                   langDropdownOpen ? 'rotate-180 text-[#e4c995]' : ''
                 }`}
                 aria-hidden="true"
@@ -221,9 +221,9 @@ export function Navbar({
             aria-label={t.nav.closeMenu}
             aria-expanded={mobileMenuOpen}
             aria-controls="mobile-nav-drawer"
-            className="lg:hidden inline-flex items-center justify-center w-11 h-11 rounded-md border border-[#c5a46d]/25 bg-[#171512] text-[#f4f0e8] hover:border-[#c5a46d]/60 transition-colors cursor-pointer"
+            className="lg:hidden inline-flex items-center justify-center w-8 h-8 sm:w-11 sm:h-11 rounded-md border border-[#c5a46d]/25 bg-[#171512] text-[#f4f0e8] hover:border-[#c5a46d]/60 transition-colors shrink-0 cursor-pointer"
           >
-            <Menu className="w-5 h-5" aria-hidden="true" />
+            <Menu className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden="true" />
           </button>
         </div>
       </div>

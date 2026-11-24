@@ -195,16 +195,25 @@ export function VideoHeroSection({
               </button>
             </div>
 
-            <div className="mt-4 sm:mt-6 pt-3 sm:pt-5 border-t border-[#c5a46d]/22 flex flex-wrap items-center gap-x-3 sm:gap-x-4 gap-y-1 text-[11px] sm:text-xs text-[#b5aea4] drop-shadow-[0_1px_4px_rgba(0,0,0,0.85)]">
-              <span>{t.hero.featureTag1}</span>
-              <span aria-hidden="true" className="text-[#c5a46d]/50">
+            <div className="mt-3 sm:mt-6 pt-2.5 sm:pt-5 border-t border-[#c5a46d]/22 flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-x-4 text-[11px] sm:text-xs text-[#b5aea4] drop-shadow-[0_1px_4px_rgba(0,0,0,0.85)]">
+              <div className="inline-flex items-center gap-2">
+                <span aria-hidden="true" className="w-1.5 h-1.5 rounded-full bg-[#c5a46d] shrink-0 sm:hidden" />
+                <span>{t.hero.featureTag1}</span>
+              </div>
+              <span aria-hidden="true" className="hidden sm:inline text-[#c5a46d]/50">
                 ·
               </span>
-              <span>{t.hero.featureTag2}</span>
-              <span aria-hidden="true" className="text-[#c5a46d]/50">
+              <div className="inline-flex items-center gap-2">
+                <span aria-hidden="true" className="w-1.5 h-1.5 rounded-full bg-[#c5a46d] shrink-0 sm:hidden" />
+                <span>{t.hero.featureTag2}</span>
+              </div>
+              <span aria-hidden="true" className="hidden sm:inline text-[#c5a46d]/50">
                 ·
               </span>
-              <span>{t.hero.featureTag3}</span>
+              <div className="inline-flex items-center gap-2">
+                <span aria-hidden="true" className="w-1.5 h-1.5 rounded-full bg-[#c5a46d] shrink-0 sm:hidden" />
+                <span>{t.hero.featureTag3}</span>
+              </div>
             </div>
           </div>
         </div>

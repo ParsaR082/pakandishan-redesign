@@ -64,33 +64,33 @@ export function TechnologySection() {
             </div>
           </div>
 
-          {/* Numbered Feature Cards 01 - 04 */}
-          <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-5 reveal-stagger-grid">
+          {/* Numbered Feature Cards 01 - 04 (2x2 on all viewports) */}
+          <div className="lg:col-span-7 grid grid-cols-2 gap-3 sm:gap-5 reveal-stagger-grid">
             {techPillars.map((pillar) => {
               const Icon = ICON_MAP[pillar.iconKey];
               return (
                 <article
                   key={pillar.number}
-                  className="reveal-card group surface-panel rounded-lg p-6 sm:p-7 flex flex-col justify-between gap-6 transition-[transform,border-color,box-shadow] duration-300 hover:border-[#c5a46d]/55 hover:-translate-y-1"
+                  className="reveal-card group surface-panel rounded-lg p-3.5 sm:p-7 flex flex-col justify-between gap-4 sm:gap-6 transition-[transform,border-color,box-shadow] duration-300 hover:border-[#c5a46d]/55 hover:-translate-y-1"
                 >
-                  <div className="flex items-center justify-between gap-4">
-                    <span className="font-mono-tech text-2xl font-semibold text-[#c5a46d]/85 group-hover:text-[#e4c995] transition-colors">
+                  <div className="flex items-center justify-between gap-2 sm:gap-4">
+                    <span className="font-mono-tech text-lg sm:text-2xl font-semibold text-[#c5a46d]/85 group-hover:text-[#e4c995] transition-colors">
                       {pillar.number}
                     </span>
-                    <span className="w-10 h-10 rounded-md bg-black/45 border border-[#c5a46d]/25 flex items-center justify-center text-[#c5a46d] group-hover:border-[#c5a46d]/55 transition-colors">
-                      <Icon className="w-5 h-5" strokeWidth={1.5} aria-hidden="true" />
+                    <span className="w-8 h-8 sm:w-10 sm:h-10 rounded-md bg-black/45 border border-[#c5a46d]/25 flex items-center justify-center text-[#c5a46d] group-hover:border-[#c5a46d]/55 transition-colors shrink-0">
+                      <Icon className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={1.5} aria-hidden="true" />
                     </span>
                   </div>
 
                   <div>
                     <div
                       aria-hidden="true"
-                      className="w-10 h-px bg-[#c5a46d]/40 mb-4 group-hover:w-16 transition-[width] duration-300"
+                      className="w-6 sm:w-10 h-px bg-[#c5a46d]/40 mb-2.5 sm:mb-4 group-hover:w-16 transition-[width] duration-300"
                     />
-                    <h3 className="text-lg font-semibold text-[#f4f0e8] mb-2.5">
+                    <h3 className="text-[13.5px] sm:text-lg font-semibold text-[#f4f0e8] mb-1.5 sm:mb-2.5 leading-snug">
                       {pillar.title}
                     </h3>
-                    <p className="text-sm text-[#aaa39a] leading-[1.85]">
+                    <p className="text-[11px] sm:text-sm text-[#aaa39a] leading-[1.65] sm:leading-[1.85]">
                       {pillar.description}
                     </p>
                   </div>
