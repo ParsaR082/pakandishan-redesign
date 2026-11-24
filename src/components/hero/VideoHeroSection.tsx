@@ -138,35 +138,35 @@ export function VideoHeroSection({
         className="pointer-events-none hidden lg:block absolute inset-0 bg-[linear-gradient(270deg,rgba(6,6,6,0.72)_0%,rgba(6,6,6,0.34)_38%,rgba(6,6,6,0)_56%)]"
       />
 
-      {/* Mobile bottom gradient scrim so lower glass content never clashes with upper oven view */}
+      {/* Mobile top & bottom gradient scrims tuned for upper text placement and lower oven reveal */}
       <div
         aria-hidden="true"
-        className="pointer-events-none lg:hidden absolute inset-0 bg-[linear-gradient(180deg,rgba(6,6,6,0.32)_0%,rgba(6,6,6,0.05)_36%,rgba(6,6,6,0.78)_76%,rgba(6,6,6,0.92)_100%)]"
+        className="pointer-events-none lg:hidden absolute inset-0 bg-[linear-gradient(180deg,rgba(6,6,6,0.72)_0%,rgba(6,6,6,0.36)_30%,rgba(6,6,6,0.06)_52%,rgba(6,6,6,0.65)_100%)]"
       />
 
-      {/* Main Content Stage — Aligned strictly to RIGHT half on desktop so left oven stays 100% clear */}
-      <div className="relative z-20 mx-auto w-full max-w-[1440px] px-4 sm:px-8 flex-1 flex items-end lg:items-center pb-10 lg:pb-0 pointer-events-none rtl:justify-start ltr:justify-end">
-        <div className="w-full lg:w-[46%] xl:w-[44%] lg:bg-transparent bg-[#0a0908]/68 lg:backdrop-blur-none backdrop-blur-md border lg:border-0 border-[#c5a46d]/20 rounded-xl lg:rounded-none p-5 sm:p-6 lg:p-0 rtl:text-right ltr:text-left">
-          {/* Phase 1 (28% -> 64%): Brand Kicker + Main Headline + Supporting Headline */}
+      {/* Main Content Stage — Aligned strictly to RIGHT half on desktop (leaving left oven 100% clear), and TOP half on mobile (leaving lower glowing oven 100% clear) */}
+      <div className="relative z-20 mx-auto w-full max-w-[1440px] px-4 sm:px-8 flex-1 flex items-start lg:items-center pt-2 sm:pt-5 lg:pt-0 pb-4 lg:pb-0 pointer-events-none rtl:justify-start ltr:justify-end">
+        <div className="w-full lg:w-[46%] xl:w-[44%] lg:bg-transparent bg-[#0a0908]/75 lg:backdrop-blur-none backdrop-blur-md border lg:border-0 border-[#c5a46d]/22 rounded-2xl lg:rounded-none p-4 sm:p-6 lg:p-0 rtl:text-right ltr:text-left shadow-2xl lg:shadow-none">
+          {/* Phase 1 (25% -> 62%): Brand Kicker + Main Headline + Supporting Headline */}
           <div
             ref={headlineRef}
             className="will-change-[transform,opacity]"
             style={{ opacity: reducedMotion ? 1 : 0 }}
           >
-            <p className="text-xs sm:text-[13px] font-medium text-[#c5a46d] tracking-wide mb-3">
+            <p className="text-xs sm:text-[13px] font-medium text-[#c5a46d] tracking-wide mb-1.5 sm:mb-3">
               {t.hero.kicker}
             </p>
 
-            <h1 className="text-[clamp(1.9rem,4vw,3.5rem)] font-bold text-[#f4f0e8] leading-[1.2] mb-3">
+            <h1 className="text-[clamp(1.75rem,3.8vw,3.5rem)] font-bold text-[#f4f0e8] leading-[1.2] mb-1.5 sm:mb-3">
               {t.hero.headline}
             </h1>
 
-            <p className="text-lg sm:text-2xl font-medium text-[#e4c995] leading-snug mb-4">
+            <p className="text-base sm:text-2xl font-medium text-[#e4c995] leading-snug mb-2.5 sm:mb-4">
               {t.common.brandTagline}
             </p>
           </div>
 
-          {/* Phase 2 (50% -> 86%): Description + CTAs + Quiet Engineering Attributes */}
+          {/* Phase 2 (48% -> 84%): Description + CTAs + Quiet Engineering Attributes */}
           <div
             ref={detailsRef}
             className="will-change-[transform,opacity]"
@@ -175,15 +175,15 @@ export function VideoHeroSection({
               pointerEvents: reducedMotion ? 'auto' : 'none',
             }}
           >
-            <p className="text-sm sm:text-base text-[#d2ccc2] leading-[1.85] max-w-[50ch] mb-6 sm:mb-8">
+            <p className="text-xs sm:text-base text-[#d2ccc2] leading-[1.75] sm:leading-[1.85] max-w-[50ch] mb-4 sm:mb-8">
               {t.hero.subtitle}
             </p>
 
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
               <button
                 type="button"
                 onClick={() => onNavigate('#products')}
-                className="inline-flex items-center justify-center gap-2.5 h-11 sm:h-12 px-6 rounded-md bg-[#c5a46d] text-[#060606] text-sm font-semibold hover:bg-[#e4c995] transition-colors duration-200 whitespace-nowrap cursor-pointer"
+                className="inline-flex items-center justify-center gap-2 sm:gap-2.5 h-10 sm:h-12 px-5 sm:px-6 rounded-md bg-[#c5a46d] text-[#060606] text-xs sm:text-sm font-semibold hover:bg-[#e4c995] transition-colors duration-200 whitespace-nowrap cursor-pointer shadow-lg shadow-[#c5a46d]/15"
               >
                 <span>{t.hero.ctaPrimary}</span>
                 <ArrowLeft
@@ -195,13 +195,13 @@ export function VideoHeroSection({
               <button
                 type="button"
                 onClick={() => onNavigate('#contact')}
-                className="inline-flex items-center justify-center gap-2 h-11 sm:h-12 px-6 rounded-md glass-surface text-[#f4f0e8] text-sm font-medium hover:border-[#e4c995]/60 hover:text-[#e4c995] transition-colors duration-200 whitespace-nowrap cursor-pointer"
+                className="inline-flex items-center justify-center gap-2 h-10 sm:h-12 px-4 sm:px-6 rounded-md glass-surface text-[#f4f0e8] text-xs sm:text-sm font-medium hover:border-[#e4c995]/60 hover:text-[#e4c995] transition-colors duration-200 whitespace-nowrap cursor-pointer"
               >
                 <span>{t.hero.ctaSecondary}</span>
               </button>
             </div>
 
-            <div className="mt-6 pt-5 border-t border-[#c5a46d]/22 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-[#b5aea4]">
+            <div className="mt-4 sm:mt-6 pt-3 sm:pt-5 border-t border-[#c5a46d]/22 flex flex-wrap items-center gap-x-3 sm:gap-x-4 gap-y-1 text-[11px] sm:text-xs text-[#b5aea4]">
               <span>{t.hero.featureTag1}</span>
               <span aria-hidden="true" className="text-[#c5a46d]/50">
                 ·

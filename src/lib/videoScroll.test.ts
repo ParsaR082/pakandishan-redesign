@@ -6,7 +6,15 @@ import {
   getHeroScrollDistance,
   computeVideoFocalPosition,
   computeHeroTimelinePhases,
+  getFrameFileName,
 } from './videoScroll';
+
+test('getFrameFileName resolves desktop and mobile subfolders accurately', () => {
+  assert.equal(getFrameFileName(0, false), '/assets/frames/desktop/frame_0001.webp');
+  assert.equal(getFrameFileName(239, false), '/assets/frames/desktop/frame_0240.webp');
+  assert.equal(getFrameFileName(0, true), '/assets/frames/mobile/frame_0001.webp');
+  assert.equal(getFrameFileName(239, true), '/assets/frames/mobile/frame_0240.webp');
+});
 
 test('computeTargetVideoTime maps [0..1] accurately and holds safe final frame', () => {
   assert.equal(computeTargetVideoTime(0, 10), 0);
@@ -34,8 +42,8 @@ test('getHeroScrollDistance adapts cleanly to desktop, tablet, and mobile', () =
 test('computeVideoFocalPosition keeps desktop centered and tracks left-moving oven on mobile', () => {
   assert.equal(computeVideoFocalPosition(0, 1440), '50% 50%');
   assert.equal(computeVideoFocalPosition(1, 1440), '50% 50%');
-  assert.equal(computeVideoFocalPosition(0, 390), '50.0% 44.0%');
-  assert.equal(computeVideoFocalPosition(1, 390), '31.0% 38.0%');
+  assert.equal(computeVideoFocalPosition(0, 390), '50.0% 50.0%');
+  assert.equal(computeVideoFocalPosition(1, 390), '44.0% 53.0%');
 });
 
 test('computeHeroTimelinePhases keeps intro clean at start and completes at final frame', () => {

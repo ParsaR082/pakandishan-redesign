@@ -17,8 +17,8 @@ import {
 } from '../../lib/videoScroll';
 import { useLanguage } from '../../context/LanguageContext';
 
-export const HERO_VIDEO_SRC =
-  '/assets/aistudio/gemini_generated_video_9ab5cb01_9f10563b.mp4';
+export const HERO_VIDEO_SRC = '/assets/videos/desktop.mp4';
+export const HERO_VIDEO_SRC_MOBILE = '/assets/videos/mobile.mp4';
 
 export interface PersistentVideoHandle {
   setProgress: (progress: number, immediate?: boolean) => void;
@@ -41,9 +41,16 @@ export const PersistentVideoBackground = forwardRef<
   const [isReady, setIsReady] = useState(false);
   const [hasError, setHasError] = useState(false);
 
-  const imagesRef = useRef<(HTMLImageElement | null)[]>(
+  const desktopImagesRef = useRef<(HTMLImageElement | null)[]>(
     new Array(TOTAL_VIDEO_FRAMES).fill(null)
   );
+  const mobileImagesRef = useRef<(HTMLImageElement | null)[]>(
+    new Array(TOTAL_VIDEO_FRAMES).fill(null)
+  );
+  const isMobileRef = useRef<boolean>(
+    typeof window !== 'undefined' ? window.innerWidth < 768 : false
+  );
+
   const isReadyRef = useRef<boolean>(false);
   const progressRef = useRef<number>(reducedMotion ? 1 : 0);
   const targetFrameRef = useRef<number>(reducedMotion ? TOTAL_VIDEO_FRAMES - 1 : 0);
@@ -108,27 +115,58 @@ export const PersistentVideoBackground = forwardRef<
       Math.min(TOTAL_VIDEO_FRAMES - 1, Math.round(frameFloat))
     );
 
-    // Find the best available frame: exact match or nearest loaded neighbour
-    let bestImg: HTMLImageElement | null = imagesRef.current[targetIdx];
+    const isMobile = isMobileRef.current;
+    const primarySet = isMobile ? mobileImagesRef.current : desktopImagesRef.current;
+    const secondarySet = isMobile ? desktopImagesRef.current : mobileImagesRef.current;
+
+    // Find the best available frame: exact match or nearest loaded neighbour in primary set
+    let bestImg: HTMLImageElement | null = primarySet[targetIdx];
     if (!bestImg || !bestImg.complete || bestImg.naturalWidth === 0) {
       for (let radius = 1; radius < TOTAL_VIDEO_FRAMES; radius++) {
         const prev = targetIdx - radius;
         if (
           prev >= 0 &&
-          imagesRef.current[prev]?.complete &&
-          imagesRef.current[prev]?.naturalWidth
+          primarySet[prev]?.complete &&
+          primarySet[prev]?.naturalWidth
         ) {
-          bestImg = imagesRef.current[prev];
+          bestImg = primarySet[prev];
           break;
         }
         const next = targetIdx + radius;
         if (
           next < TOTAL_VIDEO_FRAMES &&
-          imagesRef.current[next]?.complete &&
-          imagesRef.current[next]?.naturalWidth
+          primarySet[next]?.complete &&
+          primarySet[next]?.naturalWidth
         ) {
-          bestImg = imagesRef.current[next];
+          bestImg = primarySet[next];
           break;
+        }
+      }
+    }
+
+    // Fallback to secondary set during orientation/resize transitions
+    if (!bestImg || !bestImg.complete || bestImg.naturalWidth === 0) {
+      bestImg = secondarySet[targetIdx];
+      if (!bestImg || !bestImg.complete || bestImg.naturalWidth === 0) {
+        for (let radius = 1; radius < TOTAL_VIDEO_FRAMES; radius++) {
+          const prev = targetIdx - radius;
+          if (
+            prev >= 0 &&
+            secondarySet[prev]?.complete &&
+            secondarySet[prev]?.naturalWidth
+          ) {
+            bestImg = secondarySet[prev];
+            break;
+          }
+          const next = targetIdx + radius;
+          if (
+            next < TOTAL_VIDEO_FRAMES &&
+            secondarySet[next]?.complete &&
+            secondarySet[next]?.naturalWidth
+          ) {
+            bestImg = secondarySet[next];
+            break;
+          }
         }
       }
     }
@@ -149,7 +187,7 @@ export const PersistentVideoBackground = forwardRef<
     const imgW = bestImg.naturalWidth || 1280;
     const imgH = bestImg.naturalHeight || 720;
 
-    // Cover-fit geometry
+    // Cover-fit geometry: works flawlessly for either 16:9 widescreen or 9:16 vertical frames
     const scale = Math.max(cW / imgW, cH / imgH);
     const renderW = imgW * scale;
     const renderH = imgH * scale;
@@ -176,7 +214,7 @@ export const PersistentVideoBackground = forwardRef<
     if (lastDrawnFrameRef.current !== targetIdx) {
       lastDrawnFrameRef.current = targetIdx;
       if (wrapperRef.current) {
-        const approxSeconds = (targetIdx / TOTAL_VIDEO_FRAMES) * 10.03;
+        const approxSeconds = (targetIdx / TOTAL_VIDEO_FRAMES) * 10.0;
         wrapperRef.current.dataset.currentTime = approxSeconds.toFixed(3);
         wrapperRef.current.dataset.frame = String(targetIdx);
         wrapperRef.current.dataset.settled =
@@ -247,100 +285,122 @@ export const PersistentVideoBackground = forwardRef<
     [reducedMotion, drawFrame, startScrubLoop]
   );
 
-  // Preload video frames progressively
+  // Preload video frames progressively with viewport awareness
   useEffect(() => {
     let isCancelled = false;
 
-    const loadSingleImage = (idx: number): Promise<HTMLImageElement> => {
+    const loadSingleImage = (
+      idx: number,
+      isMobile: boolean
+    ): Promise<HTMLImageElement> => {
+      const cache = isMobile ? mobileImagesRef.current : desktopImagesRef.current;
       return new Promise((resolve, reject) => {
-        if (imagesRef.current[idx]) {
-          resolve(imagesRef.current[idx]!);
+        if (cache[idx]) {
+          resolve(cache[idx]!);
           return;
         }
         const img = new Image();
-        img.src = getFrameFileName(idx);
+        img.src = getFrameFileName(idx, isMobile);
         img.onload = () => {
           if (!isCancelled) {
-            imagesRef.current[idx] = img;
+            cache[idx] = img;
           }
           resolve(img);
         };
         img.onerror = () => {
-          reject(new Error(`Failed to load frame ${idx}`));
+          reject(new Error(`Failed to load frame ${idx} (mobile: ${isMobile})`));
         };
       });
     };
 
-    // 1. Immediately load frame 0 so the hero renders without delay
-    const initialFrame = reducedMotion ? TOTAL_VIDEO_FRAMES - 1 : 0;
-    loadSingleImage(initialFrame)
-      .then((img) => {
-        if (isCancelled) return;
-        isReadyRef.current = true;
-        setIsReady(true);
-        updateDimensions();
-        drawFrame(initialFrame);
+    const startPreloadingForMode = (isMobile: boolean) => {
+      const cache = isMobile ? mobileImagesRef.current : desktopImagesRef.current;
+      const initialFrame = reducedMotion ? TOTAL_VIDEO_FRAMES - 1 : 0;
 
-        if (wrapperRef.current) {
-          wrapperRef.current.dataset.ready = 'true';
-          wrapperRef.current.dataset.duration = '10.030';
-        }
+      // 1. Immediately load initial frame so the hero renders without delay
+      loadSingleImage(initialFrame, isMobile)
+        .then(() => {
+          if (isCancelled) return;
+          isReadyRef.current = true;
+          setIsReady(true);
+          updateDimensions();
+          drawFrame(initialFrame);
 
-        // Also ensure final frame is loaded if in reduced motion
-        if (reducedMotion && initialFrame !== 0) {
-          loadSingleImage(0).catch(() => {});
-        }
-
-        // 2. Load milestone keyframes every 8th frame for instant scrub response
-        const milestoneIndices: number[] = [];
-        for (let i = 0; i < TOTAL_VIDEO_FRAMES; i += 8) {
-          if (i !== initialFrame) milestoneIndices.push(i);
-        }
-        milestoneIndices.push(TOTAL_VIDEO_FRAMES - 1);
-
-        milestoneIndices.forEach((idx) => {
-          loadSingleImage(idx).catch(() => {});
-        });
-
-        // 3. Concurrently load all other frames in chunks
-        const allRemaining: number[] = [];
-        for (let i = 0; i < TOTAL_VIDEO_FRAMES; i++) {
-          if (!imagesRef.current[i]) {
-            allRemaining.push(i);
+          if (wrapperRef.current) {
+            wrapperRef.current.dataset.ready = 'true';
+            wrapperRef.current.dataset.duration = '10.000';
+            wrapperRef.current.dataset.mode = isMobile ? 'mobile' : 'desktop';
           }
-        }
 
-        let currentIndex = 0;
-        const chunkSize = 12;
+          // Ensure final frame is loaded if in reduced motion
+          if (reducedMotion && initialFrame !== 0) {
+            loadSingleImage(0, isMobile).catch(() => {});
+          }
 
-        const loadNextChunk = () => {
-          if (isCancelled || currentIndex >= allRemaining.length) return;
-          const chunk = allRemaining.slice(
-            currentIndex,
-            currentIndex + chunkSize
-          );
-          currentIndex += chunkSize;
+          // 2. Load milestone keyframes every 8th frame for instant scrub response
+          const milestoneIndices: number[] = [];
+          for (let i = 0; i < TOTAL_VIDEO_FRAMES; i += 8) {
+            if (i !== initialFrame) milestoneIndices.push(i);
+          }
+          milestoneIndices.push(TOTAL_VIDEO_FRAMES - 1);
 
-          Promise.allSettled(chunk.map((i) => loadSingleImage(i))).then(() => {
-            if (!isCancelled && currentIndex < allRemaining.length) {
-              if (typeof requestIdleCallback !== 'undefined') {
-                requestIdleCallback(loadNextChunk, { timeout: 150 });
-              } else {
-                setTimeout(loadNextChunk, 20);
-              }
-            }
+          milestoneIndices.forEach((idx) => {
+            loadSingleImage(idx, isMobile).catch(() => {});
           });
-        };
 
-        loadNextChunk();
-      })
-      .catch(() => {
-        if (!isCancelled) {
-          setHasError(true);
-        }
-      });
+          // 3. Concurrently load all other frames in chunks
+          const allRemaining: number[] = [];
+          for (let i = 0; i < TOTAL_VIDEO_FRAMES; i++) {
+            if (!cache[i]) {
+              allRemaining.push(i);
+            }
+          }
+
+          let currentIndex = 0;
+          const chunkSize = 12;
+
+          const loadNextChunk = () => {
+            if (isCancelled || currentIndex >= allRemaining.length) return;
+            const chunk = allRemaining.slice(
+              currentIndex,
+              currentIndex + chunkSize
+            );
+            currentIndex += chunkSize;
+
+            Promise.allSettled(chunk.map((i) => loadSingleImage(i, isMobile))).then(() => {
+              if (!isCancelled && currentIndex < allRemaining.length) {
+                if (typeof requestIdleCallback !== 'undefined') {
+                  requestIdleCallback(loadNextChunk, { timeout: 150 });
+                } else {
+                  setTimeout(loadNextChunk, 20);
+                }
+              }
+            });
+          };
+
+          loadNextChunk();
+        })
+        .catch(() => {
+          if (!isCancelled) {
+            setHasError(true);
+          }
+        });
+    };
+
+    const initialIsMobile =
+      typeof window !== 'undefined' ? window.innerWidth < 768 : false;
+    isMobileRef.current = initialIsMobile;
+    startPreloadingForMode(initialIsMobile);
 
     const handleResize = () => {
+      const newIsMobile = window.innerWidth < 768;
+      if (newIsMobile !== isMobileRef.current) {
+        isMobileRef.current = newIsMobile;
+        if (wrapperRef.current) {
+          wrapperRef.current.dataset.mode = newIsMobile ? 'mobile' : 'desktop';
+        }
+        startPreloadingForMode(newIsMobile);
+      }
       updateDimensions();
       drawFrame(displayedFrameRef.current);
     };

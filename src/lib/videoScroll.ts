@@ -23,10 +23,12 @@ export const FRAMES_BASE_PATH = '/assets/frames';
 
 /**
  * Returns the URL path for a zero-indexed frame (0..239) -> frame_0001.webp..frame_0240.webp.
+ * Supports dedicated subfolders for 'desktop' (16:9 widescreen) and 'mobile' (9:16 vertical).
  */
-export function getFrameFileName(frameIndex: number): string {
+export function getFrameFileName(frameIndex: number, isMobile = false): string {
   const index = Math.max(1, Math.min(TOTAL_VIDEO_FRAMES, Math.round(frameIndex) + 1));
-  return `${FRAMES_BASE_PATH}/frame_${String(index).padStart(4, '0')}.webp`;
+  const folder = isMobile ? 'mobile' : 'desktop';
+  return `${FRAMES_BASE_PATH}/${folder}/frame_${String(index).padStart(4, '0')}.webp`;
 }
 
 /**
@@ -83,11 +85,12 @@ export function getHeroScrollDistance(viewportWidth: number): number {
 }
 
 /**
- * Computes CSS `object-position` for the persistent video layer.
- * On desktop 16:9/wide viewports, keeps natural 50% 50% framing so the oven glides naturally
- * from center (0%) to the left half (100%), leaving the right half clear for RTL Persian copy.
- * On narrow portrait mobile viewports, smoothly pans the horizontal focal point toward the
- * left-settled oven (~30%) so the machine stays framed without distortion or cropping.
+ * Computes CSS `object-position` for the persistent video canvas.
+ * - On desktop (>=1024px, 16:9 widescreen): centered 50% 50% so the oven pulls back and settles
+ *   naturally in the left 40% of the frame, leaving the right half dark and clear for copy.
+ * - On tablet (768px..1023px): subtle horizontal shift so the oven stays well framed.
+ * - On mobile (<768px, 9:16 vertical): calibrated for the dedicated 9:16 portrait video where the
+ *   oven settles in the lower half with open dark negative space on top.
  */
 export function computeVideoFocalPosition(
   progress: number,
@@ -98,12 +101,12 @@ export function computeVideoFocalPosition(
     return '50% 50%';
   }
   if (viewportWidth >= 768) {
-    const xPct = 50 - p * 10;
+    const xPct = 50 - p * 8;
     return `${xPct.toFixed(1)}% 50%`;
   }
-  // Portrait mobile: track the oven as it glides left from center (50%) to ~31%
-  const xPct = 50 - p * 19;
-  const yPct = 44 - p * 6;
+  // Dedicated 9:16 portrait mobile frames: subtle horizontal and vertical centering
+  const xPct = 50 - p * 6;
+  const yPct = 50 + p * 3;
   return `${xPct.toFixed(1)}% ${yPct.toFixed(1)}%`;
 }
 
@@ -114,24 +117,24 @@ function smoothRange(value: number, start: number, end: number): number {
 }
 
 /**
- * Choreographs hero copy transitions strictly synchronized to the actual video timeline:
- * - 0.00..0.22: Machine centered; minimal initial cue only so the oven is unobstructed.
- * - 0.28..0.66: Golden base ring illuminates and oven moves left; brand headline enters on the right.
- * - 0.50..0.88: Oven settles left; description, CTAs, and engineering tags complete cleanly on the right.
- * - 0.94..1.00: Final settled hero state before normal page scrolling begins.
+ * Choreographs hero copy transitions strictly synchronized to the 3D camera motion:
+ * - 0.00..0.22: Camera close-up on rotating trays & glowing furnace; hero copy hidden so product is hero.
+ * - 0.25..0.62: Camera executes 3D pull-back & pivot; oven glides left/lower-left; brand kicker & headline glide in.
+ * - 0.48..0.84: Oven settles cleanly; subtitle, CTAs, and metallurgy badges enter with silky ease.
+ * - 0.94..1.00: Full settled state reached; unpins smoothly into dashboard.
  */
 export function computeHeroTimelinePhases(progress: number): HeroTimelineState {
   const p = clamp01(progress);
-  const introCueOpacity = 1 - smoothRange(p, 0.14, 0.30);
-  const headlineOpacity = smoothRange(p, 0.28, 0.64);
-  const detailsOpacity = smoothRange(p, 0.50, 0.86);
+  const introCueOpacity = 1 - smoothRange(p, 0.12, 0.28);
+  const headlineOpacity = smoothRange(p, 0.25, 0.62);
+  const detailsOpacity = smoothRange(p, 0.48, 0.84);
 
   return {
     introCueOpacity,
     headlineOpacity,
-    headlineTranslateY: (1 - headlineOpacity) * 28,
+    headlineTranslateY: (1 - headlineOpacity) * 24,
     detailsOpacity,
-    detailsTranslateY: (1 - detailsOpacity) * 24,
+    detailsTranslateY: (1 - detailsOpacity) * 20,
     isSettled: p >= 0.94,
   };
 }
