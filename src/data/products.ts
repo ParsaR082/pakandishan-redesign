@@ -1,4 +1,5 @@
 import { ASSET_MANIFEST } from './assets';
+import { Language, TRANSLATIONS } from '../i18n/translations';
 
 export interface ProductItem {
   id: string;
@@ -312,3 +313,88 @@ export const MACHINE_OPTIONS: string[] = [
   'خمیرگیر اسپیرال و تجهیزات آماده‌سازی',
   'مشاوره راه‌اندازی کامل خط تولید',
 ];
+
+export function getFeaturedProducts(lang: Language = 'fa'): ProductItem[] {
+  const trans = TRANSLATIONS[lang].products.items;
+  return trans.map((item) => {
+    let img = ASSET_MANIFEST.rotaryOven.path;
+    let alt = ASSET_MANIFEST.rotaryOven.altFa;
+    if (item.id === 'modern-deck-oven') {
+      img = ASSET_MANIFEST.deckOven.path;
+      alt = ASSET_MANIFEST.deckOven.altFa;
+    } else if (item.id === 'industrial-bread-line') {
+      img = ASSET_MANIFEST.breadLine.path;
+      alt = ASSET_MANIFEST.breadLine.altFa;
+    }
+    return {
+      ...item,
+      image: img,
+      imageAlt: alt,
+    };
+  });
+}
+
+export function getProductCategories(lang: Language = 'fa'): ProductCategoryItem[] {
+  const trans = TRANSLATIONS[lang].categories.items;
+  return trans.map((item) => {
+    let img = ASSET_MANIFEST.rotaryOven.path;
+    let alt = ASSET_MANIFEST.rotaryOven.altFa;
+    if (item.id === 'bread-machinery') {
+      img = ASSET_MANIFEST.breadLine.path;
+      alt = ASSET_MANIFEST.breadLine.altFa;
+    } else if (item.id === 'pastry-lines') {
+      img = ASSET_MANIFEST.deckOven.path;
+      alt = ASSET_MANIFEST.deckOven.altFa;
+    } else if (item.id === 'prep-conveyor') {
+      img = ASSET_MANIFEST.pastryPrep.path;
+      alt = ASSET_MANIFEST.pastryPrep.altFa;
+    }
+    return {
+      ...item,
+      image: img,
+      imageAlt: alt,
+    };
+  });
+}
+
+export function getTechPillars(lang: Language = 'fa'): TechPillar[] {
+  const t = TRANSLATIONS[lang].technology;
+  return [
+    {
+      number: t.pillar01Num,
+      title: t.pillar01Title,
+      description: t.pillar01Desc,
+      iconKey: 'compass',
+    },
+    {
+      number: t.pillar02Num,
+      title: t.pillar02Title,
+      description: t.pillar02Desc,
+      iconKey: 'cpu',
+    },
+    {
+      number: t.pillar03Num,
+      title: t.pillar03Title,
+      description: t.pillar03Desc,
+      iconKey: 'sliders',
+    },
+    {
+      number: t.pillar04Num,
+      title: t.pillar04Title,
+      description: t.pillar04Desc,
+      iconKey: 'shield',
+    },
+  ];
+}
+
+export function getCompanyAdvantages(lang: Language = 'fa'): CompanyAdvantage[] {
+  return TRANSLATIONS[lang].advantages.items;
+}
+
+export function getDashboardProfiles(lang: Language = 'fa'): DashboardProfile[] {
+  return TRANSLATIONS[lang].dashboard.profiles;
+}
+
+export function getMachineOptions(lang: Language = 'fa'): string[] {
+  return TRANSLATIONS[lang].contact.machineOptions;
+}

@@ -1,6 +1,6 @@
 import { Award, Crosshair, Headphones, Layers, Sparkles } from 'lucide-react';
-import { COMPANY_ADVANTAGES, CompanyAdvantage } from '../../data/products';
-import { toPersianDigits } from '../../lib/dashboardLogic';
+import { useLanguage } from '../../context/LanguageContext';
+import { getCompanyAdvantages, CompanyAdvantage } from '../../data/products';
 
 const ICON_MAP: Record<CompanyAdvantage['iconKey'], typeof Layers> = {
   layers: Layers,
@@ -11,6 +11,9 @@ const ICON_MAP: Record<CompanyAdvantage['iconKey'], typeof Layers> = {
 };
 
 export function AdvantagesSection() {
+  const { language, t, formatNumber } = useLanguage();
+  const advantages = getCompanyAdvantages(language);
+
   return (
     <section
       id="advantages"
@@ -21,24 +24,23 @@ export function AdvantagesSection() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14 reveal-section">
           <div className="max-w-2xl">
             <p className="text-xs font-medium text-[#c5a46d] mb-3">
-              ارزش‌های مهندسی و تولید
+              {t.advantages.badge}
             </p>
             <h2
               id="advantages-heading"
               className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#f4f0e8] leading-snug"
             >
-              چرا تولیدکنندگان حرفه‌ای پاک‌اندیشان را انتخاب می‌کنند
+              {t.advantages.title}
             </h2>
           </div>
           <p className="text-sm text-[#aaa39a] max-w-md leading-relaxed">
-            تمرکز بر اصالت ساخت، مهندسی کارآمد و پشتیبانی پایدار برای خطوط تولید
-            نان و شیرینی.
+            {t.advantages.subtitle}
           </p>
         </div>
 
         {/* Clean Horizontal Architectural Feature Grid inside Dark Frosted Glass */}
-        <div className="glass-surface rounded-lg overflow-hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 divide-y sm:divide-y-0 sm:divide-x sm:divide-x-reverse divide-[#c5a46d]/16 reveal-stagger-grid">
-          {COMPANY_ADVANTAGES.map((item, idx) => {
+        <div className="glass-surface rounded-lg overflow-hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 divide-y sm:divide-y-0 sm:rtl:divide-x-reverse sm:ltr:divide-x divide-[#c5a46d]/16 reveal-stagger-grid">
+          {advantages.map((item, idx) => {
             const Icon = ICON_MAP[item.iconKey];
             return (
               <div
@@ -52,7 +54,7 @@ export function AdvantagesSection() {
                     aria-hidden="true"
                   />
                   <span className="font-mono-tech text-xs text-[#77716a]">
-                    {toPersianDigits(String(idx + 1).padStart(2, '0'))}
+                    {formatNumber(String(idx + 1).padStart(2, '0'))}
                   </span>
                 </div>
 

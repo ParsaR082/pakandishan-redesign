@@ -38,15 +38,24 @@ export function computeGaugeArc(
 }
 
 /**
- * Computes delta between current and target temperature in Persian-readable format.
+ * Computes delta between current and target temperature in localized format.
  */
-export function getTemperatureDeltaLabel(current: number, target: number): string {
+export function getTemperatureDeltaLabel(
+  current: number,
+  target: number,
+  lang: 'fa' | 'en' = 'fa'
+): string {
   const diff = current - target;
   if (Math.abs(diff) <= 3) {
-    return 'در محدوده دمای هدف';
+    return lang === 'en' ? 'At target temperature' : 'در محدوده دمای هدف';
   }
   if (diff < 0) {
-    return `${toPersianDigits(Math.abs(diff))} درجه تا دمای هدف`;
+    const absVal = Math.abs(diff);
+    return lang === 'en'
+      ? `${absVal}°C below target`
+      : `${toPersianDigits(absVal)} درجه تا دمای هدف`;
   }
-  return `${toPersianDigits(diff)} درجه بالاتر از هدف`;
+  return lang === 'en'
+    ? `${diff}°C above target`
+    : `${toPersianDigits(diff)} درجه بالاتر از هدف`;
 }

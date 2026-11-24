@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowLeft } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageContext';
 import { ASSET_MANIFEST } from '../../data/assets';
 import { SafeImage } from '../ui/SafeImage';
 
@@ -13,6 +14,7 @@ interface ShowcaseSectionProps {
 }
 
 export function ShowcaseSection({ onNavigate, reducedMotion }: ShowcaseSectionProps) {
+  const { t } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
   const bgRef = useRef<HTMLDivElement>(null);
 
@@ -74,17 +76,16 @@ export function ShowcaseSection({ onNavigate, reducedMotion }: ShowcaseSectionPr
           <div className="relative z-10 w-full py-16 px-6 sm:px-10">
             <div className="max-w-3xl mx-auto text-center border-y border-[#c5a46d]/30 py-10 sm:py-14 px-4">
               <p className="text-xs font-medium text-[#e4c995] mb-4">
-                چشم‌انداز نسل جدید خطوط تولید
+                {t.showcase.badge}
               </p>
               <h2
                 id="showcase-heading"
                 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#f4f0e8] leading-[1.3] mb-6"
               >
-                آینده صنعت در دستان فناوری است
+                {t.showcase.title}
               </h2>
               <p className="text-sm sm:text-base text-[#f4f0e8]/85 leading-[1.9] max-w-2xl mx-auto mb-9">
-                همراهی مهندسی دقیق، متریال ماندگار و طراحی هوشمندانه برای ارتقای
-                بهره‌وری کارگاه‌ها و کارخانه‌های تولید نان و شیرینی در مقیاس صنعتی.
+                {t.showcase.description}
               </p>
 
               <button
@@ -92,8 +93,8 @@ export function ShowcaseSection({ onNavigate, reducedMotion }: ShowcaseSectionPr
                 onClick={() => onNavigate('#contact')}
                 className="inline-flex items-center justify-center gap-2.5 h-12 px-7 rounded-md bg-[#c5a46d] text-[#090909] text-sm font-semibold hover:bg-[#e4c995] transition-colors cursor-pointer"
               >
-                <span>برنامه‌ریزی تجهیز خط تولید</span>
-                <ArrowLeft className="w-4 h-4" aria-hidden="true" />
+                <span>{t.showcase.cta}</span>
+                <ArrowLeft className="w-4 h-4 rtl:rotate-0 ltr:rotate-180" aria-hidden="true" />
               </button>
             </div>
           </div>

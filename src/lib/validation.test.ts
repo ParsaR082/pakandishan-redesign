@@ -55,3 +55,35 @@ test('validateContactForm rejects too-short non-empty description', () => {
   assert.equal(result.isValid, false);
   assert.ok(result.errors.description);
 });
+
+test('validateContactForm supports English and accepts international phone format', () => {
+  const result = validateContactForm(
+    {
+      fullName: 'John Miller',
+      phone: '+1 415 555 2671',
+      machineType: 'Rotary Rack Oven',
+      description: 'Inquiry for high-capacity industrial bakery installation in Munich',
+    },
+    'en'
+  );
+  assert.equal(result.isValid, true);
+  assert.equal(result.normalizedPhone, '+14155552671');
+  assert.deepEqual(result.errors, {});
+});
+
+test('validateContactForm produces localized English error messages', () => {
+  const result = validateContactForm(
+    {
+      fullName: 'A',
+      phone: '123',
+      machineType: '',
+      description: 'Short',
+    },
+    'en'
+  );
+  assert.equal(result.isValid, false);
+  assert.match(result.errors.fullName || '', /minimum 3 characters/i);
+  assert.match(result.errors.phone || '', /valid phone/i);
+  assert.match(result.errors.machineType || '', /select your target/i);
+  assert.match(result.errors.description || '', /at least 10 characters/i);
+});

@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
-import { PhoneCall, X } from 'lucide-react';
-import { BRAND_INFO, NAV_ITEMS } from '../../data/navigation';
+import { Globe, PhoneCall, X } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageContext';
+import { getNavItems } from '../../data/navigation';
 import { BrandMark } from '../ui/BrandMark';
 
 interface MobileMenuProps {
@@ -19,6 +20,8 @@ export function MobileMenu({
   onNavigate,
   reducedMotion,
 }: MobileMenuProps) {
+  const { language, isRTL, toggleLanguage, t } = useLanguage();
+  const navItems = getNavItems(language);
   const backdropRef = useRef<HTMLDivElement>(null);
   const drawerRef = useRef<HTMLDivElement>(null);
   const linksRef = useRef<HTMLUListElement>(null);
@@ -45,14 +48,14 @@ export function MobileMenu({
           clearProps: 'opacity',
         });
         gsap.from(drawerRef.current, {
-          x: 28,
+          x: isRTL ? 28 : -28,
           duration: 0.28,
           ease: 'power3.out',
           clearProps: 'transform',
         });
         if (linksRef.current) {
           gsap.from(linksRef.current.children, {
-            x: 14,
+            x: isRTL ? 14 : -14,
             duration: 0.24,
             stagger: 0.04,
             delay: 0.05,
@@ -72,7 +75,7 @@ export function MobileMenu({
       window.removeEventListener('keydown', onKeyDown);
       document.body.style.overflow = prevOverflow;
     };
-  }, [isOpen, reducedMotion]);
+  }, [isOpen, reducedMotion, isRTL]);
 
   if (!isOpen) return null;
 
@@ -86,7 +89,7 @@ export function MobileMenu({
       id="mobile-nav-drawer"
       role="dialog"
       aria-modal="true"
-      aria-label="منوی ناوبری موبایل"
+      aria-label={t.nav.mobileMenuTitle}
       className="fixed inset-0 z-50 lg:hidden flex justify-start"
     >
       <div
@@ -98,29 +101,46 @@ export function MobileMenu({
 
       <div
         ref={drawerRef}
-        className="relative z-10 w-[86vw] max-w-[360px] h-full bg-[#0e0d0c]/90 backdrop-blur-2xl border-l border-[#c5a46d]/28 flex flex-col justify-between p-6 overflow-y-auto"
+        className="relative z-10 w-[86vw] max-w-[360px] h-full bg-[#0e0d0c]/90 backdrop-blur-2xl rtl:border-l ltr:border-r border-[#c5a46d]/28 flex flex-col justify-between p-6 overflow-y-auto"
       >
         <div>
           <div className="flex items-center justify-between pb-5 border-b border-[#c5a46d]/18">
             <div className="flex items-center gap-3">
               <BrandMark className="w-8 h-8" />
               <span className="text-base font-semibold text-[#f4f0e8]">
-                {BRAND_INFO.name}
+                {t.common.brandName}
               </span>
             </div>
             <button
               type="button"
               onClick={onClose}
-              aria-label="بستن منو"
+              aria-label={t.nav.closeMenu}
               className="w-11 h-11 inline-flex items-center justify-center rounded-md border border-[#c5a46d]/20 text-[#aaa39a] hover:text-[#f4f0e8] hover:border-[#c5a46d]/50 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" aria-hidden="true" />
             </button>
           </div>
 
-          <nav aria-label="لینک‌های موبایل" className="mt-8">
+          {/* Language Switcher Row in Mobile Menu */}
+          <div className="mt-5 pt-1 flex items-center justify-between px-1">
+            <span className="text-xs text-[#aaa39a]">
+              {language === 'fa' ? 'زبان نمایش:' : 'Language:'}
+            </span>
+            <button
+              type="button"
+              onClick={toggleLanguage}
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md border border-[#c5a46d]/30 bg-[#161412] text-xs font-semibold text-[#e4c995] hover:border-[#c5a46d]/60 transition-colors cursor-pointer"
+            >
+              <Globe className="w-3.5 h-3.5 text-[#c5a46d]" aria-hidden="true" />
+              <span className="font-mono-tech tracking-wider uppercase">
+                {t.common.otherLanguageLabel} ({language === 'fa' ? 'English' : 'فارسی'})
+              </span>
+            </button>
+          </div>
+
+          <nav aria-label={t.nav.mobileMenuTitle} className="mt-6">
             <ul ref={linksRef} className="space-y-2">
-              {NAV_ITEMS.map((item) => {
+              {navItems.map((item) => {
                 const isActive = activeSection === item.id;
                 return (
                   <li key={item.id}>
@@ -152,10 +172,10 @@ export function MobileMenu({
             className="w-full min-h-[48px] inline-flex items-center justify-center gap-2 rounded-md bg-[#c5a46d] text-[#090909] text-sm font-semibold hover:bg-[#e4c995] transition-colors cursor-pointer"
           >
             <PhoneCall className="w-4 h-4" aria-hidden="true" />
-            <span>درخواست مشاوره تخصصی</span>
+            <span>{t.nav.mobileConsultationBtn}</span>
           </button>
           <p className="text-xs text-[#77716a] leading-relaxed">
-            {BRAND_INFO.tagline}
+            {t.common.brandTagline}
           </p>
         </div>
       </div>

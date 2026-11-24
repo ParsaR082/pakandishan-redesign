@@ -15,6 +15,7 @@ import {
   computeVideoFocalPosition,
   getFrameFileName,
 } from '../../lib/videoScroll';
+import { useLanguage } from '../../context/LanguageContext';
 
 export const HERO_VIDEO_SRC =
   '/assets/aistudio/gemini_generated_video_9ab5cb01_9f10563b.mp4';
@@ -32,6 +33,7 @@ export const PersistentVideoBackground = forwardRef<
   PersistentVideoHandle,
   PersistentVideoBackgroundProps
 >(function PersistentVideoBackground({ reducedMotion }, ref) {
+  const { t } = useLanguage();
   const wrapperRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const veilRef = useRef<HTMLDivElement>(null);
@@ -388,7 +390,7 @@ export const PersistentVideoBackground = forwardRef<
       {!isReady && !hasError && (
         <div className="absolute inset-0 flex items-end justify-center pb-14 bg-[#060606]/70 transition-opacity duration-300">
           <span className="text-xs text-[#c5a46d] tracking-wide">
-            در حال آماده‌سازی نمایش ویدیویی...
+            {t.common.loadingVideo}
           </span>
         </div>
       )}

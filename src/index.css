@@ -134,6 +134,19 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
+  html[dir="ltr"],
+  html[dir="ltr"] body {
+    font-family: "IRANYekanX", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    letter-spacing: -0.01em;
+  }
+
+  html[dir="ltr"] h1,
+  html[dir="ltr"] h2,
+  html[dir="ltr"] h3,
+  html[dir="ltr"] h4 {
+    letter-spacing: -0.025em;
+  }
+
   h1,
   h2,
   h3,

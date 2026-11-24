@@ -1,5 +1,6 @@
 import { useId } from 'react';
-import { computeGaugeArc, toPersianDigits } from '../../lib/dashboardLogic';
+import { useLanguage } from '../../context/LanguageContext';
+import { computeGaugeArc } from '../../lib/dashboardLogic';
 
 interface GaugeProps {
   title: string;
@@ -18,6 +19,7 @@ export function Gauge({
   subtitle,
   statusLabel,
 }: GaugeProps) {
+  const { formatNumber, t } = useLanguage();
   const rawId = useId();
   const gradId = `goldGrad${rawId.replace(/[^a-zA-Z0-9]/g, '')}`;
   const radius = 56;
@@ -47,7 +49,7 @@ export function Gauge({
           viewBox={`0 0 ${size} ${size}`}
           className="overflow-visible"
           role="img"
-          aria-label={`${title}: ${toPersianDigits(value)} ${unit}`}
+          aria-label={`${title}: ${formatNumber(value)} ${unit}`}
         >
           <defs>
             <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="0%">
@@ -89,12 +91,12 @@ export function Gauge({
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center pt-1">
           <div className="flex items-baseline gap-1 font-mono-tech tabular-nums">
             <span className="text-3xl font-bold text-[#f4f0e8]">
-              {toPersianDigits(value)}
+              {formatNumber(value)}
             </span>
             <span className="text-sm text-[#e4c995]">{unit}</span>
           </div>
           <span className="text-[11px] text-[#77716a] mt-1">
-            حداکثر {toPersianDigits(maxValue)}
+            {t.dashboard.gaugeMaxPrefix} {formatNumber(maxValue)}
           </span>
         </div>
       </div>

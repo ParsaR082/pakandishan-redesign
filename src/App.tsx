@@ -21,10 +21,12 @@ import { AdvantagesSection } from './components/sections/Advantages';
 import { ShowcaseSection } from './components/sections/Showcase';
 import { ContactSection } from './components/sections/Contact';
 import { ProductModal } from './components/products/ProductModal';
+import { useLanguage } from './context/LanguageContext';
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function App() {
+  const { direction, isRTL, language } = useLanguage();
   const reducedMotion = useReducedMotion();
   const lenisRef = useRef<Lenis | null>(null);
   const appRef = useRef<HTMLDivElement>(null);
@@ -230,15 +232,15 @@ export default function App() {
   );
 
   return (
-    <div ref={appRef} className="relative min-h-screen text-[#f4f0e8]" dir="rtl">
+    <div ref={appRef} className="relative min-h-screen text-[#f4f0e8]" dir={direction}>
       {/* Persistent Full-Screen Fixed Video Background (z-0, lives from Hero through Footer) */}
       <PersistentVideoBackground ref={videoRef} reducedMotion={reducedMotion} />
 
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:right-4 focus:z-[60] focus:px-4 focus:py-2 focus:bg-[#c5a46d] focus:text-[#090909] focus:rounded-md focus:font-semibold"
+        className={`sr-only focus:not-sr-only focus:fixed focus:top-4 ${isRTL ? 'focus:right-4' : 'focus:left-4'} focus:z-[60] focus:px-4 focus:py-2 focus:bg-[#c5a46d] focus:text-[#090909] focus:rounded-md focus:font-semibold`}
       >
-        پرش به محتوای اصلی
+        {language === 'en' ? 'Skip to main content' : 'پرش به محتوای اصلی'}
       </a>
 
       <div className="relative z-10">

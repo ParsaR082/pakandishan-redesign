@@ -1,22 +1,26 @@
 import { useState } from 'react';
 import { Flame, Gauge as GaugeIcon, Sliders, Zap } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageContext';
 import { ASSET_MANIFEST } from '../../data/assets';
-import { DASHBOARD_PROFILES } from '../../data/products';
-import { getTemperatureDeltaLabel, toPersianDigits } from '../../lib/dashboardLogic';
+import { getDashboardProfiles } from '../../data/products';
+import { getTemperatureDeltaLabel } from '../../lib/dashboardLogic';
 import { SafeImage } from '../ui/SafeImage';
 import { Gauge } from './Gauge';
 import { ProductionChart } from './ProductionChart';
 
 export function DashboardSection() {
-  const [selectedId, setSelectedId] = useState<string>(DASHBOARD_PROFILES[0].id);
+  const { language, t, formatNumber } = useLanguage();
+  const profiles = getDashboardProfiles(language);
+  const [selectedId, setSelectedId] = useState<string>(profiles[0].id);
+
   const profile =
-    DASHBOARD_PROFILES.find((item) => item.id === selectedId) ?? DASHBOARD_PROFILES[0];
+    profiles.find((item) => item.id === selectedId) ?? profiles[0];
 
   const statusRows = [
-    { label: 'سیستم گرمایش', value: profile.statusHeating, icon: Flame },
-    { label: 'سیستم کنترل', value: profile.statusControl, icon: Sliders },
-    { label: 'وضعیت عملکرد', value: profile.statusOperation, icon: GaugeIcon },
-    { label: 'آماده‌به‌کار', value: profile.statusReadiness, icon: Zap },
+    { label: t.dashboard.statusHeatingLabel, value: profile.statusHeating, icon: Flame },
+    { label: t.dashboard.statusControlLabel, value: profile.statusControl, icon: Sliders },
+    { label: t.dashboard.statusOperationLabel, value: profile.statusOperation, icon: GaugeIcon },
+    { label: t.dashboard.statusReadinessLabel, value: profile.statusReadiness, icon: Zap },
   ];
 
   return (
@@ -30,28 +34,26 @@ export function DashboardSection() {
         <div className="reveal-section flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-12">
           <div className="max-w-2xl">
             <p className="text-xs font-medium text-[#c5a46d] mb-3">
-              پایش مهندسی فرآیند · داده‌های نمایشی نمونه
+              {t.dashboard.badge}
             </p>
             <h2
               id="dashboard-heading"
               className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#f4f0e8] leading-snug"
             >
-              کنترل دقیق دما، انرژی و پایداری خط تولید
+              {t.dashboard.title}
             </h2>
             <p className="text-sm sm:text-base text-[#aaa39a] mt-3 leading-relaxed">
-              نمایش رابط مهندسی کنترل فرآیند پخت؛ مقادیر زیر صرفاً به‌عنوان الگوی
-              نمایشی برای بررسی ساختار کنترل دستگاه طراحی شده‌اند و نمایانگر اتصال
-              زنده به خط تولید نیستند.
+              {t.dashboard.description}
             </p>
           </div>
 
           {/* Interactive Profile Switcher (Segmented Control) */}
           <div
             role="tablist"
-            aria-label="انتخاب الگوی نمایشی پخت"
+            aria-label={t.dashboard.profilesTabLabel}
             className="flex flex-wrap items-center gap-1.5 p-1.5 rounded-lg bg-[#090908]/65 backdrop-blur-md border border-[#c5a46d]/22 self-start lg:self-end"
           >
-            {DASHBOARD_PROFILES.map((item) => {
+            {profiles.map((item) => {
               const isSelected = item.id === profile.id;
               return (
                 <button
@@ -73,23 +75,25 @@ export function DashboardSection() {
           </div>
         </div>
 
-        {/* Main 12-Column Grid: Machine Render on Right (RTL start), Technical Panels on Left */}
+        {/* Main 12-Column Grid: Machine Render on One Column, Technical Panels on Other */}
         <div className="reveal-stagger-grid grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-          {/* Right Column (RTL first): Studio Industrial Rotary Oven Showcase + Status Panel */}
+          {/* Column 1: Studio Industrial Rotary Oven Showcase + Status Panel */}
           <div className="reveal-card lg:col-span-5 flex flex-col gap-6">
             <div className="surface-panel rounded-lg overflow-hidden flex-1 flex flex-col">
               <div className="px-5 py-4 border-b border-[#c5a46d]/14 flex items-center justify-between gap-2">
                 <span className="text-sm font-semibold text-[#f4f0e8]">
                   {profile.machineLabel}
                 </span>
-                <span className="text-xs text-[#aaa39a]">نمایش گرافیکی</span>
+                <span className="text-xs text-[#aaa39a]">
+                  {t.dashboard.cadRenderLabel}
+                </span>
               </div>
 
               <div className="relative flex-1 min-h-[280px] bg-black/50 overflow-hidden">
                 <SafeImage
                   src={ASSET_MANIFEST.rotaryOven.path}
                   alt={ASSET_MANIFEST.rotaryOven.altFa}
-                  fallbackTitle="فر گردان صنعتی پاک‌اندیشان"
+                  fallbackTitle={profile.machineLabel}
                   className="w-full h-full object-cover"
                 />
                 <div
@@ -98,7 +102,7 @@ export function DashboardSection() {
                 />
               </div>
 
-              {/* Technical Status Indicators Grid (static typography, zero pulsing dots) */}
+              {/* Technical Status Indicators Grid */}
               <div className="grid grid-cols-2 gap-px bg-[#c5a46d]/18 border-t border-[#c5a46d]/20">
                 {statusRows.map((row) => {
                   const Icon = row.icon;
@@ -127,52 +131,63 @@ export function DashboardSection() {
             </div>
           </div>
 
-          {/* Left Column (RTL second): Gauges, Energy Monitor, and Production Chart */}
+          {/* Column 2: Gauges, Energy Monitor, and Production Chart */}
           <div className="reveal-card lg:col-span-7 flex flex-col gap-6">
             {/* Top Row: Temperature Gauge + Efficiency Gauge + Energy Card */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
               <Gauge
-                title="دمای محفظه پخت"
+                title={t.dashboard.gauge1Title}
                 value={profile.temperature}
                 maxValue={profile.maxTemperature}
                 unit="°C"
-                statusLabel={`هدف ${toPersianDigits(profile.targetTemperature)}°C`}
+                statusLabel={
+                  language === 'fa'
+                    ? `هدف ${formatNumber(profile.targetTemperature)}°C`
+                    : `Target ${formatNumber(profile.targetTemperature)}°C`
+                }
                 subtitle={getTemperatureDeltaLabel(
                   profile.temperature,
-                  profile.targetTemperature
+                  profile.targetTemperature,
+                  language
                 )}
               />
 
               <Gauge
-                title="راندمان چرخه پخت"
+                title={t.dashboard.gauge2Title}
                 value={profile.efficiency}
                 maxValue={100}
-                unit="٪"
-                statusLabel="پایدار (نمونه)"
-                subtitle="نسبت بهره‌وری حرارتی در الگوی انتخابی"
+                unit={t.common.percentLabel}
+                statusLabel={t.dashboard.gauge2Status}
+                subtitle={t.dashboard.gauge2Subtitle}
               />
 
               {/* Energy Monitoring Card */}
               <div className="surface-panel rounded-lg p-5 flex flex-col justify-between gap-4">
                 <div className="flex items-center justify-between gap-2">
-                  <h3 className="text-sm font-semibold text-[#f4f0e8]">پایش انرژی</h3>
+                  <h3 className="text-sm font-semibold text-[#f4f0e8]">
+                    {t.dashboard.dailyEnergyTitle}
+                  </h3>
                   <Zap className="w-4 h-4 text-[#c5a46d]" aria-hidden="true" />
                 </div>
 
                 <div className="space-y-4 my-auto">
                   <div>
-                    <p className="text-xs text-[#77716a] mb-1">مصرف روزانه (نمونه)</p>
+                    <p className="text-xs text-[#77716a] mb-1">
+                      {language === 'fa' ? 'مصرف روزانه (نمونه)' : 'Daily Consumption'}
+                    </p>
                     <p className="font-mono-tech text-3xl font-bold text-[#f4f0e8] tabular-nums">
-                      {toPersianDigits(profile.dailyEnergyKwh)}{' '}
+                      {formatNumber(profile.dailyEnergyKwh)}{' '}
                       <span className="text-sm font-normal text-[#e4c995]">kWh</span>
                     </p>
                   </div>
 
                   <div>
                     <div className="flex items-center justify-between text-xs mb-1.5">
-                      <span className="text-[#aaa39a]">شاخص بهینه‌سازی عایق</span>
+                      <span className="text-[#aaa39a]">
+                        {language === 'fa' ? 'شاخص بهینه‌سازی عایق' : 'Thermal Optimization'}
+                      </span>
                       <span className="text-[#e4c995] font-semibold tabular-nums">
-                        +{toPersianDigits(profile.energySavedPercent)}٪
+                        +{formatNumber(profile.energySavedPercent)}{t.common.percentLabel}
                       </span>
                     </div>
                     <div className="h-2 w-full rounded-full bg-white/8 overflow-hidden">

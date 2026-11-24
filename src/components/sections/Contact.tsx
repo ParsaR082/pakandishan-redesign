@@ -1,18 +1,23 @@
 import { FormEvent, useEffect, useState } from 'react';
-import { CheckCircle2, Mail, MapPin, Phone, RotateCcw } from 'lucide-react';
-import { BRAND_INFO } from '../../data/navigation';
-import { MACHINE_OPTIONS } from '../../data/products';
+import { CheckCircle2, Clock, Mail, MapPin, Phone, RotateCcw } from 'lucide-react';
+import { getBrandInfo } from '../../data/navigation';
+import { getMachineOptions } from '../../data/products';
 import {
   ContactFormData,
   ContactValidationErrors,
   validateContactForm,
 } from '../../lib/validation';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface ContactSectionProps {
   preselectedMachine?: string;
 }
 
 export function ContactSection({ preselectedMachine = '' }: ContactSectionProps) {
+  const { language, t, isRTL } = useLanguage();
+  const brandInfo = getBrandInfo(language);
+  const machineOptions = getMachineOptions(language);
+
   const [formData, setFormData] = useState<ContactFormData>({
     fullName: '',
     phone: '',
@@ -34,7 +39,7 @@ export function ContactSection({ preselectedMachine = '' }: ContactSectionProps)
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const validation = validateContactForm(formData);
+    const validation = validateContactForm(formData, language);
     if (!validation.isValid) {
       setErrors(validation.errors);
       setSubmittedPayload(null);
@@ -69,21 +74,20 @@ export function ContactSection({ preselectedMachine = '' }: ContactSectionProps)
     >
       <div className="mx-auto max-w-[1440px] px-4 sm:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-start">
-          {/* Right Column (RTL start): Headline, CTA actions & Company Info */}
+          {/* Right Column (RTL start / LTR left): Headline, CTA actions & Company Info */}
           <div className="lg:col-span-5 glass-surface rounded-lg p-6 sm:p-8 space-y-8 reveal-section">
             <div>
               <p className="text-xs font-medium text-[#c5a46d] mb-3">
-                ارتباط با واحد مهندسی فروش
+                {t.contact.badge}
               </p>
               <h2
                 id="contact-heading"
                 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#f4f0e8] leading-snug mb-4"
               >
-                برای توسعه خط تولید خود آماده‌اید؟
+                {t.contact.title}
               </h2>
               <p className="text-sm sm:text-base text-[#aaa39a] leading-[1.9]">
-                برای دریافت مشاوره تخصصی و آشنایی با راهکارهای صنعتی، با
-                کارشناسان ما در ارتباط باشید.
+                {t.contact.description}
               </p>
             </div>
 
@@ -92,15 +96,15 @@ export function ContactSection({ preselectedMachine = '' }: ContactSectionProps)
                 href="#consultation-form-title"
                 className="inline-flex items-center justify-center h-11 px-6 rounded-md bg-[#c5a46d] text-[#090909] text-sm font-semibold hover:bg-[#e4c995] transition-colors whitespace-nowrap"
               >
-                درخواست مشاوره
+                {t.contact.requestCta}
               </a>
               <a
-                href={`https://${BRAND_INFO.website}`}
+                href={`https://${brandInfo.website}`}
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center justify-center h-11 px-6 rounded-md border border-[#c5a46d]/35 text-[#f4f0e8] text-sm font-medium hover:border-[#e4c995] hover:text-[#e4c995] transition-colors whitespace-nowrap"
               >
-                تماس با ما
+                {t.contact.visitPortal}
               </a>
             </div>
 
@@ -111,8 +115,8 @@ export function ContactSection({ preselectedMachine = '' }: ContactSectionProps)
                   aria-hidden="true"
                 />
                 <div>
-                  <p className="text-xs text-[#77716a] mb-0.5">موقعیت مجموعه</p>
-                  <p className="text-[#f4f0e8]">{BRAND_INFO.cityPlaceholder}</p>
+                  <p className="text-xs text-[#77716a] mb-0.5">{t.contact.plantAddressTitle}</p>
+                  <p className="text-[#f4f0e8]">{t.contact.plantAddressValue || brandInfo.cityPlaceholder}</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
@@ -121,9 +125,9 @@ export function ContactSection({ preselectedMachine = '' }: ContactSectionProps)
                   aria-hidden="true"
                 />
                 <div>
-                  <p className="text-xs text-[#77716a] mb-0.5">تلفن واحد فروش</p>
-                  <p className="text-[#f4f0e8] tabular-nums">
-                    {BRAND_INFO.phonePlaceholder}
+                  <p className="text-xs text-[#77716a] mb-0.5">{t.contact.salesDeskTitle}</p>
+                  <p className="text-[#f4f0e8] tabular-nums" dir="ltr">
+                    {brandInfo.phonePlaceholder}
                   </p>
                 </div>
               </div>
@@ -133,27 +137,38 @@ export function ContactSection({ preselectedMachine = '' }: ContactSectionProps)
                   aria-hidden="true"
                 />
                 <div>
-                  <p className="text-xs text-[#77716a] mb-0.5">پست الکترونیک</p>
+                  <p className="text-xs text-[#77716a] mb-0.5">{t.contact.corporateEmailTitle}</p>
                   <p className="text-[#f4f0e8] font-mono-tech text-xs">
-                    {BRAND_INFO.emailPlaceholder}
+                    {brandInfo.emailPlaceholder}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <Clock
+                  className="w-4 h-4 text-[#c5a46d] mt-1 shrink-0"
+                  aria-hidden="true"
+                />
+                <div>
+                  <p className="text-xs text-[#77716a] mb-0.5">{t.contact.workingHoursTitle}</p>
+                  <p className="text-[#f4f0e8] text-xs">
+                    {t.contact.workingHoursValue}
                   </p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Left Column (RTL second): Integration-Ready Validated Consultation Form */}
+          {/* Integration-Ready Validated Consultation Form */}
           <div className="reveal-section lg:col-span-7">
             <div className="glass-surface-strong rounded-lg p-6 sm:p-8">
               <h3
                 id="consultation-form-title"
                 className="text-lg font-semibold text-[#f4f0e8] mb-2"
               >
-                فرم ثبت درخواست مشاوره تخصصی
+                {t.contact.formTitle}
               </h3>
               <p className="text-xs text-[#9c958b] mb-6">
-                این فرم دارای اعتبارسنجی کامل سمت کاربر بوده و آماده اتصال به
-                سرویس CRM یا سرور شرکت است.
+                {t.contact.formSubtitle}
               </p>
 
               {submittedPayload ? (
@@ -169,37 +184,36 @@ export function ContactSection({ preselectedMachine = '' }: ContactSectionProps)
                     />
                     <div>
                       <h4 className="text-base font-semibold text-[#f4f0e8]">
-                        اطلاعات درخواست با موفقیت اعتبارسنجی شد
+                        {t.contact.successTitle}
                       </h4>
                       <p className="text-xs text-[#aaa39a] mt-1 leading-relaxed">
-                        در این نسخه پیش‌نمایش، اتصال به سرور فعال نیست؛ خلاصه
-                        درخواست آماده ارسال شما در ادامه نمایش داده شده است.
+                        {t.contact.successSubtitle}
                       </p>
                     </div>
                   </div>
 
                   <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-[#c5a46d]/18 text-sm">
                     <div>
-                      <dt className="text-xs text-[#77716a]">نام و نام خانوادگی</dt>
+                      <dt className="text-xs text-[#77716a]">{t.contact.fullNameLabel}</dt>
                       <dd className="text-[#f4f0e8] font-medium mt-1">
                         {submittedPayload.fullName}
                       </dd>
                     </div>
                     <div>
-                      <dt className="text-xs text-[#77716a]">شماره تماس</dt>
+                      <dt className="text-xs text-[#77716a]">{t.contact.phoneLabel}</dt>
                       <dd className="text-[#f4f0e8] font-mono-tech mt-1" dir="ltr">
                         {submittedPayload.normalizedPhone}
                       </dd>
                     </div>
                     <div className="sm:col-span-2">
-                      <dt className="text-xs text-[#77716a]">دستگاه موردنظر</dt>
+                      <dt className="text-xs text-[#77716a]">{t.contact.machineSelectLabel}</dt>
                       <dd className="text-[#e4c995] font-medium mt-1">
                         {submittedPayload.machineType}
                       </dd>
                     </div>
                     {submittedPayload.description && (
                       <div className="sm:col-span-2">
-                        <dt className="text-xs text-[#77716a]">توضیحات</dt>
+                        <dt className="text-xs text-[#77716a]">{t.contact.descriptionLabel}</dt>
                         <dd className="text-[#aaa39a] mt-1 leading-relaxed">
                           {submittedPayload.description}
                         </dd>
@@ -213,7 +227,7 @@ export function ContactSection({ preselectedMachine = '' }: ContactSectionProps)
                     className="inline-flex items-center gap-2 h-10 px-4 rounded-md border border-[#c5a46d]/35 text-xs font-medium text-[#e4c995] hover:bg-[#c5a46d]/10 transition-colors cursor-pointer"
                   >
                     <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
-                    <span>ثبت درخواست جدید</span>
+                    <span>{t.contact.resetButton}</span>
                   </button>
                 </div>
               ) : (
@@ -224,7 +238,7 @@ export function ContactSection({ preselectedMachine = '' }: ContactSectionProps)
                         htmlFor="contact-fullName"
                         className="block text-xs font-medium text-[#f4f0e8] mb-2"
                       >
-                        نام و نام خانوادگی *
+                        {t.contact.fullNameLabel} *
                       </label>
                       <input
                         id="contact-fullName"
@@ -240,7 +254,7 @@ export function ContactSection({ preselectedMachine = '' }: ContactSectionProps)
                         }}
                         aria-invalid={Boolean(errors.fullName)}
                         aria-describedby={errors.fullName ? 'error-fullName' : undefined}
-                        placeholder="مثال: رضا محمدی"
+                        placeholder={t.contact.fullNamePlaceholder}
                         className="w-full h-11 px-3.5 rounded-md bg-black/55 border border-[#c5a46d]/25 text-sm text-[#f4f0e8] placeholder:text-[#867f77] focus:border-[#e4c995]"
                       />
                       {errors.fullName && (
@@ -255,7 +269,7 @@ export function ContactSection({ preselectedMachine = '' }: ContactSectionProps)
                         htmlFor="contact-phone"
                         className="block text-xs font-medium text-[#f4f0e8] mb-2"
                       >
-                        شماره تماس *
+                        {t.contact.phoneLabel} *
                       </label>
                       <input
                         id="contact-phone"
@@ -272,8 +286,8 @@ export function ContactSection({ preselectedMachine = '' }: ContactSectionProps)
                         }}
                         aria-invalid={Boolean(errors.phone)}
                         aria-describedby={errors.phone ? 'error-phone' : undefined}
-                        placeholder="09123456789"
-                        className="w-full h-11 px-3.5 rounded-md bg-black/55 border border-[#c5a46d]/25 text-sm text-right text-[#f4f0e8] placeholder:text-[#867f77] focus:border-[#e4c995] tabular-nums"
+                        placeholder={t.contact.phonePlaceholder}
+                        className={`w-full h-11 px-3.5 rounded-md bg-black/55 border border-[#c5a46d]/25 text-sm ${isRTL ? 'text-right' : 'text-left'} text-[#f4f0e8] placeholder:text-[#867f77] focus:border-[#e4c995] tabular-nums`}
                       />
                       {errors.phone && (
                         <p id="error-phone" role="alert" className="text-xs text-[#e8997a] mt-1.5">
@@ -288,7 +302,7 @@ export function ContactSection({ preselectedMachine = '' }: ContactSectionProps)
                       htmlFor="contact-machineType"
                       className="block text-xs font-medium text-[#f4f0e8] mb-2"
                     >
-                      نوع دستگاه موردنظر *
+                      {t.contact.machineSelectLabel} *
                     </label>
                     <select
                       id="contact-machineType"
@@ -304,8 +318,8 @@ export function ContactSection({ preselectedMachine = '' }: ContactSectionProps)
                       aria-describedby={errors.machineType ? 'error-machineType' : undefined}
                       className="w-full h-11 px-3.5 rounded-md bg-[#0d0c0b]/90 border border-[#c5a46d]/25 text-sm text-[#f4f0e8] focus:border-[#e4c995]"
                     >
-                      <option value="" className="bg-[#0d0c0b]">انتخاب کنید...</option>
-                      {MACHINE_OPTIONS.map((opt) => (
+                      <option value="" className="bg-[#0d0c0b]">{t.contact.machineSelectPlaceholder}</option>
+                      {machineOptions.map((opt) => (
                         <option key={opt} value={opt} className="bg-[#0d0c0b]">
                           {opt}
                         </option>
@@ -323,7 +337,7 @@ export function ContactSection({ preselectedMachine = '' }: ContactSectionProps)
                       htmlFor="contact-description"
                       className="block text-xs font-medium text-[#f4f0e8] mb-2"
                     >
-                      توضیحات (اختیاری)
+                      {t.contact.descriptionLabel}
                     </label>
                     <textarea
                       id="contact-description"
@@ -338,7 +352,7 @@ export function ContactSection({ preselectedMachine = '' }: ContactSectionProps)
                       }}
                       aria-invalid={Boolean(errors.description)}
                       aria-describedby={errors.description ? 'error-description' : undefined}
-                      placeholder="ظرفیت تولید موردنظر، نوع محصول یا فضای کارگاه را شرح دهید..."
+                      placeholder={t.contact.descriptionPlaceholder}
                       className="w-full p-3.5 rounded-md bg-black/55 border border-[#c5a46d]/25 text-sm text-[#f4f0e8] placeholder:text-[#867f77] focus:border-[#e4c995] resize-y"
                     />
                     {errors.description && (
@@ -353,10 +367,10 @@ export function ContactSection({ preselectedMachine = '' }: ContactSectionProps)
                       type="submit"
                       className="h-12 px-7 rounded-md bg-[#c5a46d] text-[#090909] text-sm font-semibold hover:bg-[#e4c995] transition-colors cursor-pointer"
                     >
-                      ثبت و بررسی درخواست مشاوره
+                      {t.contact.submitButton}
                     </button>
                     <span className="text-xs text-[#77716a]">
-                      فیلدهای ستاره‌دار (*) الزامی هستند.
+                      {t.contact.privacyNote}
                     </span>
                   </div>
                 </form>

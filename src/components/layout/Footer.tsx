@@ -1,13 +1,20 @@
+import React from 'react';
 import { Globe, Instagram, Linkedin, Send } from 'lucide-react';
-import { BRAND_INFO, NAV_ITEMS } from '../../data/navigation';
-import { PRODUCT_CATEGORIES } from '../../data/products';
+import { getBrandInfo, getNavItems } from '../../data/navigation';
+import { getProductCategories } from '../../data/products';
 import { BrandMark } from '../ui/BrandMark';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface FooterProps {
   onNavigate: (href: string) => void;
 }
 
 export function Footer({ onNavigate }: FooterProps) {
+  const { language, t } = useLanguage();
+  const brandInfo = getBrandInfo(language);
+  const navItems = getNavItems(language);
+  const productCategories = getProductCategories(language);
+
   const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
     onNavigate(href);
@@ -25,18 +32,18 @@ export function Footer({ onNavigate }: FooterProps) {
             <div className="flex items-center gap-3">
               <BrandMark className="w-9 h-9" />
               <span className="text-base font-bold text-[#f4f0e8]">
-                {BRAND_INFO.name}
+                {brandInfo.name}
               </span>
             </div>
             <p className="text-sm text-[#aaa39a] leading-[1.9] max-w-sm">
-              {BRAND_INFO.description}
+              {brandInfo.description}
             </p>
             <div className="flex items-center gap-3 pt-2">
               <a
-                href={`https://${BRAND_INFO.website}`}
+                href={`https://${brandInfo.website}`}
                 target="_blank"
                 rel="noreferrer"
-                aria-label="وب‌سایت رسمی پاک‌اندیشان"
+                aria-label={t.footer.ariaWeb}
                 className="w-10 h-10 rounded-md bg-black/45 border border-[#c5a46d]/24 flex items-center justify-center text-[#aaa39a] hover:text-[#e4c995] hover:border-[#c5a46d]/55 transition-colors"
               >
                 <Globe className="w-4 h-4" aria-hidden="true" />
@@ -44,7 +51,7 @@ export function Footer({ onNavigate }: FooterProps) {
               <a
                 href="#contact"
                 onClick={(e) => handleLinkClick(e, '#contact')}
-                aria-label="ارتباط در اینستاگرام"
+                aria-label={t.footer.ariaInstagram}
                 className="w-10 h-10 rounded-md bg-black/45 border border-[#c5a46d]/24 flex items-center justify-center text-[#aaa39a] hover:text-[#e4c995] hover:border-[#c5a46d]/55 transition-colors"
               >
                 <Instagram className="w-4 h-4" aria-hidden="true" />
@@ -52,7 +59,7 @@ export function Footer({ onNavigate }: FooterProps) {
               <a
                 href="#contact"
                 onClick={(e) => handleLinkClick(e, '#contact')}
-                aria-label="ارتباط در تلگرام"
+                aria-label={t.footer.ariaTelegram}
                 className="w-10 h-10 rounded-md bg-black/45 border border-[#c5a46d]/24 flex items-center justify-center text-[#aaa39a] hover:text-[#e4c995] hover:border-[#c5a46d]/55 transition-colors"
               >
                 <Send className="w-4 h-4" aria-hidden="true" />
@@ -60,7 +67,7 @@ export function Footer({ onNavigate }: FooterProps) {
               <a
                 href="#contact"
                 onClick={(e) => handleLinkClick(e, '#contact')}
-                aria-label="صفحه لینکدین"
+                aria-label={t.footer.ariaLinkedin}
                 className="w-10 h-10 rounded-md bg-black/45 border border-[#c5a46d]/24 flex items-center justify-center text-[#aaa39a] hover:text-[#e4c995] hover:border-[#c5a46d]/55 transition-colors"
               >
                 <Linkedin className="w-4 h-4" aria-hidden="true" />
@@ -71,10 +78,10 @@ export function Footer({ onNavigate }: FooterProps) {
           {/* Navigation Links */}
           <div className="lg:col-span-2">
             <h3 className="text-sm font-semibold text-[#e4c995] mb-4">
-              دسترسی سریع
+              {t.footer.quickLinks}
             </h3>
             <ul className="space-y-2.5 text-sm">
-              {NAV_ITEMS.map((item) => (
+              {navItems.map((item) => (
                 <li key={item.id}>
                   <a
                     href={item.href}
@@ -91,10 +98,10 @@ export function Footer({ onNavigate }: FooterProps) {
           {/* Product Categories */}
           <div className="lg:col-span-3">
             <h3 className="text-sm font-semibold text-[#e4c995] mb-4">
-              دسته‌بندی محصولات
+              {t.footer.categories}
             </h3>
             <ul className="space-y-2.5 text-sm">
-              {PRODUCT_CATEGORIES.map((cat) => (
+              {productCategories.map((cat) => (
                 <li key={cat.id}>
                   <a
                     href="#categories"
@@ -111,20 +118,20 @@ export function Footer({ onNavigate }: FooterProps) {
           {/* Contact Placeholders */}
           <div className="lg:col-span-3">
             <h3 className="text-sm font-semibold text-[#e4c995] mb-4">
-              اطلاعات تماس
+              {t.nav.contact}
             </h3>
             <ul className="space-y-3 text-sm text-[#aaa39a]">
-              <li>{BRAND_INFO.cityPlaceholder}</li>
-              <li className="tabular-nums">{BRAND_INFO.phonePlaceholder}</li>
-              <li className="font-mono-tech text-xs">{BRAND_INFO.emailPlaceholder}</li>
+              <li>{t.contact.plantAddressValue || brandInfo.cityPlaceholder}</li>
+              <li className="tabular-nums" dir="ltr">{brandInfo.phonePlaceholder}</li>
+              <li className="font-mono-tech text-xs">{brandInfo.emailPlaceholder}</li>
               <li>
                 <a
-                  href={`https://${BRAND_INFO.website}`}
+                  href={`https://${brandInfo.website}`}
                   target="_blank"
                   rel="noreferrer"
                   className="text-[#c5a46d] hover:text-[#e4c995] transition-colors font-mono-tech text-xs"
                 >
-                  {BRAND_INFO.website}
+                  {brandInfo.website}
                 </a>
               </li>
             </ul>
@@ -134,8 +141,8 @@ export function Footer({ onNavigate }: FooterProps) {
         <div className="gold-divider mb-6" aria-hidden="true" />
 
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#77716a]">
-          <p>© تمامی حقوق برای {BRAND_INFO.name} محفوظ است.</p>
-          <p>تصاویر نمایش داده‌شده با هدف ارائه کانسپت صنعتی طراحی شده‌اند.</p>
+          <p>{t.footer.rights}</p>
+          <p>{t.footer.subRights}</p>
         </div>
       </div>
     </footer>

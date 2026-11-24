@@ -7,7 +7,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { toPersianDigits } from '../../lib/dashboardLogic';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface ProductionPoint {
   hour: string;
@@ -20,25 +20,27 @@ interface ProductionChartProps {
 }
 
 export function ProductionChart({ data }: ProductionChartProps) {
+  const { t, formatNumber, isRTL } = useLanguage();
+
   return (
     <div className="surface-panel rounded-lg p-5">
       <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
         <div>
           <h3 className="text-sm font-semibold text-[#f4f0e8]">
-            نمودار روند تولید ساعتی (داده نمونه)
+            {t.dashboard.chartTitle}
           </h3>
           <p className="text-xs text-[#77716a] mt-1">
-            مقایسه خروجی شبیه‌سازی‌شده با ظرفیت هدف در طول شیفت کاری
+            {t.dashboard.chartSubtitle}
           </p>
         </div>
         <div className="flex items-center gap-4 text-xs text-[#aaa39a]">
           <span className="inline-flex items-center gap-1.5">
             <span className="w-3 h-0.5 bg-[#e4c995]" aria-hidden="true" />
-            <span>خروجی واقعی (نمونه)</span>
+            <span>{t.dashboard.chartActualLegend}</span>
           </span>
           <span className="inline-flex items-center gap-1.5">
             <span className="w-3 h-0.5 bg-[#77716a]" aria-hidden="true" />
-            <span>هدف شیفت</span>
+            <span>{t.dashboard.chartTargetLegend}</span>
           </span>
         </div>
       </div>
@@ -65,7 +67,7 @@ export function ProductionChart({ data }: ProductionChartProps) {
               tick={{ fill: '#aaa39a', fontSize: 12 }}
               axisLine={false}
               tickLine={false}
-              tickFormatter={(val: number) => toPersianDigits(val)}
+              tickFormatter={(val: number) => formatNumber(val)}
             />
             <Tooltip
               contentStyle={{
@@ -73,16 +75,18 @@ export function ProductionChart({ data }: ProductionChartProps) {
                 borderColor: 'rgba(197, 164, 109, 0.35)',
                 borderRadius: '8px',
                 color: '#f4f0e8',
-                fontFamily: 'IRANYekanX, sans-serif',
-                direction: 'rtl',
-                textAlign: 'right',
+                fontFamily: 'IRANYekanX, system-ui, sans-serif',
+                direction: isRTL ? 'rtl' : 'ltr',
+                textAlign: isRTL ? 'right' : 'left',
               }}
               labelStyle={{ color: '#e4c995', marginBottom: '4px', fontWeight: 600 }}
               formatter={(val, name) => {
                 const scalar = Array.isArray(val) ? val[0] : val;
                 return [
-                  `${toPersianDigits(scalar ?? 0)} عدد`,
-                  name === 'output' ? 'خروجی نمونه' : 'ظرفیت هدف',
+                  `${formatNumber(scalar ?? 0)} ${t.dashboard.chartUnit}`,
+                  name === 'output'
+                    ? t.dashboard.chartActualLegend
+                    : t.dashboard.chartTargetLegend,
                 ];
               }}
             />

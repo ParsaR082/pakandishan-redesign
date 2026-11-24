@@ -1,7 +1,8 @@
 import { ArrowLeft } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageContext';
 import {
-  FEATURED_PRODUCTS,
-  PRODUCT_CATEGORIES,
+  getFeaturedProducts,
+  getProductCategories,
   ProductItem,
 } from '../../data/products';
 import { SafeImage } from '../ui/SafeImage';
@@ -11,9 +12,13 @@ interface CategoryGridProps {
 }
 
 export function CategoryGrid({ onSelectProduct }: CategoryGridProps) {
+  const { language, t } = useLanguage();
+  const categories = getProductCategories(language);
+  const featuredProducts = getFeaturedProducts(language);
+
   const handleExplore = (targetProductId: string) => {
     const match =
-      FEATURED_PRODUCTS.find((p) => p.id === targetProductId) ?? FEATURED_PRODUCTS[0];
+      featuredProducts.find((p) => p.id === targetProductId) ?? featuredProducts[0];
     onSelectProduct(match);
   };
 
@@ -26,19 +31,19 @@ export function CategoryGrid({ onSelectProduct }: CategoryGridProps) {
       <div className="mx-auto max-w-[1440px] px-4 sm:px-8">
         <div className="max-w-2xl mb-12 reveal-section">
           <p className="text-xs font-medium text-[#c5a46d] mb-3">
-            دسته‌بندی ماشین‌آلات
+            {t.categories.badge}
           </p>
           <h2
             id="categories-heading"
             className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#f4f0e8] leading-snug"
           >
-            پوشش کامل زنجیره پخت و آماده‌سازی
+            {t.categories.title}
           </h2>
         </div>
 
         {/* 2x2 Asymmetric Editorial Category Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 reveal-stagger-grid">
-          {PRODUCT_CATEGORIES.map((category) => (
+          {categories.map((category) => (
             <article
               key={category.id}
               className="reveal-card group relative min-h-[300px] sm:min-h-[340px] rounded-lg overflow-hidden glass-surface flex flex-col justify-end p-6 sm:p-8 transition-colors duration-300 hover:border-[#c5a46d]/60"
@@ -71,9 +76,11 @@ export function CategoryGrid({ onSelectProduct }: CategoryGridProps) {
                   onClick={() => handleExplore(category.targetProductId)}
                   className="inline-flex items-center gap-2 text-sm font-semibold text-[#e4c995] hover:text-[#f4f0e8] transition-colors cursor-pointer"
                 >
-                  <span>مشاهده {category.title}</span>
+                  <span>
+                    {t.categories.explorePrefix} {category.title}
+                  </span>
                   <ArrowLeft
-                    className="w-4 h-4 transition-transform duration-200 group-hover:-translate-x-1.5"
+                    className="w-4 h-4 transition-transform duration-200 rtl:rotate-0 rtl:group-hover:-translate-x-1.5 ltr:rotate-180 ltr:group-hover:translate-x-1.5"
                     aria-hidden="true"
                   />
                 </button>

@@ -1,6 +1,7 @@
 import { Compass, Cpu, ShieldCheck, Sliders } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageContext';
 import { ASSET_MANIFEST } from '../../data/assets';
-import { TECH_PILLARS, TechPillar } from '../../data/products';
+import { getTechPillars, TechPillar } from '../../data/products';
 import { SafeImage } from '../ui/SafeImage';
 
 const ICON_MAP: Record<TechPillar['iconKey'], typeof Compass> = {
@@ -11,6 +12,9 @@ const ICON_MAP: Record<TechPillar['iconKey'], typeof Compass> = {
 };
 
 export function TechnologySection() {
+  const { language, t } = useLanguage();
+  const techPillars = getTechPillars(language);
+
   return (
     <section
       id="technology"
@@ -23,17 +27,16 @@ export function TechnologySection() {
           <div className="lg:col-span-5 flex flex-col justify-between gap-8 reveal-section">
             <div>
               <p className="text-xs font-medium text-[#c5a46d] mb-3">
-                فناوری و نوآوری مهندسی
+                {t.technology.badge}
               </p>
               <h2
                 id="technology-heading"
                 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#f4f0e8] leading-snug"
               >
-                مهندسی برای آینده صنعت
+                {t.technology.title}
               </h2>
               <p className="text-sm sm:text-base text-[#aaa39a] mt-4 leading-[1.9]">
-                ترکیب دانش فنی، طراحی مهندسی و فناوری‌های نوین برای ساخت تجهیزات
-                صنعتی قابل اعتماد.
+                {t.technology.subtitle}
               </p>
             </div>
 
@@ -41,19 +44,21 @@ export function TechnologySection() {
               <SafeImage
                 src={ASSET_MANIFEST.engineeringCloseup.path}
                 alt={ASSET_MANIFEST.engineeringCloseup.altFa}
-                fallbackTitle="نمای نزدیک مهندسی دقیق پاک‌اندیشان"
+                fallbackTitle={t.technology.title}
                 className="w-full h-full object-cover"
               />
               <div
                 aria-hidden="true"
                 className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#090909]/85 via-transparent to-transparent"
               />
-              <div className="absolute bottom-4 right-5 left-5 flex items-center justify-between gap-4 border-t border-[#c5a46d]/25 pt-3">
+              <div className="absolute bottom-4 inset-x-5 flex items-center justify-between gap-4 border-t border-[#c5a46d]/25 pt-3">
                 <span className="text-xs font-medium text-[#e4c995]">
-                  دقت ماشین‌کاری و انتقال حرارت یکنواخت
+                  {language === 'fa'
+                    ? 'دقت ماشین‌کاری و انتقال حرارت یکنواخت'
+                    : 'CNC Machining Precision & Convective Uniformity'}
                 </span>
                 <span className="text-[11px] text-[#aaa39a] whitespace-nowrap">
-                  ساختار استیل صنعتی
+                  {language === 'fa' ? 'ساختار استیل صنعتی' : 'Sanitary Stainless Steel'}
                 </span>
               </div>
             </div>
@@ -61,7 +66,7 @@ export function TechnologySection() {
 
           {/* Numbered Feature Cards 01 - 04 */}
           <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-5 reveal-stagger-grid">
-            {TECH_PILLARS.map((pillar) => {
+            {techPillars.map((pillar) => {
               const Icon = ICON_MAP[pillar.iconKey];
               return (
                 <article

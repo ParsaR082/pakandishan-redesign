@@ -1,6 +1,6 @@
 import { ArrowLeft } from 'lucide-react';
-import { FEATURED_PRODUCTS, ProductItem } from '../../data/products';
-import { toPersianDigits } from '../../lib/dashboardLogic';
+import { useLanguage } from '../../context/LanguageContext';
+import { getFeaturedProducts, ProductItem } from '../../data/products';
 import { SafeImage } from '../ui/SafeImage';
 
 interface ProductShowcaseProps {
@@ -8,6 +8,9 @@ interface ProductShowcaseProps {
 }
 
 export function ProductShowcase({ onSelectProduct }: ProductShowcaseProps) {
+  const { language, t, formatNumber } = useLanguage();
+  const products = getFeaturedProducts(language);
+
   return (
     <section
       id="products"
@@ -19,23 +22,23 @@ export function ProductShowcase({ onSelectProduct }: ProductShowcaseProps) {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14 reveal-section">
           <div className="max-w-2xl">
             <p className="text-xs font-medium text-[#c5a46d] mb-3">
-              محصولات منتخب صنعتی
+              {t.products.badge}
             </p>
             <h2
               id="products-heading"
               className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#f4f0e8] leading-snug"
             >
-              تجهیزات تخصصی برای تولید حرفه‌ای
+              {t.products.title}
             </h2>
           </div>
           <p className="text-sm sm:text-base text-[#aaa39a] max-w-md leading-relaxed">
-            راهکارهای صنعتی متناسب با نیاز خطوط تولید نان و شیرینی.
+            {t.products.subtitle}
           </p>
         </div>
 
         {/* Luxury Industrial Product Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 reveal-stagger-grid">
-          {FEATURED_PRODUCTS.map((product, index) => (
+          {products.map((product, index) => (
             <article
               key={product.id}
               className="reveal-card group relative rounded-lg glass-surface overflow-hidden flex flex-col justify-between transition-[transform,border-color,box-shadow] duration-300 hover:border-[#c5a46d]/65 hover:-translate-y-1.5"
@@ -52,8 +55,8 @@ export function ProductShowcase({ onSelectProduct }: ProductShowcaseProps) {
                   aria-hidden="true"
                   className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#0d0c0b]/90 via-transparent to-black/25"
                 />
-                <span className="absolute top-4 right-5 font-mono-tech text-xs text-[#e4c995]/85">
-                  {toPersianDigits(String(index + 1).padStart(2, '0'))}
+                <span className="absolute top-4 end-5 font-mono-tech text-xs text-[#e4c995]/85">
+                  {formatNumber(String(index + 1).padStart(2, '0'))}
                 </span>
               </div>
 
@@ -75,9 +78,9 @@ export function ProductShowcase({ onSelectProduct }: ProductShowcaseProps) {
                     onClick={() => onSelectProduct(product)}
                     className="inline-flex items-center gap-2.5 text-sm font-semibold text-[#e4c995] hover:text-[#f4f0e8] transition-colors py-1.5 cursor-pointer"
                   >
-                    <span>بررسی جزئیات {product.name}</span>
+                    <span>{t.products.viewSpecs}</span>
                     <ArrowLeft
-                      className="w-4 h-4 transition-transform duration-200 group-hover:-translate-x-1.5"
+                      className="w-4 h-4 transition-transform duration-200 rtl:rotate-0 rtl:group-hover:-translate-x-1.5 ltr:rotate-180 ltr:group-hover:translate-x-1.5"
                       aria-hidden="true"
                     />
                   </button>

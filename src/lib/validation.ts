@@ -47,6 +47,15 @@ export function normalizePhoneNumber(input: string): string {
 }
 
 /**
+ * Validates international phone format (7 to 15 digits, optional leading +) or Iranian formats.
+ */
+export function isValidInternationalPhone(raw: string): boolean {
+  const cleaned = normalizePhoneNumber(raw);
+  const withoutPlus = cleaned.startsWith('+') ? cleaned.slice(1) : cleaned;
+  return /^\d{7,15}$/.test(withoutPlus);
+}
+
+/**
  * Validates Iranian mobile (09XXXXXXXXX or +989XXXXXXXXX) or landline (0XX-XXXXXXXX, 8-11 digits).
  */
 export function isValidIranianPhone(raw: string): boolean {
@@ -63,31 +72,54 @@ export function isValidIranianPhone(raw: string): boolean {
   return false;
 }
 
-export function validateContactForm(data: ContactFormData): ContactValidationResult {
+export function validateContactForm(
+  data: ContactFormData,
+  lang: 'fa' | 'en' = 'fa'
+): ContactValidationResult {
   const errors: ContactValidationErrors = {};
   const trimmedName = data.fullName.trim();
   const normalizedPhone = normalizePhoneNumber(data.phone);
   const trimmedMachine = data.machineType.trim();
   const trimmedDesc = data.description.trim();
 
+  const isEn = lang === 'en';
+
   if (trimmedName.length < 3) {
-    errors.fullName = 'لطفاً نام و نام خانوادگی خود را کامل وارد کنید (حداقل ۳ کاراکتر).';
+    errors.fullName = isEn
+      ? 'Please enter your full name (minimum 3 characters).'
+      : 'لطفاً نام و نام خانوادگی خود را کامل وارد کنید (حداقل ۳ کاراکتر).';
   }
 
   if (!normalizedPhone) {
-    errors.phone = 'وارد کردن شماره تماس الزامی است.';
-  } else if (!isValidIranianPhone(normalizedPhone)) {
-    errors.phone = 'شماره تماس معتبر نیست (مثال: ۰۹۱۲۳۴۵۶۷۸۹ یا ۰۴۴۳۲۲۲۰۰۰۰).';
+    errors.phone = isEn
+      ? 'Phone number is required.'
+      : 'وارد کردن شماره تماس الزامی است.';
+  } else {
+    const valid = isEn
+      ? isValidInternationalPhone(normalizedPhone) || isValidIranianPhone(normalizedPhone)
+      : isValidIranianPhone(normalizedPhone);
+
+    if (!valid) {
+      errors.phone = isEn
+        ? 'Please enter a valid phone number (e.g. +98 912 345 6789 or local number).'
+        : 'شماره تماس معتبر نیست (مثال: ۰۹۱۲۳۴۵۶۷۸۹ یا ۰۴۴۳۲۲۲۰۰۰۰).';
+    }
   }
 
   if (!trimmedMachine) {
-    errors.machineType = 'لطفاً نوع دستگاه یا خط تولید موردنظر را انتخاب کنید.';
+    errors.machineType = isEn
+      ? 'Please select your target machinery or production line.'
+      : 'لطفاً نوع دستگاه یا خط تولید موردنظر را انتخاب کنید.';
   }
 
   if (trimmedDesc.length > 0 && trimmedDesc.length < 10) {
-    errors.description = 'در صورت ثبت توضیحات، لطفاً حداقل ۱۰ کاراکتر بنویسید.';
+    errors.description = isEn
+      ? 'If providing project details, please write at least 10 characters.'
+      : 'در صورت ثبت توضیحات، لطفاً حداقل ۱۰ کاراکتر بنویسید.';
   } else if (trimmedDesc.length > 1000) {
-    errors.description = 'متن توضیحات نمی‌تواند بیشتر از ۱۰۰۰ کاراکتر باشد.';
+    errors.description = isEn
+      ? 'Description cannot exceed 1000 characters.'
+      : 'متن توضیحات نمی‌تواند بیشتر از ۱۰۰۰ کاراکتر باشد.';
   }
 
   return {
