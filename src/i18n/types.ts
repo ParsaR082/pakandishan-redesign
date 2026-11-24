@@ -1,0 +1,214 @@
+export type Language = 'fa' | 'en' | 'ar' | 'tr' | 'ru';
+export type Direction = 'rtl' | 'ltr';
+
+export interface Translations {
+  common: {
+    brandName: string;
+    brandShortName: string;
+    brandTagline: string;
+    brandDescription: string;
+    officialWebsite: string;
+    requestConsultation: string;
+    scrollCue: string;
+    languageName: string;
+    otherLanguageCode: Language;
+    otherLanguageLabel: string;
+    unitsLabel: string;
+    degreeLabel: string;
+    percentLabel: string;
+    loadingVideo: string;
+  };
+  nav: {
+    home: string;
+    technology: string;
+    products: string;
+    about: string;
+    contact: string;
+    mobileMenuTitle: string;
+    mobileConsultationBtn: string;
+    closeMenu: string;
+  };
+  hero: {
+    kicker: string;
+    headline: string;
+    subtitle: string;
+    featureTag1: string;
+    featureTag2: string;
+    featureTag3: string;
+    ctaPrimary: string;
+    ctaSecondary: string;
+    settledIndicator: string;
+  };
+  technology: {
+    badge: string;
+    title: string;
+    subtitle: string;
+    pillar01Num: string;
+    pillar01Title: string;
+    pillar01Desc: string;
+    pillar02Num: string;
+    pillar02Title: string;
+    pillar02Desc: string;
+    pillar03Num: string;
+    pillar03Title: string;
+    pillar03Desc: string;
+    pillar04Num: string;
+    pillar04Title: string;
+    pillar04Desc: string;
+    spec1: string;
+    spec2: string;
+    spec3: string;
+  };
+  products: {
+    badge: string;
+    title: string;
+    subtitle: string;
+    viewSpecs: string;
+    modalInquire: string;
+    modalClose: string;
+    primaryApplications: string;
+    designHighlights: string;
+    items: Array<{
+      id: string;
+      name: string;
+      category: string;
+      shortDescription: string;
+      fullDescription: string;
+      highlights: string[];
+      applications: string[];
+      structureNote: string;
+    }>;
+  };
+  categories: {
+    badge: string;
+    title: string;
+    explorePrefix: string;
+    items: Array<{
+      id: string;
+      title: string;
+      subtitle: string;
+      description: string;
+      targetProductId: string;
+    }>;
+  };
+  dashboard: {
+    badge: string;
+    title: string;
+    description: string;
+    cadRenderLabel: string;
+    profilesTabLabel: string;
+    statusHeatingLabel: string;
+    statusControlLabel: string;
+    statusOperationLabel: string;
+    statusReadinessLabel: string;
+    gauge1Title: string;
+    gauge1Subtitle: string;
+    gauge1Status: string;
+    gauge2Title: string;
+    gauge2Subtitle: string;
+    gauge2Status: string;
+    gaugeMaxPrefix: string;
+    dailyEnergyTitle: string;
+    dailyEnergyNote: string;
+    airflowTitle: string;
+    airflowSub: string;
+    airflowMetric1: string;
+    airflowMetric2: string;
+    airflowStatus: string;
+    chartTitle: string;
+    chartSubtitle: string;
+    chartActualLegend: string;
+    chartTargetLegend: string;
+    chartUnit: string;
+    tempDeltaTarget: string;
+    tempDeltaBelow: (val: number | string) => string;
+    tempDeltaAbove: (val: number | string) => string;
+    profiles: Array<{
+      id: string;
+      label: string;
+      machineLabel: string;
+      temperature: number;
+      targetTemperature: number;
+      maxTemperature: number;
+      efficiency: number;
+      dailyEnergyKwh: number;
+      energyIndexLabel: string;
+      energySavedPercent: number;
+      statusHeating: string;
+      statusControl: string;
+      statusOperation: string;
+      statusReadiness: string;
+      productionSeries: Array<{
+        hour: string;
+        output: number;
+        target: number;
+      }>;
+    }>;
+  };
+  advantages: {
+    badge: string;
+    title: string;
+    subtitle: string;
+    items: Array<{
+      id: string;
+      number: string;
+      title: string;
+      description: string;
+      iconKey: 'layers' | 'crosshair' | 'headphones' | 'award' | 'sparkles';
+    }>;
+  };
+  showcase: {
+    badge: string;
+    title: string;
+    description: string;
+    cta: string;
+  };
+  contact: {
+    badge: string;
+    title: string;
+    description: string;
+    requestCta: string;
+    visitPortal: string;
+    plantAddressTitle: string;
+    plantAddressValue: string;
+    salesDeskTitle: string;
+    corporateEmailTitle: string;
+    workingHoursTitle: string;
+    workingHoursValue: string;
+    formTitle: string;
+    formSubtitle: string;
+    fullNameLabel: string;
+    fullNamePlaceholder: string;
+    phoneLabel: string;
+    phonePlaceholder: string;
+    machineSelectLabel: string;
+    machineSelectPlaceholder: string;
+    machineOptions: string[];
+    descriptionLabel: string;
+    descriptionPlaceholder: string;
+    submitButton: string;
+    successTitle: string;
+    successSubtitle: string;
+    resetButton: string;
+    privacyNote: string;
+    errors: {
+      fullName: string;
+      phoneRequired: string;
+      phoneInvalid: string;
+      machineRequired: string;
+      descTooShort: string;
+      descTooLong: string;
+    };
+  };
+  footer: {
+    tagline: string;
+    quickLinks: string;
+    categories: string;
+    rights: string;
+    subRights: string;
+    ariaWeb: string;
+    ariaInstagram: string;
+    ariaTelegram: string;
+    ariaLinkedin: string;
+  };
+}

@@ -87,3 +87,48 @@ test('validateContactForm produces localized English error messages', () => {
   assert.match(result.errors.machineType || '', /select your target/i);
   assert.match(result.errors.description || '', /at least 10 characters/i);
 });
+
+test('validateContactForm validates Arabic payload correctly', () => {
+  const result = validateContactForm(
+    {
+      fullName: 'أحمد محمود',
+      phone: '+966 50 123 4567',
+      machineType: 'فرن دوار صناعي',
+      description: 'طلب استشارة لخط إنتاج مخبوزات وصمون في الرياض',
+    },
+    'ar'
+  );
+  assert.equal(result.isValid, true);
+  assert.equal(result.normalizedPhone, '+966501234567');
+  assert.deepEqual(result.errors, {});
+});
+
+test('validateContactForm validates Turkish payload correctly', () => {
+  const result = validateContactForm(
+    {
+      fullName: 'Mehmet Özdemir',
+      phone: '+90 532 987 6543',
+      machineType: 'Döner Arabalı Fırın',
+      description: 'İstanbul fabrikamız için endüstriyel fırın danışmanlığı',
+    },
+    'tr'
+  );
+  assert.equal(result.isValid, true);
+  assert.equal(result.normalizedPhone, '+905329876543');
+  assert.deepEqual(result.errors, {});
+});
+
+test('validateContactForm validates Russian payload correctly', () => {
+  const result = validateContactForm(
+    {
+      fullName: 'Иван Петров',
+      phone: '+7 999 555 44 33',
+      machineType: 'Промышленная ротационная печь',
+      description: 'Запрос на проектирование производственной линии в Санкт-Петербурге',
+    },
+    'ru'
+  );
+  assert.equal(result.isValid, true);
+  assert.equal(result.normalizedPhone, '+79995554433');
+  assert.deepEqual(result.errors, {});
+});

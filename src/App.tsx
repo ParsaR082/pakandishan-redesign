@@ -240,7 +240,15 @@ export default function App() {
         href="#main-content"
         className={`sr-only focus:not-sr-only focus:fixed focus:top-4 ${isRTL ? 'focus:right-4' : 'focus:left-4'} focus:z-[60] focus:px-4 focus:py-2 focus:bg-[#c5a46d] focus:text-[#090909] focus:rounded-md focus:font-semibold`}
       >
-        {language === 'en' ? 'Skip to main content' : 'پرش به محتوای اصلی'}
+        {language === 'en'
+          ? 'Skip to main content'
+          : language === 'ar'
+          ? 'الانتقال إلى المحتوى الرئيسي'
+          : language === 'tr'
+          ? 'Ana içeriğe geç'
+          : language === 'ru'
+          ? 'Перейти к основному содержимому'
+          : 'پرش به محتوای اصلی'}
       </a>
 
       <div className="relative z-10">

@@ -32,4 +32,13 @@ test('getTemperatureDeltaLabel describes proximity to target temperature', () =>
   assert.equal(getTemperatureDeltaLabel(228, 230, 'en'), 'At target temperature');
   assert.equal(getTemperatureDeltaLabel(220, 230, 'en'), '10°C below target');
   assert.equal(getTemperatureDeltaLabel(240, 230, 'en'), '10°C above target');
+  assert.equal(getTemperatureDeltaLabel(228, 230, 'ar'), 'في نطاق درجة الحرارة المستهدفة');
+  assert.equal(getTemperatureDeltaLabel(220, 230, 'ar'), '10°C تحت الهدف');
+  assert.equal(getTemperatureDeltaLabel(240, 230, 'ar'), '10°C فوق الهدف');
+  assert.equal(getTemperatureDeltaLabel(228, 230, 'tr'), 'Hedef sıcaklık aralığında');
+  assert.equal(getTemperatureDeltaLabel(220, 230, 'tr'), '10°C hedefin altında');
+  assert.equal(getTemperatureDeltaLabel(240, 230, 'tr'), '10°C hedefin üzerinde');
+  assert.equal(getTemperatureDeltaLabel(228, 230, 'ru'), 'В пределах целевой температуры');
+  assert.equal(getTemperatureDeltaLabel(220, 230, 'ru'), 'на 10°C ниже цели');
+  assert.equal(getTemperatureDeltaLabel(240, 230, 'ru'), 'на 10°C выше цели');
 });

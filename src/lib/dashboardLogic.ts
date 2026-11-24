@@ -1,3 +1,5 @@
+import { Language } from '../i18n/translations';
+
 const PERSIAN_DIGITS = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
 
 /**
@@ -43,19 +45,27 @@ export function computeGaugeArc(
 export function getTemperatureDeltaLabel(
   current: number,
   target: number,
-  lang: 'fa' | 'en' = 'fa'
+  lang: Language = 'fa'
 ): string {
   const diff = current - target;
   if (Math.abs(diff) <= 3) {
-    return lang === 'en' ? 'At target temperature' : 'در محدوده دمای هدف';
+    if (lang === 'en') return 'At target temperature';
+    if (lang === 'ar') return 'في نطاق درجة الحرارة المستهدفة';
+    if (lang === 'tr') return 'Hedef sıcaklık aralığında';
+    if (lang === 'ru') return 'В пределах целевой температуры';
+    return 'در محدوده دمای هدف';
   }
   if (diff < 0) {
     const absVal = Math.abs(diff);
-    return lang === 'en'
-      ? `${absVal}°C below target`
-      : `${toPersianDigits(absVal)} درجه تا دمای هدف`;
+    if (lang === 'en') return `${absVal}°C below target`;
+    if (lang === 'ar') return `${absVal}°C تحت الهدف`;
+    if (lang === 'tr') return `${absVal}°C hedefin altında`;
+    if (lang === 'ru') return `на ${absVal}°C ниже цели`;
+    return `${toPersianDigits(absVal)} درجه تا دمای هدف`;
   }
-  return lang === 'en'
-    ? `${diff}°C above target`
-    : `${toPersianDigits(diff)} درجه بالاتر از هدف`;
+  if (lang === 'en') return `${diff}°C above target`;
+  if (lang === 'ar') return `${diff}°C فوق الهدف`;
+  if (lang === 'tr') return `${diff}°C hedefin üzerinde`;
+  if (lang === 'ru') return `на ${diff}°C выше цели`;
+  return `${toPersianDigits(diff)} درجه بالاتر از هدف`;
 }

@@ -1,3 +1,5 @@
+import { Language, TRANSLATIONS } from '../i18n/translations';
+
 export interface ContactFormData {
   fullName: string;
   phone: string;
@@ -74,7 +76,7 @@ export function isValidIranianPhone(raw: string): boolean {
 
 export function validateContactForm(
   data: ContactFormData,
-  lang: 'fa' | 'en' = 'fa'
+  lang: Language = 'fa'
 ): ContactValidationResult {
   const errors: ContactValidationErrors = {};
   const trimmedName = data.fullName.trim();
@@ -82,44 +84,33 @@ export function validateContactForm(
   const trimmedMachine = data.machineType.trim();
   const trimmedDesc = data.description.trim();
 
-  const isEn = lang === 'en';
+  const tErrors = (TRANSLATIONS[lang] ?? TRANSLATIONS.fa).contact.errors;
 
   if (trimmedName.length < 3) {
-    errors.fullName = isEn
-      ? 'Please enter your full name (minimum 3 characters).'
-      : 'لطفاً نام و نام خانوادگی خود را کامل وارد کنید (حداقل ۳ کاراکتر).';
+    errors.fullName = tErrors.fullName;
   }
 
   if (!normalizedPhone) {
-    errors.phone = isEn
-      ? 'Phone number is required.'
-      : 'وارد کردن شماره تماس الزامی است.';
+    errors.phone = tErrors.phoneRequired;
   } else {
-    const valid = isEn
-      ? isValidInternationalPhone(normalizedPhone) || isValidIranianPhone(normalizedPhone)
-      : isValidIranianPhone(normalizedPhone);
+    const valid =
+      lang === 'fa'
+        ? isValidIranianPhone(normalizedPhone)
+        : isValidInternationalPhone(normalizedPhone) || isValidIranianPhone(normalizedPhone);
 
     if (!valid) {
-      errors.phone = isEn
-        ? 'Please enter a valid phone number (e.g. +98 912 345 6789 or local number).'
-        : 'شماره تماس معتبر نیست (مثال: ۰۹۱۲۳۴۵۶۷۸۹ یا ۰۴۴۳۲۲۲۰۰۰۰).';
+      errors.phone = tErrors.phoneInvalid;
     }
   }
 
   if (!trimmedMachine) {
-    errors.machineType = isEn
-      ? 'Please select your target machinery or production line.'
-      : 'لطفاً نوع دستگاه یا خط تولید موردنظر را انتخاب کنید.';
+    errors.machineType = tErrors.machineRequired;
   }
 
   if (trimmedDesc.length > 0 && trimmedDesc.length < 10) {
-    errors.description = isEn
-      ? 'If providing project details, please write at least 10 characters.'
-      : 'در صورت ثبت توضیحات، لطفاً حداقل ۱۰ کاراکتر بنویسید.';
+    errors.description = tErrors.descTooShort;
   } else if (trimmedDesc.length > 1000) {
-    errors.description = isEn
-      ? 'Description cannot exceed 1000 characters.'
-      : 'متن توضیحات نمی‌تواند بیشتر از ۱۰۰۰ کاراکتر باشد.';
+    errors.description = tErrors.descTooLong;
   }
 
   return {

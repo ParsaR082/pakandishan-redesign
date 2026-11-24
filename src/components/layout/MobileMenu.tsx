@@ -20,7 +20,7 @@ export function MobileMenu({
   onNavigate,
   reducedMotion,
 }: MobileMenuProps) {
-  const { language, isRTL, toggleLanguage, t } = useLanguage();
+  const { language, isRTL, setLanguage, supportedLanguages, t } = useLanguage();
   const navItems = getNavItems(language);
   const backdropRef = useRef<HTMLDivElement>(null);
   const drawerRef = useRef<HTMLDivElement>(null);
@@ -121,21 +121,46 @@ export function MobileMenu({
             </button>
           </div>
 
-          {/* Language Switcher Row in Mobile Menu */}
-          <div className="mt-5 pt-1 flex items-center justify-between px-1">
-            <span className="text-xs text-[#aaa39a]">
-              {language === 'fa' ? 'زبان نمایش:' : 'Language:'}
-            </span>
-            <button
-              type="button"
-              onClick={toggleLanguage}
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md border border-[#c5a46d]/30 bg-[#161412] text-xs font-semibold text-[#e4c995] hover:border-[#c5a46d]/60 transition-colors cursor-pointer"
-            >
+          {/* Multi-Language Selector in Mobile Menu */}
+          <div className="mt-5 pt-3 border-t border-[#c5a46d]/14">
+            <div className="flex items-center gap-1.5 text-xs text-[#aaa39a] mb-2.5">
               <Globe className="w-3.5 h-3.5 text-[#c5a46d]" aria-hidden="true" />
-              <span className="font-mono-tech tracking-wider uppercase">
-                {t.common.otherLanguageLabel} ({language === 'fa' ? 'English' : 'فارسی'})
+              <span>
+                {language === 'fa'
+                  ? 'انتخاب زبان:'
+                  : language === 'ar'
+                  ? 'اختر اللغة:'
+                  : language === 'tr'
+                  ? 'Dil Seçimi:'
+                  : language === 'ru'
+                  ? 'Выбор языка:'
+                  : 'Select Language:'}
               </span>
-            </button>
+            </div>
+            <div className="grid grid-cols-5 gap-1.5">
+              {supportedLanguages.map((item) => {
+                const isCurrent = language === item.code;
+                return (
+                  <button
+                    key={item.code}
+                    type="button"
+                    onClick={() => setLanguage(item.code)}
+                    className={`flex flex-col items-center justify-center py-2 px-1 rounded-md text-xs transition-colors cursor-pointer border ${
+                      isCurrent
+                        ? 'bg-[#c5a46d]/20 border-[#c5a46d] text-[#e4c995] font-semibold shadow-sm'
+                        : 'bg-[#141311] border-[#c5a46d]/18 text-[#aaa39a] hover:text-[#f4f0e8] hover:border-[#c5a46d]/40'
+                    }`}
+                  >
+                    <span className="text-[11px] font-medium leading-none truncate max-w-full">
+                      {item.nativeLabel}
+                    </span>
+                    <span className="font-mono-tech text-[9px] text-[#77716a] mt-1 uppercase">
+                      {item.shortLabel}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           <nav aria-label={t.nav.mobileMenuTitle} className="mt-6">
