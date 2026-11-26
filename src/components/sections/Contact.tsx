@@ -1,22 +1,44 @@
-import { FormEvent, useEffect, useState } from 'react';
-import { CheckCircle2, Clock, Mail, MapPin, Phone, RotateCcw } from 'lucide-react';
+import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { CheckCircle2, RotateCcw } from 'lucide-react';
 import { getBrandInfo } from '../../data/navigation';
-import { getMachineOptions } from '../../data/products';
+import { PAKANDISHAN_PRODUCTS, pickLocale } from '../../data/pakandishanCatalog';
 import {
   ContactFormData,
   ContactValidationErrors,
   validateContactForm,
 } from '../../lib/validation';
 import { useLanguage } from '../../context/LanguageContext';
+import { KineticButton } from '../ui/KineticButton';
 
 interface ContactSectionProps {
   preselectedMachine?: string;
+  onNavigate?: (href: string) => void;
+  compactTopPadding?: boolean;
 }
 
-export function ContactSection({ preselectedMachine = '' }: ContactSectionProps) {
+export function ContactSection({
+  preselectedMachine = '',
+  onNavigate,
+  compactTopPadding = false,
+}: ContactSectionProps) {
   const { language, t, isRTL } = useLanguage();
   const brandInfo = getBrandInfo(language);
-  const machineOptions = getMachineOptions(language);
+
+  // Full list of all 20 real Pakandishan products + turnkey consultation option
+  const machineOptions = useMemo(() => {
+    const productNames = PAKANDISHAN_PRODUCTS.map((p) =>
+      pickLocale(p.name, language)
+    );
+    const generalOption =
+      language === 'fa'
+        ? 'مشاوره کامل راه‌اندازی خط نانوایی'
+        : 'Turnkey Bakery Line Consultation';
+    const list = [...productNames, generalOption];
+    if (preselectedMachine && !list.includes(preselectedMachine)) {
+      list.unshift(preselectedMachine);
+    }
+    return list;
+  }, [language, preselectedMachine]);
 
   const [formData, setFormData] = useState<ContactFormData>({
     fullName: '',
@@ -70,104 +92,100 @@ export function ContactSection({ preselectedMachine = '' }: ContactSectionProps)
     <section
       id="contact"
       aria-labelledby="contact-heading"
-      className="relative scroll-mt-24 py-24 lg:py-28 glass-band border-t border-[#c5a46d]/16"
+      className={`relative scroll-mt-24 ${
+        compactTopPadding ? 'py-14 sm:py-20' : 'py-28 sm:py-32 lg:py-40'
+      } section-base`}
     >
-      <div className="mx-auto max-w-[1440px] px-4 sm:px-8">
+      <div className="mx-auto w-full max-w-[1200px] px-5 sm:px-8 lg:px-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-start">
-          {/* Right Column (RTL start / LTR left): Headline, CTA actions & Company Info */}
-          <div className="lg:col-span-5 glass-surface rounded-lg p-6 sm:p-8 space-y-8 reveal-section">
+          {/* Info Column */}
+          <div className="lg:col-span-5 space-y-8 reveal-section text-start">
             <div>
-              <p className="text-xs font-medium text-[#c5a46d] mb-3">
-                {t.contact.badge}
-              </p>
               <h2
                 id="contact-heading"
-                className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#f4f0e8] leading-snug mb-4"
+                className="text-2xl sm:text-[28px] lg:text-[32px] font-bold text-[#f5f2eb] leading-[1.3] mb-4"
               >
                 {t.contact.title}
               </h2>
-              <p className="text-sm sm:text-base text-[#aaa39a] leading-[1.9]">
+              <p className="text-[15px] sm:text-base text-[#c2bbb0] leading-[1.85] max-w-[48ch]">
                 {t.contact.description}
               </p>
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
-              <a
-                href="#consultation-form-title"
-                className="inline-flex items-center justify-center h-11 px-6 rounded-md bg-[#c5a46d] text-[#090909] text-sm font-semibold hover:bg-[#e4c995] transition-colors whitespace-nowrap"
+              <KineticButton
+                href={brandInfo.phoneHref}
+                variant="primary"
+                size="md"
+                className="tabular-nums"
               >
-                {t.contact.requestCta}
-              </a>
-              <a
-                href={`https://${brandInfo.website}`}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center justify-center h-11 px-6 rounded-md border border-[#c5a46d]/35 text-[#f4f0e8] text-sm font-medium hover:border-[#e4c995] hover:text-[#e4c995] transition-colors whitespace-nowrap"
-              >
-                {t.contact.visitPortal}
-              </a>
+                {language === 'fa' ? 'تماس مستقیم: ۰۹۹۶۰۷۸۶۶۱۷' : `Call ${brandInfo.phonePlaceholder}`}
+              </KineticButton>
+              {onNavigate && (
+                <KineticButton
+                  variant="ghost"
+                  size="md"
+                  showArrow
+                  onClick={() => onNavigate('/contact')}
+                >
+                  {t.contact.visitPortal}
+                </KineticButton>
+              )}
             </div>
 
-            <div className="pt-6 border-t border-[#c5a46d]/18 space-y-4 text-sm">
-              <div className="flex items-start gap-3">
-                <MapPin
-                  className="w-4 h-4 text-[#c5a46d] mt-1 shrink-0"
-                  aria-hidden="true"
-                />
-                <div>
-                  <p className="text-xs text-[#77716a] mb-0.5">{t.contact.plantAddressTitle}</p>
-                  <p className="text-[#f4f0e8]">{t.contact.plantAddressValue || brandInfo.cityPlaceholder}</p>
-                </div>
+            {/* Official Factory & Office Details */}
+            <dl className="pt-8 border-t border-white/10 space-y-5">
+              <div>
+                <dt className="text-sm font-medium text-[#d4b278] mb-1">
+                  {t.contact.plantAddressTitle}
+                </dt>
+                <dd className="text-[15px] text-[#f5f2eb] leading-relaxed">
+                  {t.contact.plantAddressValue}
+                </dd>
               </div>
-              <div className="flex items-start gap-3">
-                <Phone
-                  className="w-4 h-4 text-[#c5a46d] mt-1 shrink-0"
-                  aria-hidden="true"
-                />
-                <div>
-                  <p className="text-xs text-[#77716a] mb-0.5">{t.contact.salesDeskTitle}</p>
-                  <p className="text-[#f4f0e8] tabular-nums" dir="ltr">
+              <div>
+                <dt className="text-sm font-medium text-[#d4b278] mb-1">
+                  {t.contact.salesDeskTitle}
+                </dt>
+                <dd className="text-[15px] text-[#f5f2eb] tabular-nums">
+                  <a
+                    href={brandInfo.phoneHref}
+                    dir="ltr"
+                    className="inline-block hover:text-[#ebd09e] transition-colors"
+                  >
                     {brandInfo.phonePlaceholder}
-                  </p>
-                </div>
+                  </a>
+                </dd>
               </div>
-              <div className="flex items-start gap-3">
-                <Mail
-                  className="w-4 h-4 text-[#c5a46d] mt-1 shrink-0"
-                  aria-hidden="true"
-                />
-                <div>
-                  <p className="text-xs text-[#77716a] mb-0.5">{t.contact.corporateEmailTitle}</p>
-                  <p className="text-[#f4f0e8] font-mono-tech text-xs">
-                    {brandInfo.emailPlaceholder}
-                  </p>
-                </div>
+              <div>
+                <dt className="text-sm font-medium text-[#d4b278] mb-1">
+                  {t.contact.corporateEmailTitle}
+                </dt>
+                <dd className="text-[15px] text-[#f5f2eb]">
+                  {brandInfo.emailPlaceholder}
+                </dd>
               </div>
-              <div className="flex items-start gap-3">
-                <Clock
-                  className="w-4 h-4 text-[#c5a46d] mt-1 shrink-0"
-                  aria-hidden="true"
-                />
-                <div>
-                  <p className="text-xs text-[#77716a] mb-0.5">{t.contact.workingHoursTitle}</p>
-                  <p className="text-[#f4f0e8] text-xs">
-                    {t.contact.workingHoursValue}
-                  </p>
-                </div>
+              <div>
+                <dt className="text-sm font-medium text-[#d4b278] mb-1">
+                  {t.contact.workingHoursTitle}
+                </dt>
+                <dd className="text-[15px] text-[#f5f2eb] leading-relaxed">
+                  {t.contact.workingHoursValue}
+                </dd>
               </div>
-            </div>
+            </dl>
           </div>
 
-          {/* Integration-Ready Validated Consultation Form */}
-          <div className="reveal-section lg:col-span-7">
-            <div className="glass-surface-strong rounded-lg p-6 sm:p-8">
+          {/* Validated Consultation Form */}
+          <div className="reveal-section lg:col-span-7 text-start">
+            <div className="surface-panel rounded-lg p-6 sm:p-8 lg:p-10">
               <h3
                 id="consultation-form-title"
-                className="text-lg font-semibold text-[#f4f0e8] mb-2"
+                className="text-xl font-semibold text-[#f5f2eb] mb-2"
               >
                 {t.contact.formTitle}
               </h3>
-              <p className="text-xs text-[#9c958b] mb-6">
+              <p className="text-sm text-[#c2bbb0] mb-8">
                 {t.contact.formSubtitle}
               </p>
 
@@ -175,46 +193,46 @@ export function ContactSection({ preselectedMachine = '' }: ContactSectionProps)
                 <div
                   role="status"
                   aria-live="polite"
-                  className="rounded-lg bg-black/50 backdrop-blur-md border border-[#c5a46d]/40 p-6 space-y-5"
+                  className="rounded-lg bg-[#0e0d0c] border border-[#d4b278]/45 p-6 space-y-5"
                 >
                   <div className="flex items-start gap-3">
                     <CheckCircle2
-                      className="w-6 h-6 text-[#e4c995] shrink-0 mt-0.5"
+                      className="w-6 h-6 text-[#d4b278] shrink-0 mt-0.5"
                       aria-hidden="true"
                     />
                     <div>
-                      <h4 className="text-base font-semibold text-[#f4f0e8]">
+                      <h4 className="text-base font-semibold text-[#f5f2eb]">
                         {t.contact.successTitle}
                       </h4>
-                      <p className="text-xs text-[#aaa39a] mt-1 leading-relaxed">
+                      <p className="text-sm text-[#c2bbb0] mt-1 leading-relaxed">
                         {t.contact.successSubtitle}
                       </p>
                     </div>
                   </div>
 
-                  <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-[#c5a46d]/18 text-sm">
+                  <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-white/10 text-sm">
                     <div>
-                      <dt className="text-xs text-[#77716a]">{t.contact.fullNameLabel}</dt>
-                      <dd className="text-[#f4f0e8] font-medium mt-1">
+                      <dt className="text-sm text-[#c2bbb0]">{t.contact.fullNameLabel}</dt>
+                      <dd className="text-[#f5f2eb] font-medium mt-1">
                         {submittedPayload.fullName}
                       </dd>
                     </div>
                     <div>
-                      <dt className="text-xs text-[#77716a]">{t.contact.phoneLabel}</dt>
-                      <dd className="text-[#f4f0e8] font-mono-tech mt-1" dir="ltr">
+                      <dt className="text-sm text-[#c2bbb0]">{t.contact.phoneLabel}</dt>
+                      <dd className="text-[#f5f2eb] tabular-nums mt-1" dir="ltr">
                         {submittedPayload.normalizedPhone}
                       </dd>
                     </div>
                     <div className="sm:col-span-2">
-                      <dt className="text-xs text-[#77716a]">{t.contact.machineSelectLabel}</dt>
-                      <dd className="text-[#e4c995] font-medium mt-1">
+                      <dt className="text-sm text-[#c2bbb0]">{t.contact.machineSelectLabel}</dt>
+                      <dd className="text-[#ebd09e] font-medium mt-1">
                         {submittedPayload.machineType}
                       </dd>
                     </div>
                     {submittedPayload.description && (
                       <div className="sm:col-span-2">
-                        <dt className="text-xs text-[#77716a]">{t.contact.descriptionLabel}</dt>
-                        <dd className="text-[#aaa39a] mt-1 leading-relaxed">
+                        <dt className="text-sm text-[#c2bbb0]">{t.contact.descriptionLabel}</dt>
+                        <dd className="text-[#f5f2eb] mt-1 leading-relaxed">
                           {submittedPayload.description}
                         </dd>
                       </div>
@@ -224,19 +242,19 @@ export function ContactSection({ preselectedMachine = '' }: ContactSectionProps)
                   <button
                     type="button"
                     onClick={handleReset}
-                    className="inline-flex items-center gap-2 h-10 px-4 rounded-md border border-[#c5a46d]/35 text-xs font-medium text-[#e4c995] hover:bg-[#c5a46d]/10 transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-2 h-11 px-5 rounded-md border border-[#f5f2eb]/35 text-sm font-medium text-[#f5f2eb] hover:bg-[#f5f2eb] hover:text-[#090908] transition-colors cursor-pointer"
                   >
-                    <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
+                    <RotateCcw className="w-4 h-4" aria-hidden="true" />
                     <span>{t.contact.resetButton}</span>
                   </button>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} noValidate className="space-y-5">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <form onSubmit={handleSubmit} noValidate className="space-y-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div>
                       <label
                         htmlFor="contact-fullName"
-                        className="block text-xs font-medium text-[#f4f0e8] mb-2"
+                        className="block text-sm font-medium text-[#f5f2eb] mb-2"
                       >
                         {t.contact.fullNameLabel} *
                       </label>
@@ -255,10 +273,10 @@ export function ContactSection({ preselectedMachine = '' }: ContactSectionProps)
                         aria-invalid={Boolean(errors.fullName)}
                         aria-describedby={errors.fullName ? 'error-fullName' : undefined}
                         placeholder={t.contact.fullNamePlaceholder}
-                        className="w-full h-11 px-3.5 rounded-md bg-black/55 border border-[#c5a46d]/25 text-sm text-[#f4f0e8] placeholder:text-[#867f77] focus:border-[#e4c995]"
+                        className="w-full h-12 px-4 rounded-md bg-[#0b0a09] border border-white/15 text-sm text-[#f5f2eb] placeholder:text-[#c2bbb0]/65 hover:border-white/30 focus:border-[#d4b278]"
                       />
                       {errors.fullName && (
-                        <p id="error-fullName" role="alert" className="text-xs text-[#e8997a] mt-1.5">
+                        <p id="error-fullName" role="alert" className="text-sm text-[#f0a58a] mt-1.5">
                           {errors.fullName}
                         </p>
                       )}
@@ -267,7 +285,7 @@ export function ContactSection({ preselectedMachine = '' }: ContactSectionProps)
                     <div>
                       <label
                         htmlFor="contact-phone"
-                        className="block text-xs font-medium text-[#f4f0e8] mb-2"
+                        className="block text-sm font-medium text-[#f5f2eb] mb-2"
                       >
                         {t.contact.phoneLabel} *
                       </label>
@@ -287,10 +305,10 @@ export function ContactSection({ preselectedMachine = '' }: ContactSectionProps)
                         aria-invalid={Boolean(errors.phone)}
                         aria-describedby={errors.phone ? 'error-phone' : undefined}
                         placeholder={t.contact.phonePlaceholder}
-                        className={`w-full h-11 px-3.5 rounded-md bg-black/55 border border-[#c5a46d]/25 text-sm ${isRTL ? 'text-right' : 'text-left'} text-[#f4f0e8] placeholder:text-[#867f77] focus:border-[#e4c995] tabular-nums`}
+                        className={`w-full h-12 px-4 rounded-md bg-[#0b0a09] border border-white/15 text-sm ${isRTL ? 'text-right' : 'text-left'} text-[#f5f2eb] placeholder:text-[#c2bbb0]/65 hover:border-white/30 focus:border-[#d4b278] tabular-nums`}
                       />
                       {errors.phone && (
-                        <p id="error-phone" role="alert" className="text-xs text-[#e8997a] mt-1.5">
+                        <p id="error-phone" role="alert" className="text-sm text-[#f0a58a] mt-1.5">
                           {errors.phone}
                         </p>
                       )}
@@ -300,7 +318,7 @@ export function ContactSection({ preselectedMachine = '' }: ContactSectionProps)
                   <div>
                     <label
                       htmlFor="contact-machineType"
-                      className="block text-xs font-medium text-[#f4f0e8] mb-2"
+                      className="block text-sm font-medium text-[#f5f2eb] mb-2"
                     >
                       {t.contact.machineSelectLabel} *
                     </label>
@@ -316,17 +334,19 @@ export function ContactSection({ preselectedMachine = '' }: ContactSectionProps)
                       }}
                       aria-invalid={Boolean(errors.machineType)}
                       aria-describedby={errors.machineType ? 'error-machineType' : undefined}
-                      className="w-full h-11 px-3.5 rounded-md bg-[#0d0c0b]/90 border border-[#c5a46d]/25 text-sm text-[#f4f0e8] focus:border-[#e4c995]"
+                      className="w-full h-12 px-4 rounded-md bg-[#0b0a09] border border-white/15 text-sm text-[#f5f2eb] hover:border-white/30 focus:border-[#d4b278]"
                     >
-                      <option value="" className="bg-[#0d0c0b]">{t.contact.machineSelectPlaceholder}</option>
+                      <option value="" className="bg-[#0b0a09]">
+                        {t.contact.machineSelectPlaceholder}
+                      </option>
                       {machineOptions.map((opt) => (
-                        <option key={opt} value={opt} className="bg-[#0d0c0b]">
+                        <option key={opt} value={opt} className="bg-[#0b0a09]">
                           {opt}
                         </option>
                       ))}
                     </select>
                     {errors.machineType && (
-                      <p id="error-machineType" role="alert" className="text-xs text-[#e8997a] mt-1.5">
+                      <p id="error-machineType" role="alert" className="text-sm text-[#f0a58a] mt-1.5">
                         {errors.machineType}
                       </p>
                     )}
@@ -335,7 +355,7 @@ export function ContactSection({ preselectedMachine = '' }: ContactSectionProps)
                   <div>
                     <label
                       htmlFor="contact-description"
-                      className="block text-xs font-medium text-[#f4f0e8] mb-2"
+                      className="block text-sm font-medium text-[#f5f2eb] mb-2"
                     >
                       {t.contact.descriptionLabel}
                     </label>
@@ -353,23 +373,25 @@ export function ContactSection({ preselectedMachine = '' }: ContactSectionProps)
                       aria-invalid={Boolean(errors.description)}
                       aria-describedby={errors.description ? 'error-description' : undefined}
                       placeholder={t.contact.descriptionPlaceholder}
-                      className="w-full p-3.5 rounded-md bg-black/55 border border-[#c5a46d]/25 text-sm text-[#f4f0e8] placeholder:text-[#867f77] focus:border-[#e4c995] resize-y"
+                      className="w-full p-4 rounded-md bg-[#0b0a09] border border-white/15 text-sm text-[#f5f2eb] placeholder:text-[#c2bbb0]/65 hover:border-white/30 focus:border-[#d4b278] resize-y"
                     />
                     {errors.description && (
-                      <p id="error-description" role="alert" className="text-xs text-[#e8997a] mt-1.5">
+                      <p id="error-description" role="alert" className="text-sm text-[#f0a58a] mt-1.5">
                         {errors.description}
                       </p>
                     )}
                   </div>
 
-                  <div className="pt-1 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <button
+                  <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <KineticButton
                       type="submit"
-                      className="h-12 px-7 rounded-md bg-[#c5a46d] text-[#090909] text-sm font-semibold hover:bg-[#e4c995] transition-colors cursor-pointer"
+                      variant="primary"
+                      size="lg"
+                      showArrow
                     >
                       {t.contact.submitButton}
-                    </button>
-                    <span className="text-xs text-[#77716a]">
+                    </KineticButton>
+                    <span className="text-sm text-[#c2bbb0]">
                       {t.contact.privacyNote}
                     </span>
                   </div>

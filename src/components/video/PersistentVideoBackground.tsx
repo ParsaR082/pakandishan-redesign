@@ -448,14 +448,20 @@ export const PersistentVideoBackground = forwardRef<
 
     const bootMode = (isMobile: boolean) => {
       const total = getTotalFrames(isMobile);
-      const initialFrame = reducedMotion ? total - 1 : 0;
+      const initialFrame =
+        reducedMotion || progressRef.current >= 0.98 ? total - 1 : 0;
+
+      // Always ensure the final frame is also warm if needed for direct sub-page navigation
+      if (initialFrame === 0) {
+        void loadSingleImage(total - 1, isMobile);
+      }
 
       loadSingleImage(initialFrame, isMobile)
         .then(() => {
           if (isCancelled) return;
           isReadyRef.current = true;
           updateDimensions();
-          drawFrame(initialFrame, true);
+          drawFrame(displayedFrameRef.current || initialFrame, true);
 
           if (wrapperRef.current) {
             wrapperRef.current.dataset.ready = 'true';
@@ -593,10 +599,10 @@ export const PersistentVideoBackground = forwardRef<
         </>
       )}
 
-      {/* Post-hero dark frosted veil: hidden during hero scrubbing so GPU never allocates blur overhead; lightweight dark scrim on mobile, frosted blur on desktop */}
+      {/* Post-hero subtle dimming veil: keeps the frozen final frame of the oven clearly visible behind all sections while preserving crisp text contrast */}
       <div
         ref={veilRef}
-        className="absolute inset-0 md:backdrop-blur-[16px] bg-[#060606]/82 md:bg-[#060606]/60 bg-[radial-gradient(ellipse_at_top_right,rgba(197,164,109,0.1)_0%,transparent_55%),radial-gradient(circle_at_30%_50%,rgba(6,6,6,0.35)_0%,rgba(6,6,6,0.78)_70%,rgba(6,6,6,0.94)_100%)] transition-opacity duration-500 pointer-events-none"
+        className="absolute inset-0 md:backdrop-blur-[5px] bg-[#060606]/48 md:bg-[#060606]/40 transition-opacity duration-500 pointer-events-none"
         style={{
           opacity: reducedMotion ? 1 : 0,
           visibility: reducedMotion ? 'visible' : 'hidden',

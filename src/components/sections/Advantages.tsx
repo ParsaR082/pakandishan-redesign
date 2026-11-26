@@ -1,16 +1,12 @@
-import { Award, Crosshair, Headphones, Layers, Sparkles } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
-import { getCompanyAdvantages, CompanyAdvantage } from '../../data/products';
+import { getCompanyAdvantages } from '../../data/products';
+import { KineticButton } from '../ui/KineticButton';
 
-const ICON_MAP: Record<CompanyAdvantage['iconKey'], typeof Layers> = {
-  layers: Layers,
-  crosshair: Crosshair,
-  headphones: Headphones,
-  award: Award,
-  sparkles: Sparkles,
-};
+interface AdvantagesSectionProps {
+  onNavigate?: (href: string) => void;
+}
 
-export function AdvantagesSection() {
+export function AdvantagesSection({ onNavigate }: AdvantagesSectionProps) {
   const { language, t, formatNumber } = useLanguage();
   const advantages = getCompanyAdvantages(language);
 
@@ -18,57 +14,58 @@ export function AdvantagesSection() {
     <section
       id="advantages"
       aria-labelledby="advantages-heading"
-      className="relative scroll-mt-24 py-24 lg:py-28 glass-band border-t border-[#c5a46d]/16"
+      className="relative scroll-mt-24 py-28 sm:py-32 lg:py-40 section-base"
     >
-      <div className="mx-auto max-w-[1440px] px-4 sm:px-8">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14 reveal-section">
+      <div className="mx-auto w-full max-w-[1200px] px-5 sm:px-8 lg:px-10">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14 lg:mb-16 reveal-section text-start">
           <div className="max-w-2xl">
-            <p className="text-xs font-medium text-[#c5a46d] mb-3">
-              {t.advantages.badge}
-            </p>
             <h2
               id="advantages-heading"
-              className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#f4f0e8] leading-snug"
+              className="text-2xl sm:text-[28px] lg:text-[32px] font-bold text-[#f5f2eb] leading-[1.3]"
             >
               {t.advantages.title}
             </h2>
+            <p className="text-[15px] sm:text-base text-[#c2bbb0] mt-3 leading-[1.85] max-w-[54ch]">
+              {t.advantages.subtitle}
+            </p>
           </div>
-          <p className="text-sm text-[#aaa39a] max-w-md leading-relaxed">
-            {t.advantages.subtitle}
-          </p>
+
+          {onNavigate && (
+            <KineticButton
+              variant="ghost"
+              size="md"
+              showArrow
+              onClick={() => onNavigate('/services')}
+              className="self-start md:self-end"
+            >
+              {language === 'fa'
+                ? 'خدمات پس از فروش و گارانتی'
+                : 'After-Sales & Warranty'}
+            </KineticButton>
+          )}
         </div>
 
-        {/* Clean Horizontal Architectural Feature Grid inside Dark Frosted Glass */}
-        <div className="glass-surface rounded-lg overflow-hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 divide-y sm:divide-y-0 sm:rtl:divide-x-reverse sm:ltr:divide-x divide-[#c5a46d]/16 reveal-stagger-grid">
-          {advantages.map((item, idx) => {
-            const Icon = ICON_MAP[item.iconKey];
-            return (
-              <div
-                key={item.id}
-                className="reveal-card p-6 sm:p-6 flex flex-col justify-between gap-5 hover:bg-white/[0.025] transition-colors"
-              >
-                <div className="flex items-center justify-between">
-                  <Icon
-                    className="w-5 h-5 text-[#c5a46d]"
-                    strokeWidth={1.5}
-                    aria-hidden="true"
-                  />
-                  <span className="font-mono-tech text-xs text-[#77716a]">
-                    {formatNumber(String(idx + 1).padStart(2, '0'))}
-                  </span>
-                </div>
+        {/* Clean Numbered Advantage Cards with Specular Rim Lift */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 reveal-stagger-grid">
+          {advantages.map((item, idx) => (
+            <article
+              key={item.id}
+              className="reveal-card surface-panel panel-kinetic rounded-lg p-6 flex flex-col justify-between gap-6 text-start"
+            >
+              <span className="text-lg font-bold text-[#d4b278] tabular-nums">
+                {formatNumber(String(idx + 1).padStart(2, '0'))}
+              </span>
 
-                <div>
-                  <h3 className="text-lg font-semibold text-[#f4f0e8] mb-2.5">
-                    {item.title}
-                  </h3>
-                  <p className="text-sm text-[#aaa39a] leading-[1.85]">
-                    {item.description}
-                  </p>
-                </div>
+              <div>
+                <h3 className="text-base sm:text-lg font-semibold text-[#f5f2eb] mb-2.5 leading-snug">
+                  {item.title}
+                </h3>
+                <p className="text-sm text-[#c2bbb0] leading-[1.8]">
+                  {item.description}
+                </p>
               </div>
-            );
-          })}
+            </article>
+          ))}
         </div>
       </div>
     </section>

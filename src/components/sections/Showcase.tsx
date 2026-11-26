@@ -1,103 +1,75 @@
-import { useEffect, useRef } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ArrowLeft } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
-import { ASSET_MANIFEST } from '../../data/assets';
+import { EXPORT_REGIONS, pickList, pickLocale } from '../../data/pakandishanCatalog';
+import { KineticButton } from '../ui/KineticButton';
 import { SafeImage } from '../ui/SafeImage';
-
-gsap.registerPlugin(ScrollTrigger);
 
 interface ShowcaseSectionProps {
   onNavigate: (href: string) => void;
   reducedMotion: boolean;
 }
 
-export function ShowcaseSection({ onNavigate, reducedMotion }: ShowcaseSectionProps) {
-  const { t } = useLanguage();
-  const sectionRef = useRef<HTMLElement>(null);
-  const bgRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (reducedMotion || !sectionRef.current || !bgRef.current) return;
-    // Skip continuous scroll-scrub parallax on mobile to preserve 60/120fps touch scrolling
-    if (window.innerWidth < 768) return;
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        bgRef.current,
-        { yPercent: -8, scale: 1.08 },
-        {
-          yPercent: 8,
-          scale: 1.08,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top bottom',
-            end: 'bottom top',
-            scrub: true,
-          },
-        }
-      );
-    }, sectionRef);
-
-    return () => ctx.revert();
-  }, [reducedMotion]);
+export function ShowcaseSection({ onNavigate }: ShowcaseSectionProps) {
+  const { language, t } = useLanguage();
 
   return (
     <section
       id="showcase"
-      ref={sectionRef}
       aria-labelledby="showcase-heading"
-      className="relative scroll-mt-24 py-20 lg:py-28 w-full overflow-hidden glass-band-alt border-t border-[#c5a46d]/20"
+      className="relative scroll-mt-24 py-28 sm:py-32 lg:py-40 section-alt"
     >
-      <div className="relative z-10 mx-auto w-full max-w-[1440px] px-4 sm:px-8">
-        <div className="relative rounded-xl overflow-hidden glass-surface-strong border border-[#c5a46d]/28 min-h-[460px] lg:min-h-[520px] flex items-center">
-          {/* Parallax Architectural Hall Visual contained within the framed glass card */}
-          <div
-            ref={bgRef}
-            className="absolute inset-0 w-full h-full will-change-transform opacity-45"
-            aria-hidden="true"
-          >
-            <SafeImage
-              src={ASSET_MANIFEST.futureShowcase.path}
-              alt={ASSET_MANIFEST.futureShowcase.altFa}
-              className="w-full h-full object-cover"
-            />
+      <div className="mx-auto w-full max-w-[1200px] px-5 sm:px-8 lg:px-10">
+        {/* Asymmetric Edge-Aligned Export Showcase with Floating Transparent Machine */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+          <div className="lg:col-span-6 space-y-6 reveal-section text-start">
+            <h2
+              id="showcase-heading"
+              className="text-2xl sm:text-[28px] lg:text-[32px] font-bold text-[#f5f2eb] leading-[1.3]"
+            >
+              {t.showcase.title}
+            </h2>
+            <p className="text-[15px] sm:text-base text-[#c2bbb0] leading-[1.85] max-w-[54ch]">
+              {t.showcase.description}
+            </p>
+
+            {/* Concise regional export highlights */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+              {EXPORT_REGIONS.map((region) => (
+                <div
+                  key={region.id}
+                  className="surface-panel panel-kinetic rounded-lg p-4 space-y-1.5"
+                >
+                  <p className="text-sm font-semibold text-[#ebd09e]">
+                    {pickLocale(region.regionName, language)}
+                  </p>
+                  <p className="text-sm text-[#c2bbb0] leading-relaxed">
+                    {pickList(region.countries, language).slice(0, 4).join(language === 'fa' ? '، ' : ', ')}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <div className="pt-2">
+              <KineticButton
+                variant="primary"
+                size="lg"
+                showArrow
+                onClick={() => onNavigate('/export')}
+              >
+                {t.showcase.cta}
+              </KineticButton>
+            </div>
           </div>
 
-          {/* Layered dark architectural scrims + warm champagne vignette */}
-          <div
-            aria-hidden="true"
-            className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,8,7,0.72)_0%,rgba(8,8,7,0.58)_50%,rgba(8,8,7,0.86)_100%)]"
-          />
-          <div
-            aria-hidden="true"
-            className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(197,164,109,0.14)_0%,transparent_65%)]"
-          />
-
-          <div className="relative z-10 w-full py-16 px-6 sm:px-10">
-            <div className="max-w-3xl mx-auto text-center border-y border-[#c5a46d]/30 py-10 sm:py-14 px-4">
-              <p className="text-xs font-medium text-[#e4c995] mb-4">
-                {t.showcase.badge}
-              </p>
-              <h2
-                id="showcase-heading"
-                className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#f4f0e8] leading-[1.3] mb-6"
-              >
-                {t.showcase.title}
-              </h2>
-              <p className="text-sm sm:text-base text-[#f4f0e8]/85 leading-[1.9] max-w-2xl mx-auto mb-9">
-                {t.showcase.description}
-              </p>
-
-              <button
-                type="button"
-                onClick={() => onNavigate('#contact')}
-                className="inline-flex items-center justify-center gap-2.5 h-12 px-7 rounded-md bg-[#c5a46d] text-[#090909] text-sm font-semibold hover:bg-[#e4c995] transition-colors cursor-pointer"
-              >
-                <span>{t.showcase.cta}</span>
-                <ArrowLeft className="w-4 h-4 rtl:rotate-0 ltr:rotate-180" aria-hidden="true" />
-              </button>
+          <div className="lg:col-span-6 reveal-section">
+            <div className="floating-stage aspect-[4/3] w-full bg-transparent">
+              <SafeImage
+                src="/assets/pakandishan/products/tafton-rotary-automatic-set.webp"
+                alt={t.showcase.title}
+                fallbackTitle={t.showcase.title}
+                width={800}
+                height={600}
+                className="floating-machine-img w-full h-full object-contain"
+              />
             </div>
           </div>
         </div>

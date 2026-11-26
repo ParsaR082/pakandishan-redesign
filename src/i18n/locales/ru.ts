@@ -8,7 +8,7 @@ export const ru: Translations = {
     brandDescription:
       'Проектирование и производство высокотехнологичного промышленного хлебопекарного оборудования на основе точного инжиниринга и мировых стандартов.',
     officialWebsite: 'pakandishan.com',
-    requestConsultation: 'Запросить консультацию',
+    requestConsultation: 'Консультация',
     scrollCue: 'Прокрутите для просмотра',
     languageName: 'Русский',
     otherLanguageCode: 'fa',
@@ -29,16 +29,16 @@ export const ru: Translations = {
     closeMenu: 'Закрыть меню',
   },
   hero: {
-    kicker: 'Тяжелое промышленное машиностроение · pakandishan.com',
-    headline: 'Промышленная группа Pakandishan',
+    kicker: 'С 2003 года · Завод 13 000 м² в Урмии · pakandishan.com',
+    headline: 'Машиностроительная компания Pakandishan',
     subtitle:
-      'Проектирование и производство передового промышленного оборудования для выпечки хлебобулочных и кондитерских изделий с цифровым управлением и сертифицированной нержавеющей сталью.',
-    featureTag1: 'Нержавеющая сталь AISI 304',
-    featureTag2: 'Каскадное пароувлажнение',
-    featureTag3: 'Термическая стабильность 92%',
-    ctaPrimary: 'Каталог оборудования',
-    ctaSecondary: 'Консультация по производственной линии',
-    settledIndicator: 'Продолжить знакомство с каталогом',
+      'Автоматические линии для лаваша, тафтуна, барбари и сангака, а также запатентованные тестораскаточные машины Shateryar со стандартами ISO 9001 и CE.',
+    featureTag1: 'Стандарты ISO 9001 и CE',
+    featureTag2: 'Экспорт в 30+ стран',
+    featureTag3: 'Гарантия 12–24 месяца',
+    ctaPrimary: 'Каталог из 20 машин',
+    ctaSecondary: 'Запросить расчёт линии',
+    settledIndicator: 'Перейти к обзору завода и линий',
   },
   technology: {
     badge: 'Инжиниринг и инновации',
@@ -359,7 +359,7 @@ export const ru: Translations = {
     visitPortal: 'Официальный сайт',
     plantAddressTitle: 'Адрес завода',
     plantAddressValue:
-      'Промышленная зона Фаза 1, бул. Талашгаран, Урмия, Иран',
+      '35-й км трассы Урмия–Сальмас, Промышленная зона Фаза 3, бул. Северный Талашгаран, Урмия, Иран',
     salesDeskTitle: 'Отдел продаж и инжиниринга',
     corporateEmailTitle: 'Официальная почта',
     workingHoursTitle: 'Режим работы',

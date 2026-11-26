@@ -1,8 +1,9 @@
 import { RefObject, useLayoutEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ArrowLeft, ChevronDown } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
+import { KineticButton } from '../ui/KineticButton';
 import {
   computeHeroTimelinePhases,
   getHeroScrollDistance,
@@ -177,25 +178,24 @@ export function VideoHeroSection({
             </p>
 
             <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 rtl:justify-start ltr:justify-end lg:ltr:justify-start">
-              <button
-                type="button"
-                onClick={() => onNavigate('#products')}
-                className="inline-flex items-center justify-center gap-2 sm:gap-2.5 h-10 sm:h-12 px-5 sm:px-6 rounded-md bg-[#c5a46d] text-[#060606] text-xs sm:text-sm font-semibold hover:bg-[#e4c995] transition-colors duration-200 whitespace-nowrap cursor-pointer shadow-lg shadow-[#c5a46d]/20 active:scale-[0.98]"
+              <KineticButton
+                variant="primary"
+                size="md"
+                showArrow
+                onClick={() => onNavigate('/products')}
+                className="text-xs sm:text-sm"
               >
-                <span>{t.hero.ctaPrimary}</span>
-                <ArrowLeft
-                  className="w-4 h-4 rtl:rotate-0 ltr:rotate-180"
-                  aria-hidden="true"
-                />
-              </button>
+                {t.hero.ctaPrimary}
+              </KineticButton>
 
-              <button
-                type="button"
-                onClick={() => onNavigate('#contact')}
-                className="inline-flex items-center justify-center gap-2 h-10 sm:h-12 px-4 sm:px-6 rounded-md border border-[#c5a46d]/40 bg-black/40 backdrop-blur-sm text-[#f4f0e8] text-xs sm:text-sm font-medium hover:border-[#e4c995] hover:text-[#e4c995] hover:bg-black/60 transition-colors duration-200 whitespace-nowrap cursor-pointer active:scale-[0.98]"
+              <KineticButton
+                variant="ghost"
+                size="md"
+                onClick={() => onNavigate('/contact')}
+                className="bg-black/40 backdrop-blur-sm border-[#c5a46d]/45 text-xs sm:text-sm"
               >
-                <span>{t.hero.ctaSecondary}</span>
-              </button>
+                {t.hero.ctaSecondary}
+              </KineticButton>
             </div>
 
             <div className="mt-3 sm:mt-6 pt-2.5 sm:pt-5 border-t border-[#c5a46d]/22 w-full flex rtl:justify-start ltr:justify-end lg:ltr:justify-start">

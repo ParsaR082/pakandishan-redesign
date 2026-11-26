@@ -1,14 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
-import { ChevronDown, Globe, Menu, PhoneCall } from 'lucide-react';
+import { ChevronDown, Globe, Menu } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { getNavItems } from '../../data/navigation';
 import { BrandMark } from '../ui/BrandMark';
+import { KineticButton } from '../ui/KineticButton';
 
 interface NavbarProps {
   activeSection: string;
   onNavigate: (href: string) => void;
   onOpenMobileMenu: () => void;
   mobileMenuOpen: boolean;
+  forceVisible?: boolean;
 }
 
 export function Navbar({
@@ -16,15 +18,21 @@ export function Navbar({
   onNavigate,
   onOpenMobileMenu,
   mobileMenuOpen,
+  forceVisible = false,
 }: NavbarProps) {
   const { language, setLanguage, supportedLanguages, t } = useLanguage();
-  const [isVisible, setIsVisible] = useState(false);
+  const [isVisible, setIsVisible] = useState(forceVisible);
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
   const langDropdownRef = useRef<HTMLDivElement>(null);
   const navItems = getNavItems(language);
 
   useEffect(() => {
-    let lastVisible = false;
+    if (forceVisible) {
+      setIsVisible(true);
+      return;
+    }
+    let lastVisible = window.scrollY > 90;
+    setIsVisible(lastVisible);
     const onScroll = () => {
       const shouldBeVisible = window.scrollY > 90;
       if (shouldBeVisible !== lastVisible) {
@@ -32,12 +40,10 @@ export function Navbar({
         setIsVisible(shouldBeVisible);
       }
     };
-    onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
-  }, []);
+  }, [forceVisible]);
 
-  // Close language dropdown on outside click or escape
   useEffect(() => {
     if (!langDropdownOpen) return;
     const handleClickOutside = (e: MouseEvent) => {
@@ -61,53 +67,35 @@ export function Navbar({
 
   return (
     <header
-      className={`fixed top-0 inset-x-0 z-50 px-2 sm:px-6 pt-2 sm:pt-3 pointer-events-none transition-[transform,opacity] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+      className={`fixed top-0 inset-x-0 z-50 px-3 sm:px-6 lg:px-10 pt-3 pointer-events-none transition-[transform,opacity] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
         isVisible
           ? 'translate-y-0 opacity-100'
           : '-translate-y-[120%] opacity-0'
       }`}
       role="banner"
     >
-      <div
-        className="pointer-events-auto mx-auto max-w-[1440px] h-[60px] sm:h-[68px] md:h-[76px] px-3 sm:px-8 flex items-center justify-between gap-2 sm:gap-6 lg:gap-8 rounded-lg glass-nav-scrolled shadow-[0_12px_36px_rgba(0,0,0,0.65)]"
-      >
-        {/* Brand mark + wordmark with choreographed slide-down and Furnace Ember Glow */}
+      <div className="pointer-events-auto mx-auto w-full max-w-[1200px] h-[60px] sm:h-[68px] px-3 sm:px-5 lg:px-6 flex items-center justify-between gap-2 sm:gap-4 rounded-lg glass-nav-scrolled">
+        {/* Brand mark + wordmark (safely truncates on tiny viewports so controls never overflow) */}
         <a
-          href="#hero"
+          href="/"
           onClick={(e) => {
             e.preventDefault();
-            onNavigate('#hero');
+            onNavigate('/');
           }}
-          className={`relative flex items-center gap-2 sm:gap-3 whitespace-nowrap shrink-0 group transition-[transform,opacity] duration-600 ease-[cubic-bezier(0.16,1,0.3,1)] py-1.5 px-1 sm:px-2 rounded-lg ${
-            isVisible
-              ? 'translate-y-0 opacity-100 delay-[100ms]'
-              : '-translate-y-3 opacity-0'
-          }`}
+          className="flex items-center gap-2 sm:gap-2.5 min-w-0 shrink group py-1 rounded-md"
         >
-          {/* Animated ember glow aura behind brand name (desktop only to keep mobile GPU budget free) */}
-          <div
-            aria-hidden="true"
-            className="hidden sm:block absolute inset-0 -inset-x-2 rounded-lg bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.18)_0%,rgba(228,201,149,0.14)_35%,rgba(197,164,109,0.06)_60%,transparent_80%)] blur-[10px] pointer-events-none animate-ember-pulse"
-          />
-
-          <BrandMark className="w-7 h-7 sm:w-9 sm:h-9 relative z-10 transition-transform duration-300 group-hover:scale-105" />
-
-          <div className="relative z-10 flex flex-col leading-tight">
-            <span className="font-extrabold text-[13.5px] sm:text-base tracking-tight text-[#f4f0e8] drop-shadow-[0_2px_12px_rgba(255,255,255,0.45)] group-hover:text-white transition-colors">
-              {t.common.brandName}
-            </span>
-            <span className="hidden sm:block text-[11px] sm:text-xs text-[#c5a46d] font-normal tracking-wide opacity-90">
-              {t.common.brandTagline}
-            </span>
-          </div>
+          <BrandMark className="w-7 h-7 sm:w-8 sm:h-8 shrink-0 relative z-10 transition-transform duration-200 group-hover:scale-105" />
+          <span className="font-bold text-sm sm:text-base text-[#f5f2eb] group-hover:text-[#ebd09e] transition-colors truncate">
+            {t.common.brandShortName}
+          </span>
         </a>
 
-        {/* Desktop Navigation Links: staggered entrance */}
+        {/* Desktop Navigation Links (shown at xl >= 1280px so all 7 links fit comfortably in all 5 languages) */}
         <nav
           aria-label={t.common.brandName}
-          className="hidden lg:flex items-center gap-6 xl:gap-8 text-sm"
+          className="hidden xl:flex items-center justify-center gap-5 2xl:gap-6 text-sm min-w-0"
         >
-          {navItems.map((item, idx) => {
+          {navItems.map((item) => {
             const isActive = activeSection === item.id;
             return (
               <a
@@ -117,24 +105,28 @@ export function Navbar({
                   e.preventDefault();
                   onNavigate(item.href);
                 }}
-                className={`relative py-1 font-medium transition-[color,transform,opacity] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-                  isVisible
-                    ? 'translate-y-0 opacity-100'
-                    : '-translate-y-3 opacity-0'
-                } ${
+                aria-current={isActive ? 'page' : undefined}
+                className={`group relative py-2 transition-colors duration-200 whitespace-nowrap shrink-0 ${
                   isActive
-                    ? 'text-[#e4c995]'
-                    : 'text-[#aaa39a] hover:text-[#f4f0e8]'
+                    ? 'text-[#ebd09e] font-semibold'
+                    : 'text-[#c2bbb0] hover:text-[#f5f2eb]'
                 }`}
-                style={{
-                  transitionDelay: isVisible ? `${140 + idx * 45}ms` : '0ms',
-                }}
               >
-                {item.label}
+                <span className="kinetic-roll">
+                  <span className="kinetic-roll-line kinetic-roll-line--main">
+                    {item.label}
+                  </span>
+                  <span
+                    aria-hidden="true"
+                    className="kinetic-roll-line kinetic-roll-line--clone text-[#ebd09e]"
+                  >
+                    {item.label}
+                  </span>
+                </span>
                 <span
                   aria-hidden="true"
-                  className={`absolute bottom-0 inset-x-0 h-[1.5px] bg-[#c5a46d] transition-[width,opacity] duration-200 ${
-                    isActive ? 'w-full opacity-100' : 'w-0 opacity-0'
+                  className={`absolute inset-x-0 bottom-0 h-[2px] bg-[#d4b278] transition-transform duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] origin-center ${
+                    isActive ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
                   }`}
                 />
               </a>
@@ -142,15 +134,8 @@ export function Navbar({
           })}
         </nav>
 
-        {/* Action Zone: Multi-Language Selector + Primary CTA + Mobile drawer trigger */}
-        <div
-          className={`flex items-center gap-1.5 sm:gap-3 shrink-0 transition-[transform,opacity] duration-600 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-            isVisible
-              ? 'translate-y-0 opacity-100 delay-[360ms]'
-              : '-translate-y-3 opacity-0'
-          }`}
-        >
-          {/* Multi-Language Dropdown Menu */}
+        {/* Action Zone: Multi-Language Selector + Desktop CTA (strictly wrapper-hidden on mobile) + Drawer Trigger */}
+        <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
           <div className="relative shrink-0" ref={langDropdownRef}>
             <button
               type="button"
@@ -158,15 +143,13 @@ export function Navbar({
               aria-expanded={langDropdownOpen}
               aria-haspopup="listbox"
               aria-label="Select Language"
-              className="inline-flex items-center gap-1 sm:gap-1.5 h-8 sm:h-10 px-2 sm:px-3 rounded-md border border-[#c5a46d]/28 bg-[#12110f]/80 hover:bg-[#1d1a16] hover:border-[#c5a46d]/60 text-[11px] sm:text-xs font-semibold text-[#e4c995] transition-colors cursor-pointer select-none"
+              className="inline-flex items-center gap-1.5 h-9 sm:h-10 px-2.5 sm:px-3 rounded-md border border-white/15 bg-[#141311] hover:bg-[#1f1d1a] hover:border-[#d4b278]/60 text-xs sm:text-sm font-medium text-[#f5f2eb] transition-colors cursor-pointer select-none"
             >
-              <Globe className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#c5a46d]" aria-hidden="true" />
-              <span className="font-mono-tech tracking-wider uppercase">
-                {language}
-              </span>
+              <Globe className="w-3.5 h-3.5 text-[#d4b278] shrink-0" aria-hidden="true" />
+              <span className="uppercase">{language}</span>
               <ChevronDown
-                className={`w-2.5 h-2.5 sm:w-3 sm:h-3 text-[#aaa39a] transition-transform duration-200 ${
-                  langDropdownOpen ? 'rotate-180 text-[#e4c995]' : ''
+                className={`w-3.5 h-3.5 text-[#c2bbb0] shrink-0 transition-transform duration-200 ${
+                  langDropdownOpen ? 'rotate-180 text-[#ebd09e]' : ''
                 }`}
                 aria-hidden="true"
               />
@@ -175,7 +158,7 @@ export function Navbar({
             {langDropdownOpen && (
               <div
                 role="listbox"
-                className="absolute top-full mt-2 rtl:left-0 ltr:right-0 z-50 w-36 py-1.5 rounded-lg bg-[#0e0d0c]/95 backdrop-blur-2xl border border-[#c5a46d]/35 shadow-[0_16px_40px_rgba(0,0,0,0.85)] animate-in fade-in zoom-in-95 duration-150"
+                className="absolute top-full mt-2 rtl:left-0 ltr:right-0 z-50 w-40 py-1.5 rounded-lg bg-[#141311] border border-white/15"
               >
                 {supportedLanguages.map((item) => {
                   const isCurrent = language === item.code;
@@ -189,14 +172,14 @@ export function Navbar({
                         setLanguage(item.code);
                         setLangDropdownOpen(false);
                       }}
-                      className={`w-full flex items-center justify-between px-3 py-2 text-xs transition-colors cursor-pointer ${
+                      className={`w-full flex items-center justify-between px-3.5 py-2 text-sm transition-colors cursor-pointer ${
                         isCurrent
-                          ? 'bg-[#c5a46d]/20 text-[#e4c995] font-semibold'
-                          : 'text-[#aaa39a] hover:bg-[#1a1815] hover:text-[#f4f0e8]'
+                          ? 'bg-[#d4b278]/20 text-[#ebd09e] font-semibold'
+                          : 'text-[#c2bbb0] hover:bg-[#1f1d1a] hover:text-[#f5f2eb]'
                       }`}
                     >
                       <span>{item.nativeLabel}</span>
-                      <span className="font-mono-tech text-[10px] text-[#77716a] uppercase">
+                      <span className="text-xs text-[#c2bbb0]/80 uppercase">
                         {item.shortLabel}
                       </span>
                     </button>
@@ -206,24 +189,26 @@ export function Navbar({
             )}
           </div>
 
-          <button
-            type="button"
-            onClick={() => onNavigate('#contact')}
-            className="hidden sm:inline-flex items-center gap-2 h-10 px-5 rounded-md bg-[#c5a46d] text-[#090909] text-[13.5px] font-semibold hover:bg-[#e4c995] transition-colors duration-200 whitespace-nowrap shrink-0 cursor-pointer"
-          >
-            <PhoneCall className="w-4 h-4 shrink-0" aria-hidden="true" />
-            <span>{t.common.requestConsultation}</span>
-          </button>
+          {/* Wrapper hides CTA reliably below md (768px) without conflicting with KineticButton's inline-flex */}
+          <div className="hidden md:block shrink-0">
+            <KineticButton
+              size="sm"
+              variant="primary"
+              onClick={() => onNavigate('/contact')}
+            >
+              {t.common.requestConsultation}
+            </KineticButton>
+          </div>
 
           <button
             type="button"
             onClick={onOpenMobileMenu}
-            aria-label={t.nav.closeMenu}
+            aria-label={t.nav.mobileMenuTitle}
             aria-expanded={mobileMenuOpen}
             aria-controls="mobile-nav-drawer"
-            className="lg:hidden inline-flex items-center justify-center w-8 h-8 sm:w-11 sm:h-11 rounded-md border border-[#c5a46d]/25 bg-[#171512] text-[#f4f0e8] hover:border-[#c5a46d]/60 transition-colors shrink-0 cursor-pointer"
+            className="xl:hidden inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-md border border-white/15 bg-[#141311] text-[#f5f2eb] hover:bg-[#1f1d1a] hover:border-[#d4b278]/60 transition-colors shrink-0 cursor-pointer"
           >
-            <Menu className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden="true" />
+            <Menu className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
       </div>

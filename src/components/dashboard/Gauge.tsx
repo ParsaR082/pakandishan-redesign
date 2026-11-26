@@ -34,12 +34,12 @@ export function Gauge({
   );
 
   return (
-    <div className="surface-panel rounded-lg p-5 flex flex-col justify-between gap-4">
-      <div className="flex items-center justify-between gap-2">
-        <h3 className="text-sm font-semibold text-[#f4f0e8]">{title}</h3>
-        <span className="text-xs text-[#c5a46d] font-medium whitespace-nowrap">
+    <div className="surface-panel rounded-lg p-6 flex flex-col justify-between gap-5 text-start">
+      <div className="space-y-1">
+        <h3 className="text-base font-semibold text-[#f5f2eb] leading-snug">{title}</h3>
+        <p className="text-sm text-[#d4b278] font-medium">
           {statusLabel}
-        </span>
+        </p>
       </div>
 
       <div className="relative mx-auto w-[144px] h-[144px] flex items-center justify-center">
@@ -53,26 +53,23 @@ export function Gauge({
         >
           <defs>
             <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#80643c" />
-              <stop offset="55%" stopColor="#c5a46d" />
-              <stop offset="100%" stopColor="#e4c995" />
+              <stop offset="0%" stopColor="#a88852" />
+              <stop offset="100%" stopColor="#ebd09e" />
             </linearGradient>
           </defs>
 
-          {/* Background 270-degree track */}
           <circle
             cx={center}
             cy={center}
             r={radius}
             fill="none"
-            stroke="rgba(255,255,255,0.09)"
+            stroke="rgba(255,255,255,0.1)"
             strokeWidth={strokeWidth}
             strokeLinecap="round"
             strokeDasharray={`${arcLength} ${circumference}`}
             transform={`rotate(135 ${center} ${center})`}
           />
 
-          {/* Active champagne-gold progress arc */}
           <circle
             cx={center}
             cy={center}
@@ -88,20 +85,20 @@ export function Gauge({
           />
         </svg>
 
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-center pt-1">
-          <div className="flex items-baseline gap-1 font-mono-tech tabular-nums">
-            <span className="text-3xl font-bold text-[#f4f0e8]">
+        <div className="absolute inset-0 flex flex-col items-center justify-center pt-1">
+          <div className="flex items-baseline gap-1 tabular-nums">
+            <span className="text-3xl font-bold text-[#f5f2eb]">
               {formatNumber(value)}
             </span>
-            <span className="text-sm text-[#e4c995]">{unit}</span>
+            <span className="text-sm font-medium text-[#d4b278]">{unit}</span>
           </div>
-          <span className="text-[11px] text-[#77716a] mt-1">
+          <span className="text-xs text-[#c2bbb0] mt-1">
             {t.dashboard.gaugeMaxPrefix} {formatNumber(maxValue)}
           </span>
         </div>
       </div>
 
-      <p className="text-xs text-[#aaa39a] text-center border-t border-[#c5a46d]/14 pt-3">
+      <p className="text-sm text-[#c2bbb0] border-t border-white/8 pt-4 text-start">
         {subtitle}
       </p>
     </div>

@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
-import { Globe, PhoneCall, X } from 'lucide-react';
+import { Globe, X } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { getNavItems } from '../../data/navigation';
 import { BrandMark } from '../ui/BrandMark';
@@ -90,7 +90,7 @@ export function MobileMenu({
       role="dialog"
       aria-modal="true"
       aria-label={t.nav.mobileMenuTitle}
-      className="fixed inset-0 z-50 lg:hidden flex justify-start"
+      className="fixed inset-0 z-50 xl:hidden flex justify-start"
     >
       <div
         ref={backdropRef}
@@ -101,13 +101,13 @@ export function MobileMenu({
 
       <div
         ref={drawerRef}
-        className="relative z-10 w-[86vw] max-w-[360px] h-full bg-[#0e0d0c]/90 backdrop-blur-2xl rtl:border-l ltr:border-r border-[#c5a46d]/28 flex flex-col justify-between p-6 overflow-y-auto"
+        className="relative z-10 w-[86vw] max-w-[360px] h-full bg-[#100f0d] rtl:border-l ltr:border-r border-white/10 flex flex-col justify-between p-6 overflow-y-auto text-start"
       >
         <div>
-          <div className="flex items-center justify-between pb-5 border-b border-[#c5a46d]/18">
+          <div className="flex items-center justify-between pb-5 border-b border-white/10">
             <div className="flex items-center gap-3">
               <BrandMark className="w-8 h-8" />
-              <span className="text-base font-semibold text-[#f4f0e8]">
+              <span className="text-base font-bold text-[#f5f2eb]">
                 {t.common.brandName}
               </span>
             </div>
@@ -115,26 +115,26 @@ export function MobileMenu({
               type="button"
               onClick={onClose}
               aria-label={t.nav.closeMenu}
-              className="w-11 h-11 inline-flex items-center justify-center rounded-md border border-[#c5a46d]/20 text-[#aaa39a] hover:text-[#f4f0e8] hover:border-[#c5a46d]/50 transition-colors cursor-pointer"
+              className="w-10 h-10 inline-flex items-center justify-center rounded-md border border-white/15 bg-[#141311] text-[#c2bbb0] hover:text-[#f5f2eb] hover:border-[#d4b278]/60 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" aria-hidden="true" />
             </button>
           </div>
 
           {/* Multi-Language Selector in Mobile Menu */}
-          <div className="mt-5 pt-3 border-t border-[#c5a46d]/14">
-            <div className="flex items-center gap-1.5 text-xs text-[#aaa39a] mb-2.5">
-              <Globe className="w-3.5 h-3.5 text-[#c5a46d]" aria-hidden="true" />
+          <div className="mt-6">
+            <div className="flex items-center gap-2 text-sm text-[#c2bbb0] mb-3">
+              <Globe className="w-4 h-4 text-[#d4b278]" aria-hidden="true" />
               <span>
                 {language === 'fa'
-                  ? 'انتخاب زبان:'
+                  ? 'انتخاب زبان'
                   : language === 'ar'
-                  ? 'اختر اللغة:'
+                  ? 'اختر اللغة'
                   : language === 'tr'
-                  ? 'Dil Seçimi:'
+                  ? 'Dil Seçimi'
                   : language === 'ru'
-                  ? 'Выбор языка:'
-                  : 'Select Language:'}
+                  ? 'Выбор языка'
+                  : 'Select Language'}
               </span>
             </div>
             <div className="grid grid-cols-5 gap-1.5">
@@ -145,18 +145,13 @@ export function MobileMenu({
                     key={item.code}
                     type="button"
                     onClick={() => setLanguage(item.code)}
-                    className={`flex flex-col items-center justify-center py-2 px-1 rounded-md text-xs transition-colors cursor-pointer border ${
+                    className={`flex items-center justify-center h-10 rounded-md text-xs font-semibold transition-colors cursor-pointer border ${
                       isCurrent
-                        ? 'bg-[#c5a46d]/20 border-[#c5a46d] text-[#e4c995] font-semibold shadow-sm'
-                        : 'bg-[#141311] border-[#c5a46d]/18 text-[#aaa39a] hover:text-[#f4f0e8] hover:border-[#c5a46d]/40'
+                        ? 'bg-[#d4b278] border-[#d4b278] text-[#090908]'
+                        : 'bg-[#141311] border-white/12 text-[#c2bbb0] hover:text-[#f5f2eb] hover:border-[#d4b278]/50'
                     }`}
                   >
-                    <span className="text-[11px] font-medium leading-none truncate max-w-full">
-                      {item.nativeLabel}
-                    </span>
-                    <span className="font-mono-tech text-[9px] text-[#77716a] mt-1 uppercase">
-                      {item.shortLabel}
-                    </span>
+                    <span className="uppercase">{item.shortLabel}</span>
                   </button>
                 );
               })}
@@ -164,7 +159,7 @@ export function MobileMenu({
           </div>
 
           <nav aria-label={t.nav.mobileMenuTitle} className="mt-6">
-            <ul ref={linksRef} className="space-y-2">
+            <ul ref={linksRef} className="space-y-1.5">
               {navItems.map((item) => {
                 const isActive = activeSection === item.id;
                 return (
@@ -177,8 +172,8 @@ export function MobileMenu({
                       }}
                       className={`flex items-center justify-between min-h-[48px] px-4 rounded-md text-base font-medium transition-colors ${
                         isActive
-                          ? 'bg-[#c5a46d]/12 text-[#e4c995] border border-[#c5a46d]/30'
-                          : 'text-[#f4f0e8]/85 hover:bg-[#171512] hover:text-[#f4f0e8]'
+                          ? 'bg-[#d4b278]/15 text-[#ebd09e] border border-[#d4b278]/40'
+                          : 'text-[#f5f2eb] hover:bg-[#1b1916]'
                       }`}
                     >
                       <span>{item.label}</span>
@@ -190,16 +185,15 @@ export function MobileMenu({
           </nav>
         </div>
 
-        <div className="pt-6 border-t border-[#c5a46d]/18 space-y-4">
+        <div className="pt-6 border-t border-white/10 space-y-4">
           <button
             type="button"
-            onClick={() => handleSelect('#contact')}
-            className="w-full min-h-[48px] inline-flex items-center justify-center gap-2 rounded-md bg-[#c5a46d] text-[#090909] text-sm font-semibold hover:bg-[#e4c995] transition-colors cursor-pointer"
+            onClick={() => handleSelect('/contact')}
+            className="w-full h-12 inline-flex items-center justify-center rounded-md bg-[#d4b278] text-[#090908] text-sm font-semibold hover:bg-[#ebd09e] transition-colors cursor-pointer"
           >
-            <PhoneCall className="w-4 h-4" aria-hidden="true" />
-            <span>{t.nav.mobileConsultationBtn}</span>
+            {t.nav.mobileConsultationBtn}
           </button>
-          <p className="text-xs text-[#77716a] leading-relaxed">
+          <p className="text-sm text-[#c2bbb0] leading-relaxed">
             {t.common.brandTagline}
           </p>
         </div>

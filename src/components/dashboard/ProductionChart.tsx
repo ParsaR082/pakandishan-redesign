@@ -16,7 +16,7 @@ const CHART_HEIGHT = 220;
 const PAD_TOP = 16;
 const PAD_RIGHT = 16;
 const PAD_BOTTOM = 30;
-const PAD_LEFT = 46;
+const PAD_LEFT = 48;
 
 function buildSmoothPath(points: { x: number; y: number }[]): string {
   if (points.length === 0) return '';
@@ -83,23 +83,23 @@ export function ProductionChart({ data }: ProductionChartProps) {
       : null;
 
   return (
-    <div className="surface-panel rounded-lg p-5">
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
+    <div className="surface-panel rounded-lg p-6 text-start">
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
         <div>
-          <h3 className="text-sm font-semibold text-[#f4f0e8]">
+          <h3 className="text-base font-semibold text-[#f5f2eb]">
             {t.dashboard.chartTitle}
           </h3>
-          <p className="text-xs text-[#77716a] mt-1">
+          <p className="text-sm text-[#c2bbb0] mt-1">
             {t.dashboard.chartSubtitle}
           </p>
         </div>
-        <div className="flex items-center gap-4 text-xs text-[#aaa39a]">
-          <span className="inline-flex items-center gap-1.5">
-            <span className="w-3 h-0.5 bg-[#e4c995]" aria-hidden="true" />
+        <div className="flex items-center gap-5 text-sm text-[#c2bbb0]">
+          <span className="inline-flex items-center gap-2">
+            <span className="w-3.5 h-0.5 bg-[#d4b278]" aria-hidden="true" />
             <span>{t.dashboard.chartActualLegend}</span>
           </span>
-          <span className="inline-flex items-center gap-1.5">
-            <span className="w-3 h-0.5 bg-[#77716a]" aria-hidden="true" />
+          <span className="inline-flex items-center gap-2">
+            <span className="w-3.5 h-0.5 bg-[#c2bbb0]/60" aria-hidden="true" />
             <span>{t.dashboard.chartTargetLegend}</span>
           </span>
         </div>
@@ -119,12 +119,11 @@ export function ProductionChart({ data }: ProductionChartProps) {
         >
           <defs>
             <linearGradient id="pakGoldArea" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#c5a46d" stopOpacity="0.34" />
-              <stop offset="95%" stopColor="#c5a46d" stopOpacity="0" />
+              <stop offset="5%" stopColor="#d4b278" stopOpacity="0.28" />
+              <stop offset="95%" stopColor="#d4b278" stopOpacity="0" />
             </linearGradient>
           </defs>
 
-          {/* Horizontal Gridlines & Y-Axis Ticks */}
           {geometry.yTicks.map((tick) => (
             <g key={tick.value}>
               <line
@@ -132,53 +131,49 @@ export function ProductionChart({ data }: ProductionChartProps) {
                 x2={CHART_WIDTH - PAD_RIGHT}
                 y1={tick.y}
                 y2={tick.y}
-                stroke="rgba(255,255,255,0.06)"
+                stroke="rgba(255,255,255,0.08)"
                 strokeDasharray="3 3"
               />
               <text
-                x={PAD_LEFT - 8}
+                x={PAD_LEFT - 10}
                 y={tick.y + 4}
                 textAnchor="end"
-                fill="#aaa39a"
-                fontSize="11"
-                className="font-mono-tech"
+                fill="#c2bbb0"
+                fontSize="12"
+                className="tabular-nums"
               >
                 {formatNumber(tick.value)}
               </text>
             </g>
           ))}
 
-          {/* X-Axis Baseline */}
           <line
             x1={PAD_LEFT}
             x2={CHART_WIDTH - PAD_RIGHT}
             y1={geometry.baselineY}
             y2={geometry.baselineY}
-            stroke="rgba(197,164,109,0.18)"
+            stroke="rgba(255,255,255,0.14)"
           />
 
-          {/* Area Fill */}
           <path d={geometry.areaPath} fill="url(#pakGoldArea)" />
 
-          {/* Target Dashed Line */}
           <path
             d={geometry.targetPath}
             fill="none"
-            stroke="#77716a"
+            stroke="#c2bbb0"
+            strokeOpacity="0.55"
             strokeWidth="1.5"
             strokeDasharray="4 4"
           />
 
-          {/* Actual Output Line */}
           <path
             d={geometry.outputPath}
             fill="none"
-            stroke="#e4c995"
-            strokeWidth="2.4"
+            stroke="#ebd09e"
+            strokeWidth="2.5"
             strokeLinecap="round"
           />
 
-          {/* Active Crosshair & Dot */}
           {activeCoord && (
             <g>
               <line
@@ -186,21 +181,20 @@ export function ProductionChart({ data }: ProductionChartProps) {
                 x2={activeCoord.x}
                 y1={PAD_TOP}
                 y2={geometry.baselineY}
-                stroke="rgba(228,201,149,0.35)"
+                stroke="rgba(212,178,120,0.45)"
                 strokeDasharray="3 3"
               />
               <circle
                 cx={activeCoord.x}
                 cy={activeCoord.y}
                 r="5"
-                fill="#e4c995"
-                stroke="#090909"
+                fill="#ebd09e"
+                stroke="#090908"
                 strokeWidth="2"
               />
             </g>
           )}
 
-          {/* X-Axis Labels & Invisible Hit Targets */}
           {data.map((point, idx) => {
             const pt = geometry.outputPts[idx];
             const colW =
@@ -213,9 +207,9 @@ export function ProductionChart({ data }: ProductionChartProps) {
                   x={pt.x}
                   y={CHART_HEIGHT - 8}
                   textAnchor="middle"
-                  fill={activeIndex === idx ? '#e4c995' : '#aaa39a'}
-                  fontSize="11"
-                  className="font-mono-tech"
+                  fill={activeIndex === idx ? '#ebd09e' : '#c2bbb0'}
+                  fontSize="12"
+                  className="tabular-nums"
                 >
                   {point.hour}
                 </text>
@@ -236,24 +230,23 @@ export function ProductionChart({ data }: ProductionChartProps) {
           })}
         </svg>
 
-        {/* Floating Localized Tooltip */}
         {activePoint && activeCoord && (
           <div
-            className="pointer-events-none absolute top-2 z-20 rounded-lg bg-[#171512]/95 border border-[#c5a46d]/40 px-3 py-2 text-xs shadow-xl"
+            className="pointer-events-none absolute top-2 z-20 rounded-md bg-[#1b1916] border border-[#d4b278]/45 px-3.5 py-2.5 text-sm"
             style={{
-              left: `${Math.min(72, Math.max(8, (activeCoord.x / CHART_WIDTH) * 100 - 12))}%`,
+              left: `${Math.min(68, Math.max(8, (activeCoord.x / CHART_WIDTH) * 100 - 12))}%`,
               direction: isRTL ? 'rtl' : 'ltr',
               textAlign: isRTL ? 'right' : 'left',
             }}
           >
-            <p className="font-semibold text-[#e4c995] mb-1">{activePoint.hour}</p>
-            <p className="text-[#f4f0e8] tabular-nums">
+            <p className="font-semibold text-[#ebd09e] mb-1">{activePoint.hour}</p>
+            <p className="text-[#f5f2eb] tabular-nums">
               {t.dashboard.chartActualLegend}:{' '}
               <span className="font-semibold">
                 {formatNumber(activePoint.output)} {t.dashboard.chartUnit}
               </span>
             </p>
-            <p className="text-[#aaa39a] tabular-nums">
+            <p className="text-[#c2bbb0] tabular-nums">
               {t.dashboard.chartTargetLegend}:{' '}
               <span>
                 {formatNumber(activePoint.target)} {t.dashboard.chartUnit}

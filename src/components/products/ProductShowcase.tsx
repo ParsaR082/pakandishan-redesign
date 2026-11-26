@@ -1,93 +1,124 @@
 import { ArrowLeft } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
-import { getFeaturedProducts, ProductItem } from '../../data/products';
+import {
+  CATALOG_CATEGORIES,
+  PAKANDISHAN_PRODUCTS,
+  pickLocale,
+} from '../../data/pakandishanCatalog';
+import { KineticButton } from '../ui/KineticButton';
 import { SafeImage } from '../ui/SafeImage';
 
 interface ProductShowcaseProps {
-  onSelectProduct: (product: ProductItem) => void;
+  onNavigate: (href: string) => void;
 }
 
-export function ProductShowcase({ onSelectProduct }: ProductShowcaseProps) {
+export function ProductShowcase({ onNavigate }: ProductShowcaseProps) {
   const { language, t, formatNumber } = useLanguage();
-  const products = getFeaturedProducts(language);
+  const featured = PAKANDISHAN_PRODUCTS.filter((p) => p.featured).slice(0, 6);
+
+  const getCategoryTitle = (catId: string) => {
+    const found = CATALOG_CATEGORIES.find((c) => c.id === catId);
+    return found ? pickLocale(found.title, language) : catId;
+  };
 
   return (
     <section
       id="products"
       aria-labelledby="products-heading"
-      className="relative scroll-mt-24 py-24 lg:py-28 glass-band border-t border-[#c5a46d]/16"
+      className="relative scroll-mt-24 py-28 sm:py-32 lg:py-40 section-base"
     >
-      <div className="mx-auto max-w-[1440px] px-4 sm:px-8">
+      <div className="mx-auto w-full max-w-[1200px] px-5 sm:px-8 lg:px-10">
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14 reveal-section">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14 lg:mb-16 reveal-section text-start">
           <div className="max-w-2xl">
-            <p className="text-xs font-medium text-[#c5a46d] mb-3">
-              {t.products.badge}
-            </p>
             <h2
               id="products-heading"
-              className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#f4f0e8] leading-snug"
+              className="text-2xl sm:text-[28px] lg:text-[32px] font-bold text-[#f5f2eb] leading-[1.3]"
             >
               {t.products.title}
             </h2>
+            <p className="text-[15px] sm:text-base text-[#c2bbb0] mt-3 leading-[1.85] max-w-[54ch]">
+              {t.products.subtitle}
+            </p>
           </div>
-          <p className="text-sm sm:text-base text-[#aaa39a] max-w-md leading-relaxed">
-            {t.products.subtitle}
-          </p>
+
+          <KineticButton
+            variant="primary"
+            size="md"
+            showArrow
+            onClick={() => onNavigate('/products')}
+            className="self-start md:self-end"
+          >
+            {language === 'fa'
+              ? `مشاهده هر ${formatNumber(PAKANDISHAN_PRODUCTS.length)} محصول`
+              : `View All ${PAKANDISHAN_PRODUCTS.length} Machines`}
+          </KineticButton>
         </div>
 
-        {/* Luxury Industrial Product Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 reveal-stagger-grid">
-          {products.map((product, index) => (
-            <article
-              key={product.id}
-              className="reveal-card group relative rounded-lg glass-surface overflow-hidden flex flex-col justify-between transition-[transform,border-color,box-shadow] duration-300 hover:border-[#c5a46d]/65 hover:-translate-y-1.5"
-            >
-              {/* Product Image Stage */}
-              <div className="relative aspect-[4/3] w-full overflow-hidden bg-black/50">
-                <SafeImage
-                  src={product.image}
-                  alt={product.imageAlt}
-                  fallbackTitle={product.name}
-                  className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-                />
-                <div
-                  aria-hidden="true"
-                  className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#0d0c0b]/90 via-transparent to-black/25"
-                />
-                <span className="absolute top-4 end-5 font-mono-tech text-xs text-[#e4c995]/85">
-                  {formatNumber(String(index + 1).padStart(2, '0'))}
-                </span>
-              </div>
-
-              {/* Editorial Details */}
-              <div className="p-6 flex-1 flex flex-col justify-between gap-6">
-                <div className="transition-transform duration-300 group-hover:-translate-y-1">
-                  <p className="text-xs text-[#c5a46d] mb-2">{product.category}</p>
-                  <h3 className="text-xl font-bold text-[#f4f0e8] mb-3">
-                    {product.name}
-                  </h3>
-                  <p className="text-sm text-[#aaa39a] leading-[1.85]">
-                    {product.shortDescription}
-                  </p>
+        {/* 6 Featured Real Pakandishan Products — Floating Borderless Cutouts */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12 reveal-stagger-grid">
+          {featured.map((product, index) => {
+            const name = pickLocale(product.name, language);
+            const desc = pickLocale(product.shortDescription, language);
+            const catTitle = getCategoryTitle(product.category);
+            return (
+              <article
+                key={product.slug}
+                onClick={() => onNavigate(`/products/${product.slug}`)}
+                className="reveal-card group rounded-lg bg-transparent flex flex-col justify-between transition-colors duration-200 hover:bg-white/[0.035] cursor-pointer text-start p-4 -m-4"
+              >
+                {/* Floating Transparent Product Cutout — blends directly into the site backdrop */}
+                <div className="floating-stage relative aspect-[4/3] w-full bg-transparent mb-5">
+                  <SafeImage
+                    src={product.image}
+                    alt={name}
+                    fallbackTitle={name}
+                    width={800}
+                    height={600}
+                    className="floating-machine-img w-full h-full object-contain"
+                  />
                 </div>
 
-                <div className="pt-4 border-t border-[#c5a46d]/14 flex items-center justify-between">
-                  <button
-                    type="button"
-                    onClick={() => onSelectProduct(product)}
-                    className="inline-flex items-center gap-2.5 text-sm font-semibold text-[#e4c995] hover:text-[#f4f0e8] transition-colors py-1.5 cursor-pointer"
-                  >
-                    <span>{t.products.viewSpecs}</span>
-                    <ArrowLeft
-                      className="w-4 h-4 transition-transform duration-200 rtl:rotate-0 rtl:group-hover:-translate-x-1.5 ltr:rotate-180 ltr:group-hover:translate-x-1.5"
-                      aria-hidden="true"
-                    />
-                  </button>
+                {/* Clean Borderless Editorial Details */}
+                <div className="flex-1 flex flex-col justify-between gap-5 px-1">
+                  <div>
+                    <div className="flex items-center justify-between gap-3 mb-2.5">
+                      <p className="text-sm font-medium text-[#d4b278]">
+                        {catTitle}
+                      </p>
+                      <span className="text-sm font-medium text-[#c2bbb0] tabular-nums">
+                        {formatNumber(String(index + 1).padStart(2, '0'))}
+                      </span>
+                    </div>
+                    <h3 className="text-lg sm:text-xl font-semibold text-[#f5f2eb] mb-3 leading-snug group-hover:text-[#ebd09e] transition-colors">
+                      {name}
+                    </h3>
+                    <p className="text-sm sm:text-[15px] text-[#c2bbb0] leading-[1.8]">
+                      {desc}
+                    </p>
+                  </div>
+
+                  <div className="pt-4 border-t border-white/10">
+                    <a
+                      href={`/products/${product.slug}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onNavigate(`/products/${product.slug}`);
+                      }}
+                      className="link-kinetic text-sm font-semibold text-[#d4b278] group-hover:text-[#f5f2eb] transition-colors py-1"
+                    >
+                      <span>{t.products.viewSpecs}</span>
+                      <span className="kinetic-arrow-box" aria-hidden="true">
+                        <ArrowLeft className="kinetic-arrow kinetic-arrow--main rtl:rotate-0 ltr:rotate-180" />
+                        <ArrowLeft className="kinetic-arrow kinetic-arrow--trail rtl:rotate-0 ltr:rotate-180" />
+                      </span>
+                    </a>
+                  </div>
                 </div>
-              </div>
-            </article>
-          ))}
+              </article>
+            );
+          })}
         </div>
       </div>
     </section>

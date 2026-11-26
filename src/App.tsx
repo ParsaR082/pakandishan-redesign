@@ -10,8 +10,6 @@ import {
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import type Lenis from 'lenis';
-import { ProductItem } from './data/products';
-import { useActiveSection } from './hooks/useActiveSection';
 import { useReducedMotion } from './hooks/useReducedMotion';
 import { Navbar } from './components/layout/Navbar';
 import {
@@ -19,9 +17,12 @@ import {
   PersistentVideoHandle,
 } from './components/video/PersistentVideoBackground';
 import { VideoHeroSection } from './components/hero/VideoHeroSection';
+import { ScrollProgressBar } from './components/ui/ScrollProgressBar';
 import { useLanguage } from './context/LanguageContext';
+import { useRouter } from './context/RouterContext';
+import { getBlogBySlug, getProductBySlug, pickLocale } from './data/pakandishanCatalog';
 
-// Lazy-load all below-the-fold sections & modals to keep initial mobile JS minimal
+// Lazy-load below-the-fold home sections & mobile menu
 const MobileMenu = lazy(() =>
   import('./components/layout/MobileMenu').then((m) => ({ default: m.MobileMenu }))
 );
@@ -55,6 +56,11 @@ const ShowcaseSection = lazy(() =>
     default: m.ShowcaseSection,
   }))
 );
+const LatestBlogPreview = lazy(() =>
+  import('./components/sections/LatestBlogPreview').then((m) => ({
+    default: m.LatestBlogPreview,
+  }))
+);
 const ContactSection = lazy(() =>
   import('./components/sections/Contact').then((m) => ({
     default: m.ContactSection,
@@ -63,99 +69,126 @@ const ContactSection = lazy(() =>
 const Footer = lazy(() =>
   import('./components/layout/Footer').then((m) => ({ default: m.Footer }))
 );
-const ProductModal = lazy(() =>
-  import('./components/products/ProductModal').then((m) => ({
-    default: m.ProductModal,
+
+// Lazy-load dedicated multi-page routes
+const ProductsPage = lazy(() =>
+  import('./pages/ProductsPage').then((m) => ({ default: m.ProductsPage }))
+);
+const ProductDetailPage = lazy(() =>
+  import('./pages/ProductDetailPage').then((m) => ({
+    default: m.ProductDetailPage,
   }))
+);
+const AboutPage = lazy(() =>
+  import('./pages/AboutPage').then((m) => ({ default: m.AboutPage }))
+);
+const ExportPage = lazy(() =>
+  import('./pages/ExportPage').then((m) => ({ default: m.ExportPage }))
+);
+const ServicesPage = lazy(() =>
+  import('./pages/ServicesPage').then((m) => ({ default: m.ServicesPage }))
+);
+const BlogPage = lazy(() =>
+  import('./pages/BlogPage').then((m) => ({ default: m.BlogPage }))
+);
+const BlogPostPage = lazy(() =>
+  import('./pages/BlogPostPage').then((m) => ({ default: m.BlogPostPage }))
+);
+const ContactPage = lazy(() =>
+  import('./pages/ContactPage').then((m) => ({ default: m.ContactPage }))
 );
 
 gsap.registerPlugin(ScrollTrigger);
 
-interface BelowFoldProps {
-  onSelectProduct: (product: ProductItem) => void;
+interface HomeBelowFoldProps {
   onNavigate: (href: string) => void;
-  preselectedMachine: string;
   reducedMotion: boolean;
   onReady: () => void;
 }
 
-function BelowFoldContent({
-  onSelectProduct,
+function HomeBelowFoldContent({
   onNavigate,
-  preselectedMachine,
   reducedMotion,
   onReady,
-}: BelowFoldProps) {
+}: HomeBelowFoldProps) {
   useEffect(() => {
     onReady();
   }, [onReady]);
 
   return (
     <>
-      {/* 2. Industrial Performance Dashboard */}
       <DashboardSection />
-
-      {/* 3. Technology & Innovation */}
-      <TechnologySection />
-
-      {/* 4. Featured Machinery */}
-      <ProductShowcase onSelectProduct={onSelectProduct} />
-
-      {/* 5. Product Categories */}
-      <CategoryGrid onSelectProduct={onSelectProduct} />
-
-      {/* 6. Company Advantages */}
-      <AdvantagesSection />
-
-      {/* 7. Industrial Showcase / Future Vision */}
+      <TechnologySection onNavigate={onNavigate} />
+      <ProductShowcase onNavigate={onNavigate} />
+      <CategoryGrid onNavigate={onNavigate} />
+      <AdvantagesSection onNavigate={onNavigate} />
       <ShowcaseSection onNavigate={onNavigate} reducedMotion={reducedMotion} />
-
-      {/* 8. Call to Action & Validated Consultation Form */}
-      <ContactSection preselectedMachine={preselectedMachine} />
-
-      {/* 9. Glassmorphism Footer */}
-      <Footer onNavigate={onNavigate} />
+      <LatestBlogPreview onNavigate={onNavigate} />
+      <ContactSection onNavigate={onNavigate} />
     </>
   );
 }
 
 export default function App() {
-  const { direction, isRTL, language } = useLanguage();
+  const { direction, isRTL, language, t } = useLanguage();
+  const { pathname, navigate } = useRouter();
   const reducedMotion = useReducedMotion();
   const lenisRef = useRef<Lenis | null>(null);
   const appRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<PersistentVideoHandle | null>(null);
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<ProductItem | null>(null);
-  const [preselectedMachine, setPreselectedMachine] = useState('');
   const [belowFoldReady, setBelowFoldReady] = useState(false);
 
-  const sectionIds = useMemo(
-    () => [
-      'hero',
-      'dashboard',
-      'technology',
-      'products',
-      'categories',
-      'advantages',
-      'showcase',
-      'contact',
-    ],
-    []
-  );
-  const rawActiveSection = useActiveSection(sectionIds);
+  const isHome = pathname === '/';
 
-  // Map secondary sections to their closest top-level nav link for clean active state
+  // Compute active nav tab ID directly from route pathname
   const activeNavId = useMemo(() => {
-    if (rawActiveSection === 'dashboard') return 'hero';
-    if (rawActiveSection === 'categories') return 'products';
-    if (rawActiveSection === 'showcase') return 'advantages';
-    return rawActiveSection;
-  }, [rawActiveSection]);
+    if (pathname === '/') return 'home';
+    if (pathname.startsWith('/products')) return 'products';
+    if (pathname.startsWith('/about')) return 'about';
+    if (pathname.startsWith('/export')) return 'export';
+    if (pathname.startsWith('/services')) return 'services';
+    if (pathname.startsWith('/blog')) return 'blog';
+    if (pathname.startsWith('/contact')) return 'contact';
+    return 'home';
+  }, [pathname]);
 
-  // Dynamic Lenis smooth scroll ONLY on desktop fine-pointer devices.
-  // Mobile touch devices use native hardware-accelerated compositor scrolling for 60/120fps.
+  // Keep document title synchronized with active route & language
+  useEffect(() => {
+    const brand = t.common.brandName;
+    if (pathname === '/') {
+      document.title = `${brand} | ${t.common.brandTagline}`;
+    } else if (pathname === '/products') {
+      document.title =
+        language === 'fa' ? `محصولات و خطوط پخت | ${brand}` : `Machinery Catalog | ${brand}`;
+    } else if (pathname.startsWith('/products/')) {
+      const slug = pathname.replace('/products/', '');
+      const prod = getProductBySlug(slug);
+      document.title = prod ? `${pickLocale(prod.name, language)} | ${brand}` : `${brand}`;
+    } else if (pathname === '/about') {
+      document.title =
+        language === 'fa' ? `درباره کارخانه پاک‌اندیشان | ${brand}` : `About Us | ${brand}`;
+    } else if (pathname === '/export') {
+      document.title =
+        language === 'fa' ? `صادرات به +۳۰ کشور | ${brand}` : `Global Exports | ${brand}`;
+    } else if (pathname === '/services') {
+      document.title =
+        language === 'fa' ? `خدمات پس از فروش و گارانتی | ${brand}` : `After-Sales Services | ${brand}`;
+    } else if (pathname === '/blog') {
+      document.title =
+        language === 'fa' ? `بلاگ و مقالات تخصصی | ${brand}` : `Blog | ${brand}`;
+    } else if (pathname.startsWith('/blog/')) {
+      const slug = pathname.replace('/blog/', '');
+      const post = getBlogBySlug(slug);
+      document.title = post ? `${pickLocale(post.title, language)} | ${brand}` : `${brand}`;
+    } else if (pathname === '/contact') {
+      document.title =
+        language === 'fa' ? `دفاتر فروش و تماس با ما | ${brand}` : `Contact & Offices | ${brand}`;
+    }
+  }, [pathname, language, t]);
+
+  // Dynamic Lenis smooth scroll ONLY on desktop fine-pointer devices
   useEffect(() => {
     if (reducedMotion || typeof window === 'undefined') {
       lenisRef.current = null;
@@ -199,9 +232,23 @@ export default function App() {
     };
   }, [reducedMotion]);
 
-  // Safety sync: if user jumps directly past the pinned hero via scrollbar or anchor, guarantee final-frame lock
+  // Lock persistent video background to dimmed final frame on all sub-pages
   useEffect(() => {
-    if (reducedMotion) return;
+    if (!isHome) {
+      videoRef.current?.setProgress(1, true);
+      videoRef.current?.setPostHeroMode(true);
+      // Re-assert briefly after frame loader finishes on direct sub-page land
+      const timer = window.setTimeout(() => {
+        videoRef.current?.setProgress(1, true);
+        videoRef.current?.setPostHeroMode(true);
+      }, 350);
+      return () => window.clearTimeout(timer);
+    }
+  }, [isHome]);
+
+  // Safety sync on Home: if user jumps past pinned hero via scrollbar, guarantee final-frame lock
+  useEffect(() => {
+    if (!isHome || reducedMotion) return;
 
     let lockTicking = false;
     let rafId = 0;
@@ -228,35 +275,74 @@ export default function App() {
       if (rafId) cancelAnimationFrame(rafId);
       window.removeEventListener('scroll', enforcePostHeroLock);
     };
-  }, [reducedMotion]);
+  }, [isHome, reducedMotion]);
 
-  // Lightweight one-shot scroll reveals once below-the-fold sections mount
+  // Choreographed one-shot scroll reveals on Home (Lead masked heading -> Support copy -> Organic wave grid)
   useEffect(() => {
-    if (reducedMotion || !appRef.current || !belowFoldReady) return;
+    if (!isHome || reducedMotion || !appRef.current || !belowFoldReady) return;
 
     const isMobile = window.innerWidth < 768;
 
     const ctx = gsap.context(() => {
       gsap.utils.toArray<HTMLElement>('.reveal-section').forEach((el) => {
-        gsap.fromTo(
-          el,
-          {
-            opacity: 0,
-            y: isMobile ? 16 : 24,
-          },
-          {
-            opacity: 1,
-            y: 0,
-            duration: isMobile ? 0.45 : 0.65,
-            ease: 'power3.out',
-            clearProps: 'transform',
-            scrollTrigger: {
-              trigger: el,
-              start: 'top 90%',
-              once: true,
+        const leadHeading = el.querySelector<HTMLElement>('h2, h1');
+        if (leadHeading && !isMobile) {
+          gsap.fromTo(
+            leadHeading,
+            {
+              opacity: 0,
+              y: 24,
+              clipPath: 'inset(0 0 100% 0)',
             },
-          }
-        );
+            {
+              opacity: 1,
+              y: 0,
+              clipPath: 'inset(0 0 0% 0)',
+              duration: 0.68,
+              ease: 'power4.out',
+              clearProps: 'transform,clipPath',
+              scrollTrigger: {
+                trigger: el,
+                start: 'top 89%',
+                once: true,
+              },
+            }
+          );
+          gsap.fromTo(
+            el,
+            { opacity: 0.01, y: 16 },
+            {
+              opacity: 1,
+              y: 0,
+              duration: 0.56,
+              delay: 0.06,
+              ease: 'power3.out',
+              clearProps: 'transform',
+              scrollTrigger: {
+                trigger: el,
+                start: 'top 89%',
+                once: true,
+              },
+            }
+          );
+        } else {
+          gsap.fromTo(
+            el,
+            { opacity: 0, y: isMobile ? 16 : 22 },
+            {
+              opacity: 1,
+              y: 0,
+              duration: isMobile ? 0.45 : 0.6,
+              ease: 'power3.out',
+              clearProps: 'transform',
+              scrollTrigger: {
+                trigger: el,
+                start: 'top 90%',
+                once: true,
+              },
+            }
+          );
+        }
       });
 
       gsap.utils.toArray<HTMLElement>('.reveal-stagger-grid').forEach((grid) => {
@@ -266,13 +352,19 @@ export default function App() {
           cards,
           {
             opacity: 0,
-            y: isMobile ? 14 : 22,
+            y: isMobile ? 16 : 24,
+            scale: 0.96,
           },
           {
             opacity: 1,
             y: 0,
-            duration: isMobile ? 0.42 : 0.58,
-            stagger: isMobile ? 0.04 : 0.06,
+            scale: 1,
+            duration: isMobile ? 0.46 : 0.62,
+            // Non-uniform organic wave stagger (gaps shrink naturally instead of metronome)
+            stagger: {
+              amount: isMobile ? 0.16 : 0.24,
+              ease: 'power2.out',
+            },
             ease: 'power3.out',
             clearProps: 'transform',
             scrollTrigger: {
@@ -288,7 +380,7 @@ export default function App() {
     ScrollTrigger.refresh();
 
     return () => ctx.revert();
-  }, [reducedMotion, belowFoldReady]);
+  }, [isHome, reducedMotion, belowFoldReady]);
 
   const handleBelowFoldReady = useCallback(() => {
     setBelowFoldReady(true);
@@ -296,12 +388,25 @@ export default function App() {
 
   const handleNavigate = useCallback(
     (href: string) => {
-      const targetId = href.replace(/^#/, '');
+      // Route path navigation (starts with '/')
+      if (href.startsWith('/')) {
+        if (lenisRef.current) {
+          lenisRef.current.scrollTo(0, { immediate: true });
+        }
+        navigate(href);
+        return;
+      }
 
+      // Hash anchor scroll navigation on Home
+      const targetId = href.replace(/^#/, '');
       if (targetId === 'hero') {
+        if (!isHome) {
+          navigate('/');
+          return;
+        }
         if (lenisRef.current && !reducedMotion) {
           lenisRef.current.scrollTo(0, {
-            duration: 1.6,
+            duration: 1.4,
             easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
           });
         } else {
@@ -311,7 +416,10 @@ export default function App() {
       }
 
       const el = document.getElementById(targetId);
-      if (!el) return;
+      if (!el) {
+        navigate('/');
+        return;
+      }
 
       const targetTop = Math.max(
         0,
@@ -320,7 +428,7 @@ export default function App() {
 
       if (lenisRef.current && !reducedMotion) {
         lenisRef.current.scrollTo(targetTop, {
-          duration: 1.6,
+          duration: 1.4,
           easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
         });
       } else {
@@ -330,23 +438,61 @@ export default function App() {
         });
       }
     },
-    [reducedMotion]
+    [isHome, navigate, reducedMotion]
   );
 
-  const handleRequestConsultation = useCallback(
-    (machineName: string) => {
-      setSelectedProduct(null);
-      setPreselectedMachine(machineName);
-      window.setTimeout(() => {
-        handleNavigate('#contact');
-      }, 60);
-    },
-    [handleNavigate]
-  );
+  // Route view resolver
+  const renderPageContent = () => {
+    if (pathname === '/products') {
+      return <ProductsPage onNavigate={handleNavigate} />;
+    }
+    if (pathname.startsWith('/products/')) {
+      const slug = decodeURIComponent(pathname.slice('/products/'.length));
+      return <ProductDetailPage slug={slug} onNavigate={handleNavigate} />;
+    }
+    if (pathname === '/about') {
+      return <AboutPage onNavigate={handleNavigate} />;
+    }
+    if (pathname === '/export') {
+      return <ExportPage onNavigate={handleNavigate} />;
+    }
+    if (pathname === '/services') {
+      return <ServicesPage onNavigate={handleNavigate} />;
+    }
+    if (pathname === '/blog') {
+      return <BlogPage onNavigate={handleNavigate} />;
+    }
+    if (pathname.startsWith('/blog/')) {
+      const slug = decodeURIComponent(pathname.slice('/blog/'.length));
+      return <BlogPostPage slug={slug} onNavigate={handleNavigate} />;
+    }
+    if (pathname === '/contact') {
+      return <ContactPage />;
+    }
+
+    // Default: Home page with untouched GSAP 3D scroll video hero + authentic Pakandishan sections
+    return (
+      <>
+        <VideoHeroSection
+          videoRef={videoRef}
+          onNavigate={handleNavigate}
+          reducedMotion={reducedMotion}
+        />
+        <Suspense fallback={<div className="min-h-screen" aria-hidden="true" />}>
+          <HomeBelowFoldContent
+            onNavigate={handleNavigate}
+            reducedMotion={reducedMotion}
+            onReady={handleBelowFoldReady}
+          />
+        </Suspense>
+      </>
+    );
+  };
 
   return (
     <div ref={appRef} className="relative min-h-screen text-[#f4f0e8]" dir={direction}>
-      {/* Persistent Full-Screen Fixed Video Background (z-0, lives from Hero through Footer) */}
+      <ScrollProgressBar />
+      {/* Persistent Full-Screen Fixed Video Background (lives from Hero through Footer and across sub-pages) */}
       <PersistentVideoBackground ref={videoRef} reducedMotion={reducedMotion} />
 
       <a
@@ -364,12 +510,13 @@ export default function App() {
           : 'پرش به محتوای اصلی'}
       </a>
 
-      <div className="relative z-10">
+      <div className="relative z-10 flex flex-col min-h-screen">
         <Navbar
           activeSection={activeNavId}
           onNavigate={handleNavigate}
           onOpenMobileMenu={() => setMobileMenuOpen(true)}
           mobileMenuOpen={mobileMenuOpen}
+          forceVisible={!isHome}
         />
 
         {mobileMenuOpen && (
@@ -384,37 +531,16 @@ export default function App() {
           </Suspense>
         )}
 
-        <main id="main-content">
-          {/* 1. Scroll-Controlled Cinematic Video Hero (eager critical path) */}
-          <VideoHeroSection
-            videoRef={videoRef}
-            onNavigate={handleNavigate}
-            reducedMotion={reducedMotion}
-          />
-
-          {/* 2-9. Below-the-fold sections (lazy-loaded chunks) */}
+        <main id="main-content" className="flex-1">
           <Suspense fallback={<div className="min-h-screen" aria-hidden="true" />}>
-            <BelowFoldContent
-              onSelectProduct={setSelectedProduct}
-              onNavigate={handleNavigate}
-              preselectedMachine={preselectedMachine}
-              reducedMotion={reducedMotion}
-              onReady={handleBelowFoldReady}
-            />
+            {renderPageContent()}
           </Suspense>
         </main>
-      </div>
 
-      {/* Product Detail Modal (loaded only when user opens a product) */}
-      {selectedProduct && (
         <Suspense fallback={null}>
-          <ProductModal
-            product={selectedProduct}
-            onClose={() => setSelectedProduct(null)}
-            onRequestConsultation={handleRequestConsultation}
-          />
+          <Footer onNavigate={handleNavigate} />
         </Suspense>
-      )}
+      </div>
     </div>
   );
 }

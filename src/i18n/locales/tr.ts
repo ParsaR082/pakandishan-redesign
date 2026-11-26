@@ -8,7 +8,7 @@ export const tr: Translations = {
     brandDescription:
       'Hassas mühendislik, modern teknoloji ve uluslararası üretim standartlarıyla ağır hizmet tipi endüstriyel fırın makineleri tasarımı ve üretimi.',
     officialWebsite: 'pakandishan.com',
-    requestConsultation: 'Danışmanlık Talebi',
+    requestConsultation: 'Teklif Al',
     scrollCue: 'Keşfetmek için Kaydırın',
     languageName: 'Türkçe',
     otherLanguageCode: 'fa',
@@ -29,16 +29,16 @@ export const tr: Translations = {
     closeMenu: 'Menüyü Kapat',
   },
   hero: {
-    kicker: 'Endüstriyel Makine Mühendisliği · pakandishan.com',
-    headline: 'Pakandishan Endüstriyel Grup',
+    kicker: '2003’ten Beri · 13.000 m² Urmiye Fabrikası · pakandishan.com',
+    headline: 'Pakandishan Makine Sanayi',
     subtitle:
-      'Hassas mühendislik ve ileri teknoloji ile geliştirilen endüstriyel fırın, unlu mamul ve pastacılık makineleri.',
-    featureTag1: 'AISI 304 Paslanmaz Çelik',
-    featureTag2: 'Odaklı Buhar Sistemi',
-    featureTag3: '%92 Termal Kararlılık',
-    ctaPrimary: 'Mühendislik Ürünlerini İnceleyin',
-    ctaSecondary: 'Üretim Hattı Danışmanlığı',
-    settledIndicator: 'Mühendislik Kataloğunu İncelemeye Devam Edin',
+      'ISO 9001 ve Avrupa CE belgeli otomatik Lavaş, Tafton, Barbari, Sangak ekmek hatları ve patentli Şateryar hamur açma makineleri.',
+    featureTag1: 'ISO 9001 & Avrupa CE',
+    featureTag2: '30+ Ülkeye İhracat',
+    featureTag3: '12–24 Ay Garanti',
+    ctaPrimary: '20 Ürünlük Kataloğu Gör',
+    ctaSecondary: 'Teklif ve Danışmanlık Al',
+    settledIndicator: 'Fabrika ve Üretim Hatlarını İnceleyin',
   },
   technology: {
     badge: 'Mühendislik ve İnovasyon',
@@ -359,7 +359,7 @@ export const tr: Translations = {
     visitPortal: 'Resmi Web Sitesi',
     plantAddressTitle: 'Üretim Fabrikası',
     plantAddressValue:
-      '1. Organize Sanayi Bölgesi, Telaşgaran Bulvarı, Urmiye — İran',
+      'Salmas Yolu 35. km, 3. Organize Sanayi Bölgesi, Kuzey Telaşgaran Bulvarı, Urmiye — İran',
     salesDeskTitle: 'Teknik Satış Masası',
     corporateEmailTitle: 'Kurumsal E-posta',
     workingHoursTitle: 'Çalışma Saatleri',

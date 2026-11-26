@@ -1,12 +1,21 @@
 import { useState } from 'react';
-import { Flame, Gauge as GaugeIcon, Sliders, Zap } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
-import { ASSET_MANIFEST } from '../../data/assets';
+import { COMPANY_STATS, pickLocale } from '../../data/pakandishanCatalog';
 import { getDashboardProfiles } from '../../data/products';
 import { getTemperatureDeltaLabel } from '../../lib/dashboardLogic';
+import { AnimatedStatValue } from '../ui/AnimatedStatValue';
 import { SafeImage } from '../ui/SafeImage';
 import { Gauge } from './Gauge';
 import { ProductionChart } from './ProductionChart';
+
+const PROFILE_IMAGES: Record<string, string> = {
+  'lavash-line': '/assets/pakandishan/products/lavash-rotary-automatic-set.webp',
+  'barbari-line': '/assets/pakandishan/products/barbari-automatic-set.webp',
+  'sangak-line': '/assets/pakandishan/products/sangak-automatic-set.webp',
+  'fantasy-bread': '/assets/pakandishan/products/lavash-rotary-automatic-set.webp',
+  'pastry-line': '/assets/pakandishan/products/barbari-automatic-set.webp',
+  'traditional-bread': '/assets/pakandishan/products/sangak-automatic-set.webp',
+};
 
 export function DashboardSection() {
   const { language, t, formatNumber } = useLanguage();
@@ -15,43 +24,65 @@ export function DashboardSection() {
 
   const profile =
     profiles.find((item) => item.id === selectedId) ?? profiles[0];
+  const machineImage =
+    PROFILE_IMAGES[profile.id] ??
+    '/assets/pakandishan/products/lavash-rotary-automatic-set.webp';
 
   const statusRows = [
-    { label: t.dashboard.statusHeatingLabel, value: profile.statusHeating, icon: Flame },
-    { label: t.dashboard.statusControlLabel, value: profile.statusControl, icon: Sliders },
-    { label: t.dashboard.statusOperationLabel, value: profile.statusOperation, icon: GaugeIcon },
-    { label: t.dashboard.statusReadinessLabel, value: profile.statusReadiness, icon: Zap },
+    { label: t.dashboard.statusHeatingLabel, value: profile.statusHeating },
+    { label: t.dashboard.statusControlLabel, value: profile.statusControl },
+    { label: t.dashboard.statusOperationLabel, value: profile.statusOperation },
+    { label: t.dashboard.statusReadinessLabel, value: profile.statusReadiness },
   ];
 
   return (
     <section
       id="dashboard"
       aria-labelledby="dashboard-heading"
-      className="relative scroll-mt-24 py-24 lg:py-28 glass-band border-t border-[#c5a46d]/20"
+      className="relative scroll-mt-24 py-28 sm:py-32 lg:py-40 section-base"
     >
-      <div className="mx-auto max-w-[1440px] px-4 sm:px-8">
-        {/* Section Header + Illustrative Profile Switcher */}
-        <div className="reveal-section flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-12">
+      <div className="mx-auto w-full max-w-[1200px] px-5 sm:px-8 lg:px-10">
+        {/* Authentic Pakandishan Scale & Trust Metrics Strip with Animated Counters */}
+        <div className="reveal-stagger-grid grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-5 mb-20 lg:mb-24">
+          {COMPANY_STATS.map((stat) => (
+            <div
+              key={stat.id}
+              className="reveal-card surface-panel panel-kinetic rounded-lg px-5 py-5 sm:px-6 sm:py-6 flex flex-col justify-between gap-2 text-start"
+            >
+              <AnimatedStatValue
+                rawValue={
+                  language === 'fa' || language === 'ar'
+                    ? stat.valueFa
+                    : stat.valueEn
+                }
+                usePersianDigits={language === 'fa' || language === 'ar'}
+                className="text-2xl sm:text-3xl font-bold text-[#ebd09e] tabular-nums leading-none"
+              />
+              <span className="text-sm text-[#c2bbb0] leading-snug">
+                {pickLocale(stat.label, language)}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* Section Header + High-Contrast Profile Switcher */}
+        <div className="reveal-section flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-14 lg:mb-16 text-start">
           <div className="max-w-2xl">
-            <p className="text-xs font-medium text-[#c5a46d] mb-3">
-              {t.dashboard.badge}
-            </p>
             <h2
               id="dashboard-heading"
-              className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#f4f0e8] leading-snug"
+              className="text-2xl sm:text-[28px] lg:text-[32px] font-bold text-[#f5f2eb] leading-[1.3]"
             >
               {t.dashboard.title}
             </h2>
-            <p className="text-sm sm:text-base text-[#aaa39a] mt-3 leading-relaxed">
+            <p className="text-[15px] sm:text-base text-[#c2bbb0] mt-4 leading-[1.85] max-w-[58ch]">
               {t.dashboard.description}
             </p>
           </div>
 
-          {/* Interactive Profile Switcher (Segmented Control) */}
           <div
             role="tablist"
             aria-label={t.dashboard.profilesTabLabel}
-            className="flex flex-wrap items-center gap-1.5 p-1.5 rounded-lg bg-[#090908]/65 backdrop-blur-md border border-[#c5a46d]/22 self-start lg:self-end"
+            className="flex flex-wrap items-center gap-2 p-1.5 rounded-lg bg-[#141311] border border-white/10 self-start lg:self-end"
           >
             {profiles.map((item) => {
               const isSelected = item.id === profile.id;
@@ -62,10 +93,10 @@ export function DashboardSection() {
                   role="tab"
                   aria-selected={isSelected}
                   onClick={() => setSelectedId(item.id)}
-                  className={`h-10 px-4 rounded-md text-xs sm:text-[13px] font-medium whitespace-nowrap transition-colors cursor-pointer ${
+                  className={`h-10 px-4 rounded-md text-sm font-medium whitespace-nowrap transition-colors cursor-pointer ${
                     isSelected
-                      ? 'bg-[#c5a46d] text-[#090909] font-semibold'
-                      : 'text-[#aaa39a] hover:text-[#f4f0e8]'
+                      ? 'bg-[#d4b278] text-[#090908] font-semibold'
+                      : 'text-[#c2bbb0] hover:bg-white/8 hover:text-[#f5f2eb]'
                   }`}
                 >
                   {item.label}
@@ -75,66 +106,51 @@ export function DashboardSection() {
           </div>
         </div>
 
-        {/* Main 12-Column Grid: Machine Render on One Column, Technical Panels on Other */}
-        <div className="reveal-stagger-grid grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-          {/* Column 1: Studio Industrial Rotary Oven Showcase + Status Panel */}
+        {/* Main 12-Column Grid */}
+        <div className="reveal-stagger-grid grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+          {/* Column 1: Floating Transparent Machine Cutout + Technical Status */}
           <div className="reveal-card lg:col-span-5 flex flex-col gap-6">
-            <div className="surface-panel rounded-lg overflow-hidden flex-1 flex flex-col">
-              <div className="px-5 py-4 border-b border-[#c5a46d]/14 flex items-center justify-between gap-2">
-                <span className="text-sm font-semibold text-[#f4f0e8]">
-                  {profile.machineLabel}
-                </span>
-                <span className="text-xs text-[#aaa39a]">
-                  {t.dashboard.cadRenderLabel}
-                </span>
-              </div>
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-base font-semibold text-[#f5f2eb]">
+                {profile.machineLabel}
+              </span>
+              <span className="text-sm text-[#d4b278] shrink-0">
+                {t.dashboard.cadRenderLabel}
+              </span>
+            </div>
 
-              <div className="relative flex-1 min-h-[280px] bg-black/50 overflow-hidden">
-                <SafeImage
-                  src={ASSET_MANIFEST.rotaryOven.path}
-                  alt={ASSET_MANIFEST.rotaryOven.altFa}
-                  fallbackTitle={profile.machineLabel}
-                  className="w-full h-full object-cover"
-                />
+            <div className="floating-stage relative aspect-[4/3] w-full bg-transparent">
+              <SafeImage
+                src={machineImage}
+                alt={profile.machineLabel}
+                fallbackTitle={profile.machineLabel}
+                width={800}
+                height={600}
+                className="floating-machine-img w-full h-full object-contain"
+              />
+            </div>
+
+            {/* Clean Typographic Status Grid */}
+            <div className="surface-panel rounded-lg overflow-hidden grid grid-cols-2 gap-px bg-white/8 flex-1">
+              {statusRows.map((row) => (
                 <div
-                  aria-hidden="true"
-                  className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#0d0c0b]/95 to-transparent"
-                />
-              </div>
-
-              {/* Technical Status Indicators Grid */}
-              <div className="grid grid-cols-2 gap-px bg-[#c5a46d]/18 border-t border-[#c5a46d]/20">
-                {statusRows.map((row) => {
-                  const Icon = row.icon;
-                  return (
-                    <div
-                      key={row.label}
-                      className="bg-[#0e0d0b]/78 px-4 py-3.5 flex items-center justify-between gap-2"
-                    >
-                      <div className="flex items-center gap-2 min-w-0">
-                        <Icon
-                          className="w-4 h-4 text-[#c5a46d] shrink-0"
-                          strokeWidth={1.6}
-                          aria-hidden="true"
-                        />
-                        <span className="text-xs text-[#aaa39a] truncate">
-                          {row.label}
-                        </span>
-                      </div>
-                      <span className="text-xs font-semibold text-[#e4c995] whitespace-nowrap">
-                        {row.value}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
+                  key={row.label}
+                  className="bg-[#141311]/90 px-5 py-4 flex flex-col justify-center gap-1 text-start"
+                >
+                  <span className="text-sm text-[#c2bbb0]">
+                    {row.label}
+                  </span>
+                  <span className="text-sm font-semibold text-[#f5f2eb]">
+                    {row.value}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
 
           {/* Column 2: Gauges, Energy Monitor, and Production Chart */}
-          <div className="reveal-card lg:col-span-7 flex flex-col gap-6">
-            {/* Top Row: Temperature Gauge + Efficiency Gauge + Energy Card */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+          <div className="reveal-card lg:col-span-7 flex flex-col gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               <Gauge
                 title={t.dashboard.gauge1Title}
                 value={profile.temperature}
@@ -162,50 +178,46 @@ export function DashboardSection() {
               />
 
               {/* Energy Monitoring Card */}
-              <div className="surface-panel rounded-lg p-5 flex flex-col justify-between gap-4">
-                <div className="flex items-center justify-between gap-2">
-                  <h3 className="text-sm font-semibold text-[#f4f0e8]">
-                    {t.dashboard.dailyEnergyTitle}
-                  </h3>
-                  <Zap className="w-4 h-4 text-[#c5a46d]" aria-hidden="true" />
-                </div>
+              <div className="surface-panel rounded-lg p-6 flex flex-col justify-between gap-5 text-start">
+                <h3 className="text-base font-semibold text-[#f5f2eb]">
+                  {t.dashboard.dailyEnergyTitle}
+                </h3>
 
-                <div className="space-y-4 my-auto">
+                <div className="space-y-5 my-auto">
                   <div>
-                    <p className="text-xs text-[#77716a] mb-1">
-                      {language === 'fa' ? 'مصرف روزانه (نمونه)' : 'Daily Consumption'}
+                    <p className="text-sm text-[#c2bbb0] mb-1">
+                      {language === 'fa' ? 'مصرف شیفت' : 'Shift Estimate'}
                     </p>
-                    <p className="font-mono-tech text-3xl font-bold text-[#f4f0e8] tabular-nums">
+                    <p className="text-3xl font-bold text-[#f5f2eb] tabular-nums">
                       {formatNumber(profile.dailyEnergyKwh)}{' '}
-                      <span className="text-sm font-normal text-[#e4c995]">kWh</span>
+                      <span className="text-sm font-medium text-[#d4b278]">kWh</span>
                     </p>
                   </div>
 
                   <div>
-                    <div className="flex items-center justify-between text-xs mb-1.5">
-                      <span className="text-[#aaa39a]">
-                        {language === 'fa' ? 'شاخص بهینه‌سازی عایق' : 'Thermal Optimization'}
+                    <div className="flex items-center justify-between text-sm mb-2">
+                      <span className="text-[#c2bbb0]">
+                        {language === 'fa' ? 'صرفه‌جویی سوخت' : 'Fuel Saving'}
                       </span>
-                      <span className="text-[#e4c995] font-semibold tabular-nums">
+                      <span className="text-[#ebd09e] font-semibold tabular-nums">
                         +{formatNumber(profile.energySavedPercent)}{t.common.percentLabel}
                       </span>
                     </div>
-                    <div className="h-2 w-full rounded-full bg-white/8 overflow-hidden">
+                    <div className="h-2 w-full rounded-md bg-white/10 overflow-hidden">
                       <div
-                        className="h-full rounded-full bg-gradient-to-l from-[#e4c995] to-[#80643c] transition-[width] duration-500"
+                        className="h-full rounded-md bg-[#d4b278] transition-[width] duration-500"
                         style={{ width: `${Math.min(100, profile.energySavedPercent * 3.5)}%` }}
                       />
                     </div>
                   </div>
                 </div>
 
-                <p className="text-xs text-[#aaa39a] border-t border-[#c5a46d]/14 pt-3">
+                <p className="text-sm text-[#c2bbb0] border-t border-white/8 pt-4">
                   {profile.energyIndexLabel}
                 </p>
               </div>
             </div>
 
-            {/* Bottom Row: Recharts Production Output Line/Area Chart */}
             <ProductionChart data={profile.productionSeries} />
           </div>
         </div>

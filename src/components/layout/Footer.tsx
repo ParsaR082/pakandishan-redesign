@@ -1,7 +1,6 @@
 import React from 'react';
-import { Globe, Instagram, Linkedin, Send } from 'lucide-react';
 import { getBrandInfo, getNavItems } from '../../data/navigation';
-import { getProductCategories } from '../../data/products';
+import { CATALOG_CATEGORIES, pickLocale } from '../../data/pakandishanCatalog';
 import { BrandMark } from '../ui/BrandMark';
 import { useLanguage } from '../../context/LanguageContext';
 
@@ -13,7 +12,6 @@ export function Footer({ onNavigate }: FooterProps) {
   const { language, t } = useLanguage();
   const brandInfo = getBrandInfo(language);
   const navItems = getNavItems(language);
-  const productCategories = getProductCategories(language);
 
   const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
@@ -23,70 +21,39 @@ export function Footer({ onNavigate }: FooterProps) {
   return (
     <footer
       role="contentinfo"
-      className="bg-[#090908]/80 backdrop-blur-xl border-t border-[#c5a46d]/24 pt-16 pb-10"
+      className="bg-[#090908]/82 pt-20 pb-12"
     >
-      <div className="mx-auto max-w-[1440px] px-4 sm:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 pb-12">
+      <div className="mx-auto w-full max-w-[1200px] px-5 sm:px-8 lg:px-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 pb-16">
           {/* Brand Summary */}
-          <div className="lg:col-span-4 space-y-4">
-            <div className="flex items-center gap-3">
-              <BrandMark className="w-9 h-9" />
-              <span className="text-base font-bold text-[#f4f0e8]">
+          <div className="lg:col-span-4 space-y-5 text-start">
+            <a
+              href="/"
+              onClick={(e) => handleLinkClick(e, '/')}
+              className="inline-flex items-center gap-3 group"
+            >
+              <BrandMark className="w-8 h-8" />
+              <span className="text-base font-bold text-[#f5f2eb] group-hover:text-[#ebd09e] transition-colors">
                 {brandInfo.name}
               </span>
-            </div>
-            <p className="text-sm text-[#aaa39a] leading-[1.9] max-w-sm">
-              {brandInfo.description}
+            </a>
+            <p className="text-sm sm:text-[15px] text-[#c2bbb0] leading-[1.85] max-w-sm">
+              {t.footer.tagline}
             </p>
-            <div className="flex items-center gap-3 pt-2">
-              <a
-                href={`https://${brandInfo.website}`}
-                target="_blank"
-                rel="noreferrer"
-                aria-label={t.footer.ariaWeb}
-                className="w-10 h-10 rounded-md bg-black/45 border border-[#c5a46d]/24 flex items-center justify-center text-[#aaa39a] hover:text-[#e4c995] hover:border-[#c5a46d]/55 transition-colors"
-              >
-                <Globe className="w-4 h-4" aria-hidden="true" />
-              </a>
-              <a
-                href="#contact"
-                onClick={(e) => handleLinkClick(e, '#contact')}
-                aria-label={t.footer.ariaInstagram}
-                className="w-10 h-10 rounded-md bg-black/45 border border-[#c5a46d]/24 flex items-center justify-center text-[#aaa39a] hover:text-[#e4c995] hover:border-[#c5a46d]/55 transition-colors"
-              >
-                <Instagram className="w-4 h-4" aria-hidden="true" />
-              </a>
-              <a
-                href="#contact"
-                onClick={(e) => handleLinkClick(e, '#contact')}
-                aria-label={t.footer.ariaTelegram}
-                className="w-10 h-10 rounded-md bg-black/45 border border-[#c5a46d]/24 flex items-center justify-center text-[#aaa39a] hover:text-[#e4c995] hover:border-[#c5a46d]/55 transition-colors"
-              >
-                <Send className="w-4 h-4" aria-hidden="true" />
-              </a>
-              <a
-                href="#contact"
-                onClick={(e) => handleLinkClick(e, '#contact')}
-                aria-label={t.footer.ariaLinkedin}
-                className="w-10 h-10 rounded-md bg-black/45 border border-[#c5a46d]/24 flex items-center justify-center text-[#aaa39a] hover:text-[#e4c995] hover:border-[#c5a46d]/55 transition-colors"
-              >
-                <Linkedin className="w-4 h-4" aria-hidden="true" />
-              </a>
-            </div>
           </div>
 
           {/* Navigation Links */}
-          <div className="lg:col-span-2">
-            <h3 className="text-sm font-semibold text-[#e4c995] mb-4">
+          <div className="lg:col-span-2 text-start">
+            <h3 className="text-sm font-semibold text-[#f5f2eb] mb-5">
               {t.footer.quickLinks}
             </h3>
-            <ul className="space-y-2.5 text-sm">
+            <ul className="space-y-3 text-sm">
               {navItems.map((item) => (
                 <li key={item.id}>
                   <a
                     href={item.href}
                     onClick={(e) => handleLinkClick(e, item.href)}
-                    className="text-[#aaa39a] hover:text-[#f4f0e8] transition-colors"
+                    className="link-kinetic text-[#c2bbb0] hover:text-[#ebd09e] transition-colors"
                   >
                     {item.label}
                   </a>
@@ -95,41 +62,51 @@ export function Footer({ onNavigate }: FooterProps) {
             </ul>
           </div>
 
-          {/* Product Categories */}
-          <div className="lg:col-span-3">
-            <h3 className="text-sm font-semibold text-[#e4c995] mb-4">
+          {/* Real Pakandishan Product Categories */}
+          <div className="lg:col-span-3 text-start">
+            <h3 className="text-sm font-semibold text-[#f5f2eb] mb-5">
               {t.footer.categories}
             </h3>
-            <ul className="space-y-2.5 text-sm">
-              {productCategories.map((cat) => (
+            <ul className="space-y-3 text-sm">
+              {CATALOG_CATEGORIES.map((cat) => (
                 <li key={cat.id}>
                   <a
-                    href="#categories"
-                    onClick={(e) => handleLinkClick(e, '#categories')}
-                    className="text-[#aaa39a] hover:text-[#f4f0e8] transition-colors"
+                    href={`/products?category=${cat.id}`}
+                    onClick={(e) => handleLinkClick(e, `/products?category=${cat.id}`)}
+                    className="link-kinetic text-[#c2bbb0] hover:text-[#ebd09e] transition-colors"
                   >
-                    {cat.title}
+                    {pickLocale(cat.title, language)}
                   </a>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Contact Placeholders */}
-          <div className="lg:col-span-3">
-            <h3 className="text-sm font-semibold text-[#e4c995] mb-4">
+          {/* Official Contact Details */}
+          <div className="lg:col-span-3 text-start">
+            <h3 className="text-sm font-semibold text-[#f5f2eb] mb-5">
               {t.nav.contact}
             </h3>
-            <ul className="space-y-3 text-sm text-[#aaa39a]">
-              <li>{t.contact.plantAddressValue || brandInfo.cityPlaceholder}</li>
-              <li className="tabular-nums" dir="ltr">{brandInfo.phonePlaceholder}</li>
-              <li className="font-mono-tech text-xs">{brandInfo.emailPlaceholder}</li>
+            <ul className="space-y-3 text-sm text-[#c2bbb0]">
+              <li className="leading-relaxed">
+                {t.contact.plantAddressValue || brandInfo.cityPlaceholder}
+              </li>
+              <li className="tabular-nums">
+                <a
+                  href={brandInfo.phoneHref}
+                  dir="ltr"
+                  className="inline-block text-[#ebd09e] hover:text-[#f5f2eb] font-medium transition-colors"
+                >
+                  {brandInfo.phonePlaceholder}
+                </a>
+              </li>
+              <li>{brandInfo.emailPlaceholder}</li>
               <li>
                 <a
                   href={`https://${brandInfo.website}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-[#c5a46d] hover:text-[#e4c995] transition-colors font-mono-tech text-xs"
+                  className="text-[#d4b278] hover:text-[#ebd09e] underline-offset-4 hover:underline transition-colors"
                 >
                   {brandInfo.website}
                 </a>
@@ -138,9 +115,9 @@ export function Footer({ onNavigate }: FooterProps) {
           </div>
         </div>
 
-        <div className="gold-divider mb-6" aria-hidden="true" />
+        <div className="h-px w-full bg-white/10 mb-8" aria-hidden="true" />
 
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#77716a]">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-sm text-[#c2bbb0]">
           <p>{t.footer.rights}</p>
           <p>{t.footer.subRights}</p>
         </div>
