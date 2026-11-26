@@ -87,6 +87,8 @@ export function VideoHeroSection({
     videoRef.current?.setProgress(0, true);
     videoRef.current?.setPostHeroMode(false);
 
+    const isMobileViewport = window.innerWidth < 768;
+
     const ctx = gsap.context(() => {
       ScrollTrigger.create({
         id: 'hero-video-scrub',
@@ -95,7 +97,8 @@ export function VideoHeroSection({
         end: () => `+=${getHeroScrollDistance(window.innerWidth)}`,
         pin: true,
         pinSpacing: true,
-        scrub: 0.45,
+        // Avoid double-lerping on mobile: direct 1:1 tracking here while canvas runs a single smooth lerp
+        scrub: isMobileViewport ? true : 0.35,
         anticipatePin: 1,
         invalidateOnRefresh: true,
         onUpdate: (self) => {
@@ -226,7 +229,7 @@ export function VideoHeroSection({
         {/* Prominent Floating Notification Pill for Initial Scroll Hint */}
         <div
           ref={introCueRef}
-          className={`transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+          className={`transition-[transform,opacity] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
             hasDismissedCue
               ? 'opacity-0 translate-y-3 pointer-events-none scale-95'
               : 'opacity-100 translate-y-0 scale-100'
@@ -240,17 +243,19 @@ export function VideoHeroSection({
               setHasDismissedCue(true);
               onNavigate('#technology');
             }}
-            className="group inline-flex items-center gap-2.5 sm:gap-3 px-4 sm:px-5 py-2.5 rounded-full bg-[#110f0d]/90 backdrop-blur-xl border border-[#c5a46d]/45 shadow-[0_16px_36px_rgba(0,0,0,0.8),0_0_24px_rgba(197,164,109,0.22)] hover:border-[#e4c995] hover:shadow-[0_16px_40px_rgba(0,0,0,0.9),0_0_32px_rgba(197,164,109,0.35)] transition-all duration-300 cursor-pointer"
+            className="group inline-flex items-center gap-2.5 sm:gap-3 px-4 sm:px-5 py-2.5 rounded-full bg-[#110f0d]/95 md:bg-[#110f0d]/90 md:backdrop-blur-xl border border-[#c5a46d]/45 shadow-[0_12px_28px_rgba(0,0,0,0.8),0_0_20px_rgba(197,164,109,0.2)] hover:border-[#e4c995] hover:shadow-[0_16px_40px_rgba(0,0,0,0.9),0_0_32px_rgba(197,164,109,0.35)] transition-[border-color,box-shadow] duration-300 cursor-pointer"
           >
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#e4c995] opacity-75"></span>
+              {!hasDismissedCue && !reducedMotion && (
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#e4c995] opacity-75"></span>
+              )}
               <span className="relative inline-flex rounded-full h-2 w-2 bg-[#c5a46d]"></span>
             </span>
             <span className="text-xs sm:text-sm font-semibold text-[#f4f0e8] tracking-wide group-hover:text-[#e4c995] transition-colors">
               {t.common.scrollCue}
             </span>
             <ChevronDown
-              className="w-4 h-4 text-[#e4c995] animate-bounce"
+              className={`w-4 h-4 text-[#e4c995] ${!hasDismissedCue && !reducedMotion ? 'animate-bounce' : ''}`}
               aria-hidden="true"
             />
           </button>

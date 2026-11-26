@@ -20,6 +20,8 @@ export function ShowcaseSection({ onNavigate, reducedMotion }: ShowcaseSectionPr
 
   useEffect(() => {
     if (reducedMotion || !sectionRef.current || !bgRef.current) return;
+    // Skip continuous scroll-scrub parallax on mobile to preserve 60/120fps touch scrolling
+    if (window.innerWidth < 768) return;
     const ctx = gsap.context(() => {
       gsap.fromTo(
         bgRef.current,

@@ -1,46 +1,80 @@
 import { useEffect, useState } from 'react';
 
+/**
+ * Tracks the active page section using IntersectionObserver (zero forced layout /
+ * zero getBoundingClientRect calls on scroll) with a MutationObserver fallback
+ * for lazily-mounted sections.
+ */
 export function useActiveSection(sectionIds: string[]): string {
   const [activeId, setActiveId] = useState<string>(sectionIds[0] ?? 'hero');
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined' || typeof IntersectionObserver === 'undefined') {
+      return;
+    }
 
-    let ticking = false;
-    let rafId = 0;
+    const visibleMap = new Map<string, number>();
+    const observed = new Set<Element>();
 
-    const evaluateActiveSection = () => {
-      ticking = false;
-      const scrollMarker = window.scrollY + window.innerHeight * 0.32;
-      let current = sectionIds[0] ?? 'hero';
-
+    const pickActive = () => {
+      let bestId = '';
+      let bestRatio = 0;
       for (const id of sectionIds) {
-        const el = document.getElementById(id);
-        if (!el) continue;
-        const top = el.getBoundingClientRect().top + window.scrollY;
-        if (scrollMarker >= top) {
-          current = id;
+        const ratio = visibleMap.get(id) ?? 0;
+        if (ratio > bestRatio) {
+          bestRatio = ratio;
+          bestId = id;
         }
       }
-
-      setActiveId((prev) => (prev === current ? prev : current));
-    };
-
-    const handleScroll = () => {
-      if (!ticking) {
-        ticking = true;
-        rafId = requestAnimationFrame(evaluateActiveSection);
+      if (bestId) {
+        setActiveId((prev) => (prev === bestId ? prev : bestId));
       }
     };
 
-    evaluateActiveSection();
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('resize', handleScroll, { passive: true });
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          const id = entry.target.id;
+          if (!id) continue;
+          if (entry.isIntersecting) {
+            visibleMap.set(id, entry.intersectionRatio || 0.01);
+          } else {
+            visibleMap.delete(id);
+          }
+        }
+        pickActive();
+      },
+      {
+        rootMargin: '-28% 0px -52% 0px',
+        threshold: [0, 0.15, 0.4, 0.7],
+      }
+    );
+
+    const observeAll = () => {
+      for (const id of sectionIds) {
+        const el = document.getElementById(id);
+        if (el && !observed.has(el)) {
+          observed.add(el);
+          observer.observe(el);
+        }
+      }
+    };
+
+    observeAll();
+
+    // Observe DOM additions so lazy-loaded sections get registered automatically
+    const mutationObserver = new MutationObserver(() => {
+      if (observed.size < sectionIds.length) {
+        observeAll();
+      } else {
+        mutationObserver.disconnect();
+      }
+    });
+    mutationObserver.observe(document.body, { childList: true, subtree: true });
 
     return () => {
-      if (rafId) cancelAnimationFrame(rafId);
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleScroll);
+      mutationObserver.disconnect();
+      observer.disconnect();
     };
   }, [sectionIds]);
 

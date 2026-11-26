@@ -15,8 +15,23 @@
     />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- High-priority LCP hero poster preload per viewport -->
+    <link
+      rel="preload"
+      as="image"
+      type="image/webp"
+      href="/assets/frames/mobile-opt/frame_0001.webp"
+      media="(max-width: 767px)"
+      fetchpriority="high"
+    />
+    <link
+      rel="preload"
+      as="image"
+      type="image/webp"
+      href="/assets/frames/desktop-opt/frame_0001.webp"
+      media="(min-width: 768px)"
+      fetchpriority="high"
+    />
     <link
       rel="preload"
       href="/assets/fonts/iranyekanx/IRANYekanX-Regular.woff2"
@@ -31,10 +46,21 @@
       type="font/woff2"
       crossorigin
     />
+    <!-- Non-render-blocking monospace font for numeric telemetry -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap"
       rel="stylesheet"
+      media="print"
+      onload="this.media='all'"
     />
+    <noscript>
+      <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet"
+      />
+    </noscript>
   </head>
   <body class="bg-[#090909] text-[#f4f0e8] antialiased selection:bg-[#c5a46d]/30 selection:text-[#f4f0e8]">
     <div id="root"></div>

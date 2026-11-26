@@ -227,6 +227,35 @@
   box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
 }
 
+/* Mobile GPU optimization: prevent expensive nested full-screen backdrop-filter passes */
+@media (max-width: 767px) {
+  .glass-surface,
+  .surface-panel {
+    background: rgba(13, 12, 11, 0.88);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    box-shadow:
+      0 10px 24px rgba(0, 0, 0, 0.45),
+      inset 0 1px 0 rgba(228, 201, 149, 0.08);
+  }
+
+  .glass-surface-strong,
+  .surface-elevated {
+    background: rgba(11, 10, 9, 0.92);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    box-shadow:
+      0 14px 32px rgba(0, 0, 0, 0.55),
+      inset 0 1px 0 rgba(228, 201, 149, 0.12);
+  }
+
+  .glass-nav-scrolled {
+    background: rgba(9, 9, 8, 0.92);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+}
+
 .glass-band {
   background: linear-gradient(
     180deg,

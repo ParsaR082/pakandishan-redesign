@@ -10,10 +10,10 @@ import {
 } from './videoScroll';
 
 test('getFrameFileName resolves desktop and mobile subfolders accurately', () => {
-  assert.equal(getFrameFileName(0, false), '/assets/frames/desktop/frame_0001.webp');
-  assert.equal(getFrameFileName(239, false), '/assets/frames/desktop/frame_0240.webp');
-  assert.equal(getFrameFileName(0, true), '/assets/frames/mobile/frame_0001.webp');
-  assert.equal(getFrameFileName(239, true), '/assets/frames/mobile/frame_0240.webp');
+  assert.equal(getFrameFileName(0, false), '/assets/frames/desktop-opt/frame_0001.webp');
+  assert.equal(getFrameFileName(119, false), '/assets/frames/desktop-opt/frame_0120.webp');
+  assert.equal(getFrameFileName(0, true), '/assets/frames/mobile-opt/frame_0001.webp');
+  assert.equal(getFrameFileName(79, true), '/assets/frames/mobile-opt/frame_0080.webp');
 });
 
 test('computeTargetVideoTime maps [0..1] accurately and holds safe final frame', () => {

@@ -7,6 +7,9 @@ interface SafeImageProps {
   className?: string;
   fallbackTitle?: string;
   loading?: 'eager' | 'lazy';
+  decoding?: 'async' | 'sync' | 'auto';
+  width?: number;
+  height?: number;
 }
 
 export function SafeImage({
@@ -15,6 +18,9 @@ export function SafeImage({
   className = 'w-full h-full object-cover',
   fallbackTitle,
   loading = 'lazy',
+  decoding = 'async',
+  width,
+  height,
 }: SafeImageProps) {
   const [hasError, setHasError] = useState(false);
 
@@ -38,6 +44,9 @@ export function SafeImage({
       src={src}
       alt={alt}
       loading={loading}
+      decoding={decoding}
+      width={width}
+      height={height}
       referrerPolicy="no-referrer"
       onError={() => setHasError(true)}
       className={className}

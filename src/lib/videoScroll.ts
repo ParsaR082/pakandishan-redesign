@@ -7,32 +7,45 @@ export interface HeroTimelineState {
   isSettled: boolean;
 }
 
+export const DESKTOP_VIDEO_FRAMES = 120;
+export const MOBILE_VIDEO_FRAMES = 80;
+export const TOTAL_VIDEO_FRAMES = DESKTOP_VIDEO_FRAMES;
+export const FRAMES_BASE_PATH = '/assets/frames';
+
 export const VIDEO_SCROLL_CONFIG = {
   desktopDistancePx: 3000,
   tabletDistancePx: 2200,
-  mobileDistancePx: 1650,
+  mobileDistancePx: 1550,
   endFramePaddingSec: 0.04,
   seekEpsilonSec: 0.014,
   scrubLerpFactor: 0.22,
-  totalFrames: 240,
-  framesBasePath: '/assets/frames',
+  mobileScrubLerpFactor: 0.32,
+  totalFrames: DESKTOP_VIDEO_FRAMES,
+  mobileTotalFrames: MOBILE_VIDEO_FRAMES,
+  framesBasePath: FRAMES_BASE_PATH,
 } as const;
 
-export const TOTAL_VIDEO_FRAMES = 240;
-export const FRAMES_BASE_PATH = '/assets/frames';
+/**
+ * Returns the total frame count for the active viewport mode.
+ */
+export function getTotalFrames(isMobile = false): number {
+  return isMobile ? MOBILE_VIDEO_FRAMES : DESKTOP_VIDEO_FRAMES;
+}
 
 /**
- * Returns the URL path for a zero-indexed frame (0..239) -> frame_0001.webp..frame_0240.webp.
- * Supports dedicated subfolders for 'desktop' (16:9 widescreen) and 'mobile' (9:16 vertical).
+ * Returns the URL path for a zero-indexed frame:
+ * - desktop: /assets/frames/desktop-opt/frame_0001.webp..frame_0120.webp
+ * - mobile:  /assets/frames/mobile-opt/frame_0001.webp..frame_0080.webp
  */
 export function getFrameFileName(frameIndex: number, isMobile = false): string {
-  const index = Math.max(1, Math.min(TOTAL_VIDEO_FRAMES, Math.round(frameIndex) + 1));
-  const folder = isMobile ? 'mobile' : 'desktop';
+  const total = getTotalFrames(isMobile);
+  const index = Math.max(1, Math.min(total, Math.round(frameIndex) + 1));
+  const folder = isMobile ? 'mobile-opt' : 'desktop-opt';
   return `${FRAMES_BASE_PATH}/${folder}/frame_${String(index).padStart(4, '0')}.webp`;
 }
 
 /**
- * Maps normalized progress [0..1] directly to integer frame index [0..239].
+ * Maps normalized progress [0..1] directly to integer frame index [0..totalFrames-1].
  */
 export function computeTargetFrameIndex(
   progress: number,

@@ -1,29 +1,123 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  Suspense,
+  lazy,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import Lenis from 'lenis';
+import type Lenis from 'lenis';
 import { ProductItem } from './data/products';
 import { useActiveSection } from './hooks/useActiveSection';
 import { useReducedMotion } from './hooks/useReducedMotion';
 import { Navbar } from './components/layout/Navbar';
-import { MobileMenu } from './components/layout/MobileMenu';
-import { Footer } from './components/layout/Footer';
 import {
   PersistentVideoBackground,
   PersistentVideoHandle,
 } from './components/video/PersistentVideoBackground';
 import { VideoHeroSection } from './components/hero/VideoHeroSection';
-import { DashboardSection } from './components/dashboard/DashboardSection';
-import { TechnologySection } from './components/sections/Technology';
-import { ProductShowcase } from './components/products/ProductShowcase';
-import { CategoryGrid } from './components/products/CategoryGrid';
-import { AdvantagesSection } from './components/sections/Advantages';
-import { ShowcaseSection } from './components/sections/Showcase';
-import { ContactSection } from './components/sections/Contact';
-import { ProductModal } from './components/products/ProductModal';
 import { useLanguage } from './context/LanguageContext';
 
+// Lazy-load all below-the-fold sections & modals to keep initial mobile JS minimal
+const MobileMenu = lazy(() =>
+  import('./components/layout/MobileMenu').then((m) => ({ default: m.MobileMenu }))
+);
+const DashboardSection = lazy(() =>
+  import('./components/dashboard/DashboardSection').then((m) => ({
+    default: m.DashboardSection,
+  }))
+);
+const TechnologySection = lazy(() =>
+  import('./components/sections/Technology').then((m) => ({
+    default: m.TechnologySection,
+  }))
+);
+const ProductShowcase = lazy(() =>
+  import('./components/products/ProductShowcase').then((m) => ({
+    default: m.ProductShowcase,
+  }))
+);
+const CategoryGrid = lazy(() =>
+  import('./components/products/CategoryGrid').then((m) => ({
+    default: m.CategoryGrid,
+  }))
+);
+const AdvantagesSection = lazy(() =>
+  import('./components/sections/Advantages').then((m) => ({
+    default: m.AdvantagesSection,
+  }))
+);
+const ShowcaseSection = lazy(() =>
+  import('./components/sections/Showcase').then((m) => ({
+    default: m.ShowcaseSection,
+  }))
+);
+const ContactSection = lazy(() =>
+  import('./components/sections/Contact').then((m) => ({
+    default: m.ContactSection,
+  }))
+);
+const Footer = lazy(() =>
+  import('./components/layout/Footer').then((m) => ({ default: m.Footer }))
+);
+const ProductModal = lazy(() =>
+  import('./components/products/ProductModal').then((m) => ({
+    default: m.ProductModal,
+  }))
+);
+
 gsap.registerPlugin(ScrollTrigger);
+
+interface BelowFoldProps {
+  onSelectProduct: (product: ProductItem) => void;
+  onNavigate: (href: string) => void;
+  preselectedMachine: string;
+  reducedMotion: boolean;
+  onReady: () => void;
+}
+
+function BelowFoldContent({
+  onSelectProduct,
+  onNavigate,
+  preselectedMachine,
+  reducedMotion,
+  onReady,
+}: BelowFoldProps) {
+  useEffect(() => {
+    onReady();
+  }, [onReady]);
+
+  return (
+    <>
+      {/* 2. Industrial Performance Dashboard */}
+      <DashboardSection />
+
+      {/* 3. Technology & Innovation */}
+      <TechnologySection />
+
+      {/* 4. Featured Machinery */}
+      <ProductShowcase onSelectProduct={onSelectProduct} />
+
+      {/* 5. Product Categories */}
+      <CategoryGrid onSelectProduct={onSelectProduct} />
+
+      {/* 6. Company Advantages */}
+      <AdvantagesSection />
+
+      {/* 7. Industrial Showcase / Future Vision */}
+      <ShowcaseSection onNavigate={onNavigate} reducedMotion={reducedMotion} />
+
+      {/* 8. Call to Action & Validated Consultation Form */}
+      <ContactSection preselectedMachine={preselectedMachine} />
+
+      {/* 9. Glassmorphism Footer */}
+      <Footer onNavigate={onNavigate} />
+    </>
+  );
+}
 
 export default function App() {
   const { direction, isRTL, language } = useLanguage();
@@ -35,6 +129,7 @@ export default function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<ProductItem | null>(null);
   const [preselectedMachine, setPreselectedMachine] = useState('');
+  const [belowFoldReady, setBelowFoldReady] = useState(false);
 
   const sectionIds = useMemo(
     () => [
@@ -59,30 +154,47 @@ export default function App() {
     return rawActiveSection;
   }, [rawActiveSection]);
 
-  // Lenis smooth scroll synchronized with GSAP ScrollTrigger
+  // Dynamic Lenis smooth scroll ONLY on desktop fine-pointer devices.
+  // Mobile touch devices use native hardware-accelerated compositor scrolling for 60/120fps.
   useEffect(() => {
-    if (reducedMotion) {
+    if (reducedMotion || typeof window === 'undefined') {
       lenisRef.current = null;
       return;
     }
 
-    const lenis = new Lenis({
-      duration: 1.25,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: true,
-    });
-    lenisRef.current = lenis;
+    const isFineDesktop =
+      window.innerWidth >= 1024 &&
+      window.matchMedia('(pointer: fine)').matches;
 
-    lenis.on('scroll', ScrollTrigger.update);
-    const onTick = (time: number) => {
-      lenis.raf(time * 1000);
-    };
-    gsap.ticker.add(onTick);
-    gsap.ticker.lagSmoothing(0);
+    if (!isFineDesktop) {
+      lenisRef.current = null;
+      return;
+    }
+
+    let cancelled = false;
+    let onTick: ((time: number) => void) | null = null;
+
+    import('lenis').then(({ default: LenisCtor }) => {
+      if (cancelled) return;
+      const lenis = new LenisCtor({
+        duration: 1.15,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        smoothWheel: true,
+      });
+      lenisRef.current = lenis;
+
+      lenis.on('scroll', ScrollTrigger.update);
+      onTick = (time: number) => {
+        lenis.raf(time * 1000);
+      };
+      gsap.ticker.add(onTick);
+      gsap.ticker.lagSmoothing(0);
+    });
 
     return () => {
-      gsap.ticker.remove(onTick);
-      lenis.destroy();
+      cancelled = true;
+      if (onTick) gsap.ticker.remove(onTick);
+      lenisRef.current?.destroy();
       lenisRef.current = null;
     };
   }, [reducedMotion]);
@@ -118,9 +230,11 @@ export default function App() {
     };
   }, [reducedMotion]);
 
-  // Global scroll-reveal choreography with cinematic entrance and exit
+  // Lightweight one-shot scroll reveals once below-the-fold sections mount
   useEffect(() => {
-    if (reducedMotion || !appRef.current) return;
+    if (reducedMotion || !appRef.current || !belowFoldReady) return;
+
+    const isMobile = window.innerWidth < 768;
 
     const ctx = gsap.context(() => {
       gsap.utils.toArray<HTMLElement>('.reveal-section').forEach((el) => {
@@ -128,20 +242,18 @@ export default function App() {
           el,
           {
             opacity: 0,
-            y: 28,
-            scale: 0.985,
+            y: isMobile ? 16 : 24,
           },
           {
             opacity: 1,
             y: 0,
-            scale: 1,
-            duration: 0.7,
+            duration: isMobile ? 0.45 : 0.65,
             ease: 'power3.out',
+            clearProps: 'transform',
             scrollTrigger: {
               trigger: el,
-              start: 'top 88%',
-              end: 'bottom 12%',
-              toggleActions: 'play reverse play reverse',
+              start: 'top 90%',
+              once: true,
             },
           }
         );
@@ -154,32 +266,33 @@ export default function App() {
           cards,
           {
             opacity: 0,
-            y: 26,
-            scale: 0.97,
+            y: isMobile ? 14 : 22,
           },
           {
             opacity: 1,
             y: 0,
-            scale: 1,
-            duration: 0.6,
-            stagger: 0.07,
+            duration: isMobile ? 0.42 : 0.58,
+            stagger: isMobile ? 0.04 : 0.06,
             ease: 'power3.out',
+            clearProps: 'transform',
             scrollTrigger: {
               trigger: grid,
-              start: 'top 86%',
-              end: 'bottom 12%',
-              toggleActions: 'play reverse play reverse',
+              start: 'top 90%',
+              once: true,
             },
           }
         );
       });
     }, appRef);
 
-    // Refresh ScrollTrigger layout once hero pin-spacer and downstream triggers are mounted
     ScrollTrigger.refresh();
 
     return () => ctx.revert();
-  }, [reducedMotion]);
+  }, [reducedMotion, belowFoldReady]);
+
+  const handleBelowFoldReady = useCallback(() => {
+    setBelowFoldReady(true);
+  }, []);
 
   const handleNavigate = useCallback(
     (href: string) => {
@@ -188,7 +301,7 @@ export default function App() {
       if (targetId === 'hero') {
         if (lenisRef.current && !reducedMotion) {
           lenisRef.current.scrollTo(0, {
-            duration: 1.85,
+            duration: 1.6,
             easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
           });
         } else {
@@ -207,7 +320,7 @@ export default function App() {
 
       if (lenisRef.current && !reducedMotion) {
         lenisRef.current.scrollTo(targetTop, {
-          duration: 1.85,
+          duration: 1.6,
           easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
         });
       } else {
@@ -259,54 +372,49 @@ export default function App() {
           mobileMenuOpen={mobileMenuOpen}
         />
 
-        <MobileMenu
-          isOpen={mobileMenuOpen}
-          activeSection={activeNavId}
-          onClose={() => setMobileMenuOpen(false)}
-          onNavigate={handleNavigate}
-          reducedMotion={reducedMotion}
-        />
+        {mobileMenuOpen && (
+          <Suspense fallback={null}>
+            <MobileMenu
+              isOpen={mobileMenuOpen}
+              activeSection={activeNavId}
+              onClose={() => setMobileMenuOpen(false)}
+              onNavigate={handleNavigate}
+              reducedMotion={reducedMotion}
+            />
+          </Suspense>
+        )}
 
         <main id="main-content">
-          {/* 1. Scroll-Controlled Cinematic Video Hero */}
+          {/* 1. Scroll-Controlled Cinematic Video Hero (eager critical path) */}
           <VideoHeroSection
             videoRef={videoRef}
             onNavigate={handleNavigate}
             reducedMotion={reducedMotion}
           />
 
-          {/* 2. Industrial Performance Dashboard (Glassmorphism over frozen final frame) */}
-          <DashboardSection />
-
-          {/* 3. Technology & Innovation */}
-          <TechnologySection />
-
-          {/* 4. Featured Machinery */}
-          <ProductShowcase onSelectProduct={setSelectedProduct} />
-
-          {/* 5. Product Categories */}
-          <CategoryGrid onSelectProduct={setSelectedProduct} />
-
-          {/* 6. Company Advantages */}
-          <AdvantagesSection />
-
-          {/* 7. Industrial Showcase / Future Vision */}
-          <ShowcaseSection onNavigate={handleNavigate} reducedMotion={reducedMotion} />
-
-          {/* 8. Call to Action & Validated Consultation Form */}
-          <ContactSection preselectedMachine={preselectedMachine} />
+          {/* 2-9. Below-the-fold sections (lazy-loaded chunks) */}
+          <Suspense fallback={<div className="min-h-screen" aria-hidden="true" />}>
+            <BelowFoldContent
+              onSelectProduct={setSelectedProduct}
+              onNavigate={handleNavigate}
+              preselectedMachine={preselectedMachine}
+              reducedMotion={reducedMotion}
+              onReady={handleBelowFoldReady}
+            />
+          </Suspense>
         </main>
-
-        {/* 9. Glassmorphism Footer over Persistent Video */}
-        <Footer onNavigate={handleNavigate} />
       </div>
 
-      {/* Product Detail Modal */}
-      <ProductModal
-        product={selectedProduct}
-        onClose={() => setSelectedProduct(null)}
-        onRequestConsultation={handleRequestConsultation}
-      />
+      {/* Product Detail Modal (loaded only when user opens a product) */}
+      {selectedProduct && (
+        <Suspense fallback={null}>
+          <ProductModal
+            product={selectedProduct}
+            onClose={() => setSelectedProduct(null)}
+            onRequestConsultation={handleRequestConsultation}
+          />
+        </Suspense>
+      )}
     </div>
   );
 }

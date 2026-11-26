@@ -84,10 +84,10 @@ export function Navbar({
               : '-translate-y-3 opacity-0'
           }`}
         >
-          {/* Animated ember glow aura behind brand name */}
+          {/* Animated ember glow aura behind brand name (desktop only to keep mobile GPU budget free) */}
           <div
             aria-hidden="true"
-            className="absolute inset-0 -inset-x-2 rounded-lg bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.18)_0%,rgba(228,201,149,0.14)_35%,rgba(197,164,109,0.06)_60%,transparent_80%)] blur-[10px] pointer-events-none animate-ember-pulse"
+            className="hidden sm:block absolute inset-0 -inset-x-2 rounded-lg bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.18)_0%,rgba(228,201,149,0.14)_35%,rgba(197,164,109,0.06)_60%,transparent_80%)] blur-[10px] pointer-events-none animate-ember-pulse"
           />
 
           <BrandMark className="w-7 h-7 sm:w-9 sm:h-9 relative z-10 transition-transform duration-300 group-hover:scale-105" />
