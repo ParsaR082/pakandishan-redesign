@@ -246,9 +246,10 @@ export default function App() {
     }
   }, [isHome]);
 
-  // Safety sync on Home: if user jumps past pinned hero via scrollbar, guarantee final-frame lock
+  // Safety sync on Home (desktop GSAP ScrollTrigger only; mobile uses native sticky scroll handler directly)
   useEffect(() => {
-    if (!isHome || reducedMotion) return;
+    if (!isHome || reducedMotion || typeof window === 'undefined') return;
+    if (window.innerWidth < 768) return;
 
     let lockTicking = false;
     let rafId = 0;

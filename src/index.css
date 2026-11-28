@@ -468,6 +468,22 @@
   transition: transform 520ms var(--ease-kinetic);
 }
 
+/* Full large-viewport height stage so mobile URL-bar collapse NEVER exposes a black gap at the bottom */
+.bg-video-stage {
+  height: 100vh;
+  height: 100lvh;
+  min-height: 100lvh;
+}
+
+/* Lightweight text-shadow for hero copy over live canvas (avoids GPU offscreen filter:drop-shadow passes on mobile) */
+.hero-text-shadow {
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.85);
+}
+
+.hero-text-shadow-sm {
+  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.82);
+}
+
 /* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 8px;
